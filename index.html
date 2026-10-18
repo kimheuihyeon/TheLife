@@ -4,180 +4,461 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>LifeGame — 100년을 점으로</title>
-<meta name="description" content="100세까지의 인생을 하루·주·월·년 단위의 점으로 보여줍니다.">
+<meta name="description" content="100세까지의 인생을 점으로 보여주고, 매일의 퀘스트와 만다라트, 능력치와 트로피로 목표를 게임처럼 기록합니다.">
 <meta property="og:title" content="LifeGame — 100년을 점으로">
-<meta property="og:description" content="지나온 날과 남은 날, 그리고 목표를 한눈에.">
+<meta property="og:description" content="지나온 날과 남은 날, 그리고 오늘의 퀘스트와 트로피를 한눈에.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%23D97757'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
+:root {
+  --bg: #FAF9F5;
+  --surface: #F0EEE6;
+  --ink: #141413;
+  --muted: #6B6A64;
+  --faint: #B0AEA5;
+  --line: #E3DFD3;
+  --clay: #D97757;
+  --dot-past: #141413;
+  --dot-future: #E3DFD3;
+  --bronze: #A8703F; --silver: #8E959C; --gold: #C99A2E; --plat: #4E9AA4;
+  --serif: "Noto Serif KR", "Tiempos Text", Georgia, serif;
+  --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
   :root {
-    --bg: #FAF9F5;
-    --surface: #F0EEE6;
-    --ink: #141413;
-    --muted: #6B6A64;
-    --faint: #B0AEA5;
-    --line: #E3DFD3;
-    --clay: #D97757;
-    --dot-past: #141413;
-    --dot-future: #E3DFD3;
-    --serif: "Noto Serif KR", "Tiempos Text", Georgia, serif;
-    --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
-    box-sizing: border-box;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --bg: #1F1E1D;
+    --surface: #2A2927;
+    --ink: #F0EEE6;
+    --muted: #A3A097;
+    --faint: #6B6963;
+    --line: #3A3936;
+    --dot-past: #F0EEE6;
+    --dot-future: #3A3936;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1F1E1D;
-      --surface: #2A2927;
-      --ink: #F0EEE6;
-      --muted: #A3A097;
-      --faint: #6B6963;
-      --line: #3A3936;
-      --dot-past: #F0EEE6;
-      --dot-future: #3A3936;
-    }
-  }
-  *, *::before, *::after { box-sizing: inherit; }
-  html, body { background: var(--bg); }
-  body {
-    margin: 0;
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 15px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 920px; margin: 0 auto; padding: 24px 20px 72px; }
+}
+*, *::before, *::after { box-sizing: inherit; }
+html, body { background: var(--bg); }
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+.wrap { max-width: 920px; margin: 0 auto; padding: 24px 20px 72px; }
+header { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 600; letter-spacing: -0.01em; }
+.brand i { width: 10px; height: 10px; border-radius: 50%; background: var(--clay); }
+header a { color: var(--muted); text-decoration: none; }
+header a:hover { color: var(--ink); }
 
-  header { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
-  .brand { display: flex; align-items: center; gap: 9px; font-weight: 600; letter-spacing: -0.01em; }
-  .brand i { width: 10px; height: 10px; border-radius: 50%; background: var(--clay); }
-  header a { color: var(--muted); text-decoration: none; }
-  header a:hover { color: var(--ink); }
+.hero { margin: 64px 0 40px; }
+.eyebrow { color: var(--muted); font-size: 14px; }
+.big {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(48px, 10.5vw, 104px);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  margin: 8px 0 22px;
+  font-variant-numeric: tabular-nums;
+}
+.big small { font-size: 0.42em; color: var(--muted); margin-left: 0.08em; letter-spacing: 0; }
+.lede { font-family: var(--serif); font-size: clamp(17px, 2.3vw, 20px); line-height: 1.75; max-width: 34em; margin: 0; }
+.lede b { font-weight: 600; }
+.lede .today { color: var(--clay); }
 
-  .hero { margin: 64px 0 40px; }
-  .eyebrow { color: var(--muted); font-size: 14px; }
-  .big {
-    font-family: var(--serif);
-    font-weight: 400;
-    font-size: clamp(48px, 10.5vw, 104px);
-    letter-spacing: -0.035em;
-    line-height: 1.05;
-    margin: 8px 0 22px;
-    font-variant-numeric: tabular-nums;
-  }
-  .big small { font-size: 0.42em; color: var(--muted); margin-left: 0.08em; letter-spacing: 0; }
-  .lede { font-family: var(--serif); font-size: clamp(17px, 2.3vw, 20px); line-height: 1.75; max-width: 34em; margin: 0; }
-  .lede b { font-weight: 600; }
-  .lede .today { color: var(--clay); }
+/* 탭 */
+.tabs {
+  position: sticky; top: 0; z-index: 5; background: var(--bg);
+  display: flex; gap: 4px; border-bottom: 1px solid var(--line);
+  margin: 0 -20px; padding: 0 20px;
+}
+.tab {
+  flex: 1; white-space: nowrap; border: 0; background: none; font: inherit; font-size: 14px; color: var(--muted);
+  padding: 14px 4px 12px; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer;
+}
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--clay); }
+.panel { padding-top: 36px; }
+.panel[hidden] { display: none; }
 
-  .stats {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
-  }
-  .stat { padding: 18px 16px 18px 0; min-width: 0; }
-  .stat + .stat { padding-left: 16px; border-left: 1px solid var(--line); }
-  .stat .k { font-size: 12px; color: var(--muted); }
-  .stat .v { font-family: var(--serif); font-size: 22px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .stat .s { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  @media (max-width: 640px) {
-    .stats { grid-template-columns: 1fr 1fr; }
-    .stat:nth-child(3) { padding-left: 0; border-left: 0; }
-    .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
-  }
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.stat { padding: 18px 16px 18px 0; min-width: 0; }
+.stat + .stat { padding-left: 16px; border-left: 1px solid var(--line); }
+.stat .k { font-size: 12px; color: var(--muted); }
+.stat .v { font-family: var(--serif); font-size: 22px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat .s { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .stat:nth-child(3) { padding-left: 0; border-left: 0; }
+  .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
 
-  .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin: 44px 0 18px; }
-  .seg { display: inline-flex; background: var(--surface); border-radius: 999px; padding: 4px; }
-  .seg button {
-    border: 0; background: transparent; font: inherit; font-size: 14px; color: var(--muted);
-    padding: 7px 18px; border-radius: 999px; cursor: pointer; transition: background .15s, color .15s;
-  }
-  .seg button[aria-pressed="true"] { background: var(--bg); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
-  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
-  .legend span { display: inline-flex; align-items: center; gap: 6px; }
-  .legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-  .legend .ring { background: transparent; border: 1.5px solid var(--clay); width: 11px; height: 11px; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin: 44px 0 18px; }
+.seg { display: inline-flex; background: var(--surface); border-radius: 999px; padding: 4px; }
+.seg button {
+  border: 0; background: transparent; font: inherit; font-size: 14px; color: var(--muted);
+  padding: 7px 18px; border-radius: 999px; cursor: pointer; transition: background .15s, color .15s;
+}
+.seg button[aria-pressed="true"] { background: var(--bg); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.legend .ring { background: transparent; border: 1.5px solid var(--clay); width: 11px; height: 11px; }
+.legend .act { background: var(--clay); opacity: .5; }
 
-  .grid-wrap { position: relative; }
-  canvas { display: block; touch-action: pan-y; }
-  .pulse {
-    position: absolute; border-radius: 50%; border: 1.5px solid var(--clay);
-    pointer-events: none; transform: translate(-50%, -50%);
-    animation: pulse 2.2s ease-out infinite;
-  }
-  @keyframes pulse {
-    0% { opacity: .9; transform: translate(-50%, -50%) scale(1); }
-    100% { opacity: 0; transform: translate(-50%, -50%) scale(2.8); }
-  }
-  @media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
-  .tip {
-    position: absolute; pointer-events: none; z-index: 2;
-    background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.4;
-    padding: 6px 10px; border-radius: 8px; white-space: nowrap;
-    transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity .12s;
-  }
-  .tip.on { opacity: 1; }
-  .caption { font-size: 12px; color: var(--muted); margin-top: 16px; }
+.grid-wrap { position: relative; }
+canvas { display: block; touch-action: pan-y; }
+.pulse {
+  position: absolute; border-radius: 50%; border: 1.5px solid var(--clay);
+  pointer-events: none; transform: translate(-50%, -50%);
+  animation: pulse 2.2s ease-out infinite;
+}
+@keyframes pulse {
+  0% { opacity: .9; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.8); }
+}
+@media (prefers-reduced-motion: reduce) { .pulse { animation: none; } * { transition: none !important; } }
+.tip {
+  position: absolute; pointer-events: none; z-index: 2;
+  background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.4;
+  padding: 6px 10px; border-radius: 8px; white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity .12s;
+}
+.tip.on { opacity: 1; }
+.caption { font-size: 12px; color: var(--muted); margin-top: 16px; }
 
-  section.goals { margin-top: 72px; }
-  h2 { font-family: var(--serif); font-weight: 400; font-size: 28px; letter-spacing: -0.02em; margin: 0 0 6px; }
-  .sub { color: var(--muted); margin: 0 0 22px; }
-  form.add { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-  input {
-    font: inherit; color: var(--ink); background: var(--bg);
-    border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; outline: none;
-  }
-  input:focus { border-color: var(--clay); }
-  input[type="text"] { flex: 1 1 220px; min-width: 0; }
-  input[type="number"] { width: 92px; }
-  .btn {
-    font: inherit; font-size: 14px; border: 0; cursor: pointer;
-    background: var(--ink); color: var(--bg); border-radius: 999px; padding: 9px 20px;
-  }
-  .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
-  ul.goal-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-  .goal { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
-  .chk {
-    width: 22px; height: 22px; flex: none; border-radius: 50%; cursor: pointer;
-    border: 1.5px solid var(--clay); background: transparent; padding: 0;
-  }
-  .goal.done .chk { background: var(--clay); }
-  .gbody { flex: 1; min-width: 0; }
-  .gtitle { font-weight: 500; }
-  .goal.done .gtitle { color: var(--muted); text-decoration: line-through; }
-  .gmeta { font-size: 13px; color: var(--muted); }
-  .del { border: 0; background: transparent; color: var(--faint); font-size: 20px; cursor: pointer; padding: 0 4px; }
-  .del:hover { color: var(--ink); }
-  .empty { color: var(--muted); padding: 16px 0; border-bottom: 1px solid var(--line); }
+section.goals { margin-top: 72px; }
+h2 { font-family: var(--serif); font-weight: 400; font-size: 28px; letter-spacing: -0.02em; margin: 0 0 6px; }
+.panel > h2 { margin-top: 64px; }
+.panel > h2:first-child, .panel > .first { margin-top: 0; }
+.sub { color: var(--muted); margin: 0 0 22px; }
+form.add { display: flex; gap: 8px; flex-wrap: wrap; margin: 18px 0; }
+input, select, textarea {
+  font: inherit; color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; outline: none;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--clay); }
+input[type="text"] { flex: 1 1 220px; min-width: 0; }
+input[type="number"] { width: 92px; }
+textarea { width: 100%; resize: vertical; }
+.btn {
+  font: inherit; font-size: 14px; border: 0; cursor: pointer;
+  background: var(--ink); color: var(--bg); border-radius: 999px; padding: 9px 20px;
+}
+.btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+ul.goal-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.goal { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.chk {
+  width: 22px; height: 22px; flex: none; border-radius: 50%; cursor: pointer;
+  border: 1.5px solid var(--clay); background: transparent; padding: 0;
+}
+.goal.done .chk { background: var(--clay); }
+.gbody { flex: 1; min-width: 0; }
+.gtitle { font-weight: 500; overflow-wrap: anywhere; }
+.goal.done .gtitle { color: var(--muted); text-decoration: line-through; }
+.gmeta { font-size: 13px; color: var(--muted); }
+.del { border: 0; background: transparent; color: var(--faint); font-size: 20px; cursor: pointer; padding: 0 4px; }
+.del:hover { color: var(--ink); }
+.empty { color: var(--muted); padding: 16px 0; border-bottom: 1px solid var(--line); }
 
-  footer { margin-top: 72px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; }
-  footer label { display: inline-flex; align-items: center; gap: 8px; }
-  footer input { padding: 5px 8px; font-size: 13px; }
+/* 능력치 */
+.abil { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+.ab { padding: 18px 16px 16px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.ab:not(:nth-child(3n+1)) { padding-left: 16px; border-left: 1px solid var(--line); }
+.ab .k { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.ab .k i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.ab .v { font-family: var(--serif); font-size: 22px; margin-top: 2px; }
+.ab .v small { font-size: 13px; color: var(--muted); margin-right: 3px; font-family: var(--sans); }
+.ab .bar { height: 4px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 8px 0 5px; }
+.ab .bar i { display: block; height: 100%; background: var(--c); border-radius: 999px; transition: width .4s; }
+.ab .s { font-size: 12px; color: var(--muted); }
+@media (max-width: 640px) {
+  .abil { grid-template-columns: 1fr 1fr; }
+  .ab:not(:nth-child(3n+1)) { padding-left: 0; border-left: 0; }
+  .ab:nth-child(even) { padding-left: 16px; border-left: 1px solid var(--line); }
+}
 
-  .onboard {
-    position: fixed; inset: 0; z-index: 10; background: var(--bg);
-    display: flex; align-items: center; justify-content: center; padding: 24px;
-  }
-  .onboard[hidden] { display: none; }
-  .onboard .card { max-width: 420px; }
-  .onboard h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 6vw, 40px); letter-spacing: -0.02em; line-height: 1.3; margin: 18px 0 12px; }
-  .onboard p { color: var(--muted); margin: 0 0 24px; }
-  .onboard .row { display: flex; gap: 8px; flex-wrap: wrap; }
+/* 퀘스트 */
+.qchk {
+  width: 24px; height: 24px; flex: none; border-radius: 50%; cursor: pointer; padding: 0;
+  border: 1.5px solid var(--c); background: transparent; color: transparent; display: grid; place-items: center;
+}
+.qchk[aria-pressed="true"] { background: var(--c); color: #fff; }
+.qchk svg { width: 13px; height: 13px; }
+.week { display: flex; gap: 3px; flex: none; }
+.week i { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+.week i.on { background: var(--c); }
+@media (max-width: 520px) { .week { display: none; } }
+
+/* 만다라트 */
+.mtool { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 18px; }
+.mprog { font-size: 13px; color: var(--muted); }
+.mandala { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.block { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.cell {
+  aspect-ratio: 1; border: 1px solid var(--line); background: var(--bg); border-radius: 4px; padding: 2px;
+  display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; cursor: pointer;
+  font: inherit; color: var(--ink); font-size: clamp(8px, 1.4vw, 12px); line-height: 1.25; word-break: keep-all; overflow-wrap: anywhere;
+}
+.cell span { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.cell.blank { color: var(--faint); }
+.cell.core { background: var(--clay); border-color: var(--clay); color: #fff; font-weight: 600; }
+.cell.sub, .cell.mirror { border-color: var(--c); color: var(--c); font-weight: 600; background: color-mix(in srgb, var(--c) 9%, var(--bg)); }
+.cell.action.done { background: var(--c); border-color: var(--c); color: #fff; }
+.checkmode .cell.core, .checkmode .cell.sub, .checkmode .cell.mirror { cursor: default; }
+.hint { font-size: 13px; color: var(--muted); margin: 14px 0 0; }
+.subgoals { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.subgoal { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.subgoal .name { flex: 1 1 140px; }
+.subgoal .name { font-weight: 500; display: flex; align-items: center; gap: 8px; min-width: 0; overflow-wrap: anywhere; }
+.subgoal .name::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.subgoal .name.blank { color: var(--muted); font-weight: 400; }
+.subgoal .prog { font-size: 13px; color: var(--muted); width: 3em; text-align: right; }
+.subgoal .bar { flex-basis: 100%; height: 3px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.subgoal .bar i { display: block; height: 100%; background: var(--c); }
+
+/* 트로피 */
+.tsum { display: flex; align-items: center; gap: 18px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 20px 0; }
+.tsum svg { width: 60px; height: 60px; flex: none; }
+.tsum .num { font-family: var(--serif); font-size: 40px; line-height: 1; letter-spacing: -0.02em; }
+.tsum .num small { font-size: 18px; color: var(--muted); }
+.tsum p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+.tiers { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.tiers span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--t); margin-right: 5px; }
+.tgroup h3 { font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 40px 0 14px; display: flex; gap: 10px; align-items: baseline; }
+.tgroup h3 small { font-family: var(--sans); font-size: 13px; color: var(--muted); }
+.tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.trophy { background: var(--surface); border-radius: 12px; padding: 16px 10px 14px; text-align: center; }
+.trophy svg { width: 44px; height: 44px; }
+.trophy .tn { font-weight: 600; font-size: 14px; margin-top: 6px; }
+.trophy .td { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.trophy .tp { font-size: 12px; color: var(--muted); margin-top: 8px; font-variant-numeric: tabular-nums; }
+.trophy .tbar { height: 3px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 5px 8px 0; }
+.trophy .tbar i { display: block; height: 100%; background: var(--faint); }
+.trophy.got .tp { color: var(--t); font-weight: 600; }
+.trophy.locked .tn { color: var(--muted); }
+
+/* 인생의 쉼표 */
+.pauses { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.pause { display: grid; grid-template-columns: 56px 1fr; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.pause .age { font-family: var(--serif); }
+.pause.future .age { color: var(--muted); }
+.pause input { width: 100%; }
+
+footer { margin-top: 72px; padding-top: 22px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; }
+footer label { display: inline-flex; align-items: center; gap: 8px; }
+footer input { padding: 5px 8px; font-size: 13px; }
+footer .btn { font-size: 13px; padding: 6px 14px; }
+
+/* 소지품 */
+.loadout { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+.lo { padding: 14px 14px 12px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.lo:not(:nth-child(3n+1)) { padding-left: 14px; border-left: 1px solid var(--line); }
+.lo .k { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.lo .k i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.lo .v { margin-top: 4px; font-size: 14px; overflow-wrap: anywhere; }
+.lo .v.none { color: var(--faint); }
+@media (max-width: 640px) {
+  .loadout { grid-template-columns: 1fr 1fr; }
+  .lo:not(:nth-child(3n+1)) { padding-left: 0; border-left: 0; }
+  .lo:nth-child(even) { padding-left: 14px; border-left: 1px solid var(--line); }
+}
+.inv-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; }
+.inv-bar .grp { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.inv { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.item { position: relative; text-align: left; background: var(--surface); border: 2px solid var(--r); border-radius: 12px; padding: 12px; cursor: pointer; font: inherit; color: var(--ink); }
+.item .ic { font-size: 30px; line-height: 1.1; }
+.item .nm { font-weight: 600; margin-top: 8px; overflow-wrap: anywhere; }
+.item .mt { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.item .bond { font-size: 12px; margin-top: 8px; color: var(--muted); }
+.item .bond b { color: var(--ink); font-weight: 600; }
+.item .eq { position: absolute; top: 8px; right: 8px; font-size: 11px; background: var(--ink); color: var(--bg); border-radius: 999px; padding: 2px 8px; }
+.item.gone { opacity: .55; }
+.item.wish { border-style: dashed; background: var(--bg); }
+.ab .gear { font-size: 12px; color: var(--muted); margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.irow { display: flex; gap: 8px; }
+dialog .irow .icon-in { width: 58px; flex: none; text-align: center; font-size: 20px; padding: 6px; }
+.iquick { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.iquick button { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; font-size: 18px; width: 36px; height: 34px; cursor: pointer; }
+.igrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+.igrid label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.igrid select, .igrid input { width: 100%; color: var(--ink); }
+.icheck { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 0 0 10px; }
+dialog .icheck input { width: auto; }
+
+/* 여행 지도 */
+.travel-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 40px 0 14px; }
+.crumb { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.crumb button { border: 0; background: none; color: var(--muted); cursor: pointer; font: inherit; padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+.crumb b { font-weight: 600; }
+.travel-bar input { flex: 0 1 240px; }
+.map-wrap { position: relative; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--bg); min-height: 180px; }
+#mapSvg { display: block; width: 100%; touch-action: none; }
+.land { fill: var(--line); stroke: var(--bg); stroke-width: 0.7; vector-effect: non-scaling-stroke; cursor: pointer; transition: fill .15s; }
+.land:hover { fill: var(--faint); }
+.land.on { fill: var(--clay); }
+.land.on:hover { fill: color-mix(in srgb, var(--clay) 78%, var(--ink)); }
+.map-ctrl { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 4px; }
+.map-ctrl button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 16px; line-height: 1; cursor: pointer; }
+.map-msg { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 14px; text-align: center; padding: 24px; background: var(--bg); }
+.map-msg[hidden] { display: none; }
+#mapTip { white-space: nowrap; }
+.cpanel-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin: 28px 0 14px; }
+.cpanel-head h2 { margin: 0; }
+.cpanel-head .sub { margin: 4px 0 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.rchip { border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; color: var(--ink); cursor: pointer; }
+.rchip[aria-pressed="true"] { background: var(--clay); border-color: var(--clay); color: #fff; }
+.rchip small { color: var(--muted); margin-left: 5px; }
+.rchip[aria-pressed="true"] small { color: #fff; opacity: .85; }
+
+/* 스킬 분야 */
+.skcat { margin-top: 26px; }
+.skcat:first-child { margin-top: 0; }
+.skhead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.skhead b { font-family: var(--serif); font-weight: 400; font-size: 19px; }
+.skhead span { font-size: 13px; color: var(--muted); }
+.skgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0 20px; }
+.sk { padding: 12px 0 10px; border-bottom: 1px solid var(--line); }
+.skrow { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.skrow span:first-child { font-weight: 500; }
+.skrow .lv { font-family: var(--serif); font-size: 15px; }
+.sk .bar { height: 3px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 7px 0 4px; }
+.sk .bar i { display: block; height: 100%; background: var(--c); }
+.sk .s { font-size: 12px; color: var(--muted); }
+.sk.idle .skrow span:first-child { color: var(--muted); font-weight: 400; }
+#skillTree { border-top: 1px solid var(--line); }
+.fstat { border-bottom: 1px solid var(--line); }
+.fstat[open] { padding-bottom: 18px; }
+.fstat summary { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 0; cursor: pointer; list-style: none; }
+.fstat summary::-webkit-details-marker { display: none; }
+.fname { display: flex; align-items: center; gap: 9px; font-family: var(--serif); font-size: 19px; }
+.fname::before { content: ""; width: 0; height: 0; border-left: 6px solid var(--muted); border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform .15s; }
+.fstat[open] .fname::before { transform: rotate(90deg); }
+.fname i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.fmeta { font-size: 13px; color: var(--muted); }
+.fstat .skgrid { border-top: 1px solid var(--line); }
+.fstat .skcat .skgrid { border-top: 0; }
+.skedit-stat { margin-bottom: 14px; }
+.skedit-title { display: flex; align-items: center; gap: 7px; font-weight: 600; font-size: 14px; margin: 12px 0 6px; }
+.skedit-title i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.skedit-stat > .skedit-subs { margin-bottom: 8px; }
+.skedit-cat { border: 1px solid var(--line); border-radius: 12px; padding: 10px; margin-bottom: 8px; }
+.skedit-cat .catrow { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+.skedit-cat .catrow input { flex: 1; font-weight: 600; }
+.skedit-subs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.skedit-sub { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 0 2px 0 4px; }
+.skedit-sub input { border: 0; padding: 5px 4px; width: 7.5em; font-size: 13px; background: transparent; }
+.skedit-sub .del { font-size: 16px; }
+.btn.small { font-size: 12px; padding: 5px 12px; }
+
+/* 스킬 매트릭스 */
+.skgrp { margin-top: 22px; }
+.skgrp-h { font-size: 12px; color: var(--muted); letter-spacing: .02em; padding-bottom: 6px; border-bottom: 2px solid var(--c); }
+.skgrp .skcat { margin-top: 16px; }
+.mxwrap { margin: 4px 0 6px; overflow-x: auto; }
+.mx { width: 100%; border-collapse: collapse; font-size: 14px; }
+.mx th { text-align: left; font-weight: 500; font-size: 12px; color: var(--muted); padding: 8px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.mx td { padding: 7px 6px; border-bottom: 1px solid var(--line); }
+.mx .num { text-align: center; white-space: nowrap; width: 1%; }
+.mx tr.mxg td { font-size: 12px; color: var(--muted); padding-top: 14px; border-bottom: 0; }
+.mx .req { font-size: 11px; color: var(--c); border: 1px solid var(--c); border-radius: 999px; padding: 0 6px; margin-left: 6px; }
+.mx .dot { color: var(--faint); }
+.mx .dot.on { color: var(--c); }
+.mx .star { border: 0; background: none; font-size: 17px; cursor: pointer; color: var(--faint); padding: 0 4px; }
+.mx .star[aria-pressed="true"] { color: var(--gold); }
+
+/* 점수판·규칙·함정·쉼 */
+.scoreboard { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.board { padding: 16px 16px 14px 0; min-width: 0; }
+.board + .board { padding-left: 16px; border-left: 1px solid var(--line); }
+.board .k { font-size: 12px; color: var(--muted); }
+.board .v { font-family: var(--serif); font-size: 34px; line-height: 1.15; letter-spacing: -0.02em; }
+.board .v small { font-size: 14px; color: var(--muted); }
+.board .s { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.rules { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+.rules summary { cursor: pointer; padding: 12px 0; font-size: 13px; color: var(--muted); }
+.rules ul { list-style: none; margin: 0 0 14px; padding: 0; }
+.rules li { font-family: var(--serif); font-size: 15px; line-height: 1.7; padding: 3px 0 3px 16px; position: relative; }
+.rules li::before { content: ""; position: absolute; left: 0; top: 0.85em; width: 6px; height: 6px; border-radius: 50%; background: var(--clay); }
+#traps:not(:empty) { margin-bottom: 30px; display: grid; gap: 8px; }
+.trap { border-left: 3px solid var(--clay); background: var(--surface); border-radius: 0 10px 10px 0; padding: 10px 14px; }
+.trap b { font-weight: 600; font-size: 14px; }
+.trap p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.restbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: -10px 0 14px; }
+.restbar .sub { margin: 0; font-size: 13px; }
+.legend .rest { background: var(--faint); }
+.aq .tg { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); margin-top: 4px; }
+.aq .tg select { padding: 2px 6px; font-size: 12px; }
+.aq .tg span { color: var(--c); font-weight: 600; }
+@media (max-width: 520px) { .board .v { font-size: 28px; } }
+
+/* 상태 점검 */
+.assess { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 28px; align-items: start; }
+#radar { width: 100%; max-width: 380px; display: block; margin: 0 auto; overflow: visible; }
+.aq { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.aq:first-child { border-top: 1px solid var(--line); }
+.aq .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.aq b { font-weight: 600; display: flex; align-items: center; gap: 7px; }
+.aq b i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.aq .val { font-family: var(--serif); font-size: 18px; }
+.aq p { margin: 2px 0 6px; font-size: 13px; color: var(--muted); }
+.aq input[type="range"] { width: 100%; accent-color: var(--c); padding: 0; border: 0; background: none; }
+.aq input.unset { opacity: .4; }
+.aq .ref { font-size: 12px; color: var(--muted); }
+@media (max-width: 720px) { .assess { grid-template-columns: 1fr; } }
+
+.onboard {
+  position: fixed; inset: 0; z-index: 10; background: var(--bg);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.onboard[hidden] { display: none; }
+.onboard .card { max-width: 420px; }
+.onboard h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(30px, 6vw, 40px); letter-spacing: -0.02em; line-height: 1.3; margin: 18px 0 12px; }
+.onboard p { color: var(--muted); margin: 0 0 24px; }
+.onboard .row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+dialog { border: 0; border-radius: 16px; background: var(--bg); color: var(--ink); width: min(440px, 92vw); padding: 22px; }
+dialog::backdrop { background: rgba(0,0,0,.4); }
+dialog h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0 0 14px; }
+dialog .lbl { display: block; font-size: 13px; color: var(--muted); margin: 16px 0 6px; }
+dialog .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; justify-content: flex-end; }
+dialog .row.left { justify-content: flex-start; margin-top: 6px; }
+.statedit { list-style: none; margin: 0 0 8px; padding: 0; }
+.statedit li { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.statedit input[type="color"] { width: 38px; height: 38px; padding: 3px; flex: none; }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); z-index: 20;
+  transform: translate(-50%, 24px); opacity: 0; pointer-events: none; max-width: 92vw;
+  background: var(--ink); color: var(--bg); border-radius: 999px; padding: 10px 18px 10px 12px;
+  display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500;
+  transition: opacity .3s, transform .45s cubic-bezier(.2,.9,.3,1.3);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast svg { width: 26px; height: 26px; flex: none; }
 </style>
 </head>
 <body>
-
 <div class="onboard" id="onboard" hidden>
   <div class="card">
     <div class="brand"><i></i>LifeGame</div>
     <h1>100년의 시간을<br>점으로 펼쳐 봅니다.</h1>
     <p>생년월일을 입력하세요. 입력한 정보는 이 브라우저에만 저장되고, 어디에도 전송되지 않습니다.</p>
     <form class="row" id="onboardForm">
-      <input type="date" id="onboardBirth" required>
+      <input type="date" id="onboardBirth" value="1990-01-01" required>
       <button class="btn" type="submit">시작하기</button>
     </form>
   </div>
@@ -186,7 +467,7 @@
 <div class="wrap">
   <header>
     <div class="brand"><i></i>LifeGame</div>
-    <a href="https://github.com/YOUR_ID/LifeGame" id="repoLink">GitHub ↗</a>
+    <a href="https://github.com/kimheuihyeon/TheLife" id="repoLink">GitHub ↗</a>
   </header>
 
   <section class="hero">
@@ -194,419 +475,2346 @@
     <div class="big"><span id="pct">0.000000</span><small>%</small></div>
     <p class="lede">
       오늘은 당신 인생의 <b class="today" id="dayNo">–</b>번째 날입니다.<br>
-      100세까지 <b id="daysLeft">–</b>일이 남아 있습니다.
+      100세까지 <b id="daysLeft">–</b>일이 남아 있습니다.<br>
+      <span id="gameLine"></span>
     </p>
   </section>
 
-  <div class="stats">
-    <div class="stat"><div class="k">나이</div><div class="v" id="sAge">–</div><div class="s" id="sAgeSub">–</div></div>
-    <div class="stat"><div class="k" id="sUnitK">지나온 주</div><div class="v" id="sUnit">–</div><div class="s" id="sUnitSub">–</div></div>
-    <div class="stat"><div class="k">이번 챕터</div><div class="v" id="sChap">–</div><div class="s" id="sChapSub">–</div></div>
-    <div class="stat"><div class="k">다음 목표</div><div class="v" id="sGoal">–</div><div class="s" id="sGoalSub">–</div></div>
-  </div>
+  <nav class="tabs" role="tablist" aria-label="화면 전환">
+    <button class="tab" role="tab" data-tab="life" aria-selected="true">인생</button>
+    <button class="tab" role="tab" data-tab="today" aria-selected="false">오늘</button>
+    <button class="tab" role="tab" data-tab="mandala" aria-selected="false">만다라트</button>
+    <button class="tab" role="tab" data-tab="travel" aria-selected="false">여행</button>
+    <button class="tab" role="tab" data-tab="inv" aria-selected="false">소지품</button>
+    <button class="tab" role="tab" data-tab="trophy" aria-selected="false">트로피</button>
+  </nav>
 
-  <div class="toolbar">
-    <div class="seg" role="group" aria-label="표시 단위">
-      <button data-unit="day">일</button>
-      <button data-unit="week">주</button>
-      <button data-unit="month">월</button>
-      <button data-unit="year">년</button>
+  <!-- 인생 -->
+  <section class="panel" id="tab-life" role="tabpanel">
+    <details class="rules" open>
+      <summary>게임 규칙</summary>
+      <ul id="rulesList"></ul>
+    </details>
+    <div class="stats">
+      <div class="stat"><div class="k">나이</div><div class="v" id="sAge">–</div><div class="s" id="sAgeSub">–</div></div>
+      <div class="stat"><div class="k" id="sUnitK">지나온 주</div><div class="v" id="sUnit">–</div><div class="s" id="sUnitSub">–</div></div>
+      <div class="stat"><div class="k">이번 챕터</div><div class="v" id="sChap">–</div><div class="s" id="sChapSub">–</div></div>
+      <div class="stat"><div class="k">다음 목표</div><div class="v" id="sGoal">–</div><div class="s" id="sGoalSub">–</div></div>
     </div>
-    <div class="legend">
-      <span><i style="background:var(--dot-past)"></i>지나온</span>
-      <span><i style="background:var(--clay)"></i>지금</span>
-      <span><i style="background:var(--dot-future)"></i>남은</span>
-      <span><i class="ring"></i>목표 기한</span>
+
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="표시 단위" id="unitSeg">
+        <button data-unit="day">일</button>
+        <button data-unit="week">주</button>
+        <button data-unit="month">월</button>
+        <button data-unit="year">년</button>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--dot-past)"></i>지나온</span>
+        <span><i class="act"></i>퀘스트를 한 날</span>
+        <span><i class="rest"></i>쉼</span>
+        <span><i style="background:var(--clay)"></i>지금</span>
+        <span><i style="background:var(--dot-future)"></i>남은</span>
+        <span><i class="ring"></i>목표 기한</span>
+      </div>
     </div>
-  </div>
 
-  <div class="grid-wrap" id="gridWrap">
-    <canvas id="grid" aria-label="인생 진행도 점 그리드"></canvas>
-    <span class="pulse" id="pulse" hidden></span>
-    <div class="tip" id="tip"></div>
-  </div>
-  <div class="caption" id="caption"></div>
+    <div class="grid-wrap" id="gridWrap">
+      <canvas id="grid" aria-label="인생 진행도 점 그리드"></canvas>
+      <span class="pulse" id="pulse" hidden></span>
+      <div class="tip" id="tip"></div>
+    </div>
+    <div class="caption" id="caption"></div>
 
-  <section class="goals">
-    <h2>목표</h2>
-    <p class="sub">"몇 살까지 무엇을" 정해 두면, 그 시점의 점에 표시됩니다.</p>
-    <form class="add" id="goalForm">
-      <input type="text" id="goalTitle" placeholder="예: 풀마라톤 완주" maxlength="60" required>
-      <input type="number" id="goalAge" min="1" max="100" required aria-label="목표 나이">
+    <section class="goals">
+      <h2>목표</h2>
+      <p class="sub">"몇 살까지 무엇을" 정해 두면, 그 시점의 점에 표시됩니다.</p>
+      <form class="add" id="goalForm">
+        <input type="text" id="goalTitle" placeholder="예: 풀마라톤 완주" maxlength="60" required>
+        <input type="number" id="goalAge" min="1" max="100" required aria-label="목표 나이">
+        <button class="btn" type="submit">추가</button>
+      </form>
+      <ul class="goal-list" id="goalList"></ul>
+    </section>
+
+    <h2>인생의 쉼표</h2>
+    <p class="sub">10년마다 멈춰 서서 그 나이의 나에게 한 줄을 남겨요. 지난 나이는 회고, 다가올 나이는 바람으로.</p>
+    <ul class="pauses" id="pauses"></ul>
+  </section>
+
+  <!-- 오늘 -->
+  <section class="panel" id="tab-today" role="tabpanel" hidden>
+    <div id="traps"></div>
+    <h2 class="first">능력치</h2>
+    <p class="sub">막대는 최근 30일의 컨디션(0–100)이고, 레벨은 지금까지 쌓은 경험치예요. 쉬면 컨디션은 내려가도 레벨은 그대로예요.</p>
+    <div class="abil" id="abil"></div>
+
+    <h2>이번 달 상태 점검</h2>
+    <p class="sub" id="assessSub"></p>
+    <div class="scoreboard" id="scoreboard"></div>
+    <div id="gapNote"></div>
+    <div class="assess">
+      <svg id="radar" viewBox="0 0 320 300" role="img" aria-label="일곱 축 상태 점수 레이더 차트"></svg>
+      <div id="assessList"></div>
+    </div>
+    <div id="assessHint"></div>
+
+    <h2>분야별 레벨</h2>
+    <p class="sub">퀘스트와 만다라트 세부 목표에 분야를 정하면, 능력치 안에서 분야마다 레벨이 따로 쌓여요. 능력치 이름을 눌러 펼쳐 보세요.</p>
+    <div id="skillTree"></div>
+
+    <h2>오늘의 퀘스트</h2>
+    <p class="sub" id="todayLabel"></p>
+    <div class="restbar"><button type="button" id="restBtn" class="btn ghost small"></button><span class="sub" id="restNote" hidden></span></div>
+    <ul class="goal-list" id="quests"></ul>
+    <form class="add" id="questForm">
+      <input type="text" id="qName" placeholder="새 퀘스트 (예: 스쿼트 30개)" maxlength="60" required aria-label="퀘스트 이름">
+      <select id="qStat" aria-label="능력치"></select>
+      <select id="qSk" aria-label="분야" hidden></select>
+      <select id="qItem" aria-label="사용하는 물건" hidden></select>
+      <select id="qXp" aria-label="경험치">
+        <option value="5">+5 XP</option>
+        <option value="10" selected>+10 XP</option>
+        <option value="20">+20 XP</option>
+      </select>
       <button class="btn" type="submit">추가</button>
     </form>
-    <ul class="goal-list" id="goalList"></ul>
+
+    <h2>오늘의 한 줄</h2>
+    <textarea id="note" rows="2" placeholder="오늘 기억하고 싶은 것 하나" aria-label="오늘의 한 줄"></textarea>
+  </section>
+
+  <!-- 만다라트 -->
+  <section class="panel" id="tab-mandala" role="tabpanel" hidden>
+    <div class="mtool">
+      <div class="seg" role="group" aria-label="만다라트 모드" id="mSeg">
+        <button data-mmode="edit" aria-pressed="true">작성</button>
+        <button data-mmode="check" aria-pressed="false">실천 체크</button>
+      </div>
+      <span class="mprog" id="mprog"></span>
+    </div>
+    <div class="mandala" id="mandala"></div>
+    <p class="hint" id="mhint"></p>
+    <p class="hint">iPhone 리마인더와 연동하려면 단축어 'LifeGame 동기화'를 실행하세요. 목록 이름이 세부 목표가 되고, 각 리마인더가 실천 칸에 들어가요.</p>
+
+    <h2>세부 목표와 능력치</h2>
+    <p class="sub">세부 목표마다 능력치를 정하면, 실천을 체크할 때 그 능력치에 +20 XP가 쌓여요.</p>
+    <ul class="subgoals" id="subgoals"></ul>
+  </section>
+
+  <!-- 여행 -->
+  <section class="panel" id="tab-travel" role="tabpanel" hidden>
+    <div class="stats" id="travelStats"></div>
+
+    <div class="travel-bar">
+      <div class="crumb" id="crumb"><b>세계</b></div>
+      <input type="text" id="countrySearch" list="countryOptions" placeholder="나라 찾기 (예: 일본)" aria-label="나라 찾기">
+      <datalist id="countryOptions"></datalist>
+    </div>
+    <div class="map-wrap" id="mapWrap">
+      <svg id="mapSvg" role="img" aria-label="방문한 나라와 지역 지도"></svg>
+      <div class="map-ctrl">
+        <button type="button" id="zoomIn" aria-label="확대">+</button>
+        <button type="button" id="zoomOut" aria-label="축소">−</button>
+        <button type="button" id="zoomReset" aria-label="처음 크기로">⟲</button>
+      </div>
+      <div class="tip" id="mapTip"></div>
+      <div class="map-msg" id="mapMsg" hidden></div>
+    </div>
+    <p class="caption" id="mapHint">나라를 누르면 그 나라의 지역 지도가 열려요. 두 손가락이나 휠로 확대할 수 있어요.</p>
+
+    <div id="cpanel" hidden>
+      <div class="cpanel-head">
+        <div><h2 id="cpName"></h2><p class="sub" id="cpSub"></p></div>
+        <button class="btn" type="button" id="cpToggle"></button>
+      </div>
+      <div class="chips" id="cpRegions"></div>
+    </div>
+
+    <h2>가 본 나라</h2>
+    <p class="sub">눌러서 그 나라 지도로 이동해요.</p>
+    <div class="chips" id="visitedList"></div>
+    <p class="caption">지도 데이터: Natural Earth, Highcharts Map Collection</p>
+  </section>
+
+  <!-- 소지품 -->
+  <section class="panel" id="tab-inv" role="tabpanel" hidden>
+    <div class="stats" id="invStats"></div>
+
+    <h2>장착 중</h2>
+    <p class="sub">능력치마다 지금 함께하는 물건을 장착해 두면, 오늘 탭의 능력치 카드에도 보여요.</p>
+    <div class="loadout" id="loadout"></div>
+
+    <h2>인벤토리</h2>
+    <p class="sub">퀘스트에 사용한 물건을 연결하면, 그 물건으로 쌓은 경험치가 '애착'으로 남아요.</p>
+    <div class="inv-bar">
+      <div class="seg" role="group" aria-label="상태" id="invSeg">
+        <button data-if="all" aria-pressed="true">전체</button>
+        <button data-if="use" aria-pressed="false">사용 중</button>
+        <button data-if="keep" aria-pressed="false">보관</button>
+        <button data-if="gone" aria-pressed="false">처분</button>
+        <button data-if="wish" aria-pressed="false">위시</button>
+      </div>
+      <div class="grp">
+        <select id="invKind" aria-label="종류"></select>
+        <button class="btn" type="button" id="addItem">물건 추가</button>
+      </div>
+    </div>
+    <div class="inv" id="inv"></div>
+  </section>
+
+  <!-- 트로피 -->
+  <section class="panel" id="tab-trophy" role="tabpanel" hidden>
+    <div class="tsum" id="tsum"></div>
+    <div id="tgroups"></div>
   </section>
 
   <footer>
     <span>데이터는 이 브라우저에만 저장됩니다.</span>
     <span style="display:inline-flex;gap:12px;align-items:center;flex-wrap:wrap">
       <label>생년월일 <input type="date" id="birthInput"></label>
+      <button class="btn ghost" id="settingsBtn" type="button">능력치·데이터</button>
       <button class="btn ghost" id="resetBtn" type="button">초기화</button>
     </span>
   </footer>
 </div>
 
+<dialog id="cellDlg">
+  <form method="dialog">
+    <h3 id="dlgTitle">칸 작성</h3>
+    <textarea id="dlgText" rows="3" maxlength="40"></textarea>
+    <div id="dlgSkWrap" hidden>
+      <span class="lbl">스킬 분야</span>
+      <select id="dlgSk" aria-label="스킬 분야" style="width:100%"></select>
+    </div>
+    <div class="row">
+      <button class="btn ghost" id="toQuest" type="button">매일 퀘스트로 추가</button>
+      <button class="btn ghost" value="cancel">취소</button>
+      <button class="btn" value="ok">저장</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="setDlg">
+  <form method="dialog">
+    <h3>능력치·데이터</h3>
+    <span class="lbl">능력치 (최대 8개)</span>
+    <ul class="statedit" id="statEdit"></ul>
+    <button class="btn ghost" type="button" id="addStat">능력치 추가</button>
+    <span class="lbl">분야</span>
+    <p class="sub" style="margin:0 0 8px;font-size:13px">능력치마다 분야를 둬요. 세부 분야가 많으면 묶음(예: 법 &gt; 민법)으로 만들 수 있어요. 이름을 바꿔도 쌓인 경험치는 그대로예요.</p>
+    <div id="skEdit"></div>
+    <span class="lbl">데이터 옮기기</span>
+    <p class="sub" style="margin:0;font-size:13px">기록은 이 브라우저에만 있어요. 기기나 브라우저를 바꿀 땐 내보낸 파일을 가져오세요.</p>
+    <div class="row left">
+      <button class="btn ghost" type="button" id="exportBtn">내보내기</button>
+      <button class="btn ghost" type="button" id="importBtn">가져오기</button>
+      <input type="file" id="importFile" accept="application/json" hidden>
+    </div>
+    <div class="row">
+      <button class="btn ghost" value="cancel">닫기</button>
+      <button class="btn" value="ok">저장</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="itemDlg">
+  <form method="dialog">
+    <h3 id="itemTitle">물건 추가</h3>
+    <div class="irow">
+      <input type="text" id="iIcon" class="icon-in" maxlength="4" aria-label="아이콘">
+      <input type="text" id="iName" placeholder="이름 (예: 러닝화)" maxlength="40" aria-label="이름">
+    </div>
+    <div class="iquick" id="iQuick"></div>
+    <div class="igrid">
+      <label>종류<select id="iKind"></select></label>
+      <label>등급<select id="iTier"><option value="common">일반</option><option value="rare">희귀</option><option value="legend">전설</option></select></label>
+      <label>상태<select id="iStatus"><option value="use">사용 중</option><option value="keep">보관 중</option><option value="gone">처분·양도</option><option value="wish">위시리스트</option></select></label>
+      <label id="iGotWrap">얻은 날<input type="date" id="iGot"></label>
+      <label id="iGoneWrap">처분한 날<input type="date" id="iGone"></label>
+      <label>가격 (선택)<input type="number" id="iPrice" min="0" step="1" inputmode="numeric"></label>
+      <label>능력치<select id="iStat"></select></label>
+      <label>분야<select id="iSk"></select></label>
+    </div>
+    <label class="icheck"><input type="checkbox" id="iEquip"> 이 능력치에 장착</label>
+    <textarea id="iMemo" rows="2" maxlength="120" placeholder="한 줄 메모"></textarea>
+    <div class="row">
+      <button class="btn ghost" type="button" id="iDelete">삭제</button>
+      <button class="btn ghost" type="button" id="iGotIt">얻었어요</button>
+      <button class="btn ghost" value="cancel" formnovalidate>취소</button>
+      <button class="btn" value="ok">저장</button>
+    </div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
 (() => {
-  const LS_KEY = 'lifegame.web.v1';
-  const LIFESPAN = 100;
-  const DAY = 864e5;
-  const $ = (s) => document.querySelector(s);
+'use strict';
+const LS_KEY = 'lifegame.web.v1';
+const LIFESPAN = 100;
+const DAY = 864e5;
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-  // ---------- 상태 ----------
-  let state = { unit: 'week', goals: [], birth: null };
-  try { Object.assign(state, JSON.parse(localStorage.getItem(LS_KEY)) || {}); } catch (e) {}
-  const qp = new URLSearchParams(location.search).get('birth');
-  if (qp && /^\d{4}-\d{2}-\d{2}$/.test(qp)) state.birth = qp;
-  const save = () => { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} };
+// ---------- 날짜 유틸 ----------
+const sod = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const addMonths = (d, n) => {
+  const f = new Date(d.getFullYear(), d.getMonth() + n, 1);
+  const dim = new Date(f.getFullYear(), f.getMonth() + 1, 0).getDate();
+  f.setDate(Math.min(d.getDate(), dim));
+  return f;
+};
+const addYears = (d, n) => addMonths(d, n * 12);
+const dayDiff = (a, b) => Math.round((sod(b) - sod(a)) / DAY);
+const ageAt = (b, d) => { let a = d.getFullYear() - b.getFullYear(); if (addYears(b, a) > d) a--; return a; };
+const monthsAt = (b, d) => {
+  let m = (d.getFullYear() - b.getFullYear()) * 12 + d.getMonth() - b.getMonth();
+  if (addMonths(b, m) > d) m--;
+  return m;
+};
+const fmt = (n) => n.toLocaleString('ko-KR');
+const fmtDate = (d) => `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`;
+const fmtYM = (d) => `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
+const pad2 = (n) => String(n).padStart(2, '0');
+const keyOf = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const todayStr = () => keyOf(new Date());
+const diffKeys = (a, b) => dayDiff(parse(a), parse(b));
+const fmtKey = (k) => k.replace(/-/g, '.');
+const WD = ['일', '월', '화', '수', '목', '금', '토'];
+const UNIT_WORD = { day: '날', week: '주', month: '달', year: '해' };
+const UNIT_ONE = { day: '하루', week: '한 주', month: '한 달', year: '1년' };
 
-  // ---------- 날짜 유틸 ----------
-  const sod = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
-  const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
-  const addMonths = (d, n) => {
-    const f = new Date(d.getFullYear(), d.getMonth() + n, 1);
-    const dim = new Date(f.getFullYear(), f.getMonth() + 1, 0).getDate();
-    f.setDate(Math.min(d.getDate(), dim));
-    return f;
-  };
-  const addYears = (d, n) => addMonths(d, n * 12);
-  const dayDiff = (a, b) => Math.round((sod(b) - sod(a)) / DAY);
-  const ageAt = (b, d) => { let a = d.getFullYear() - b.getFullYear(); if (addYears(b, a) > d) a--; return a; };
-  const monthsAt = (b, d) => {
-    let m = (d.getFullYear() - b.getFullYear()) * 12 + d.getMonth() - b.getMonth();
-    if (addMonths(b, m) > d) m--;
-    return m;
-  };
-  const fmt = (n) => n.toLocaleString('ko-KR');
-  const fmtDate = (d) => `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`;
-  const fmtYM = (d) => `${d.getFullYear()}년 ${d.getMonth() + 1}월`;
-  const UNIT_WORD = { day: '날', week: '주', month: '달', year: '해' };
-  const UNIT_ONE = { day: '하루', week: '한 주', month: '한 달', year: '1년' };
+// ---------- 능력치 ----------
+// 일곱 개의 축. q는 한 달에 한 번 스스로 답하는 질문이에요.
+const DEFAULT_STATS = [
+  { id: 'competence',    name: 'Competence',    color: '#5675B5', q: '실제로 잘할 수 있는가?' },
+  { id: 'authority',     name: 'Authority',     color: '#8A6BBE', q: '중요한 결정을 내릴 수 있는가?' },
+  { id: 'capital',       name: 'Capital',       color: '#A88A2E', q: '경제적으로 얼마나 독립적인가?' },
+  { id: 'communication', name: 'Communication', color: '#B95C80', q: '소중한 사람들과 잘 통하고, 나의 가치를 다른 사람도 인정하는가?' },
+  { id: 'optionality',   name: 'Optionality',   color: '#3A9E86', q: '원하지 않는 선택을 거절하고 다른 길을 택할 수 있는가?' },
+  { id: 'vitality',      name: 'Vitality',      color: '#5E9A6E', q: '그 모든 것을 누릴 건강과 에너지가 있는가?' },
+  { id: 'enjoyment',     name: 'Enjoyment',     color: '#D2793F', q: '지금의 삶도 충분히 즐기고 있는가?' },
+];
+// 이전 버전의 능력치 → 새 축
+const OLD_STATS = [
+  { id: 'health', name: '건강', color: '#5E9A6E' }, { id: 'skill', name: '스킬', color: '#5675B5' }, { id: 'rel', name: '관계', color: '#B95C80' },
+  { id: 'finance', name: '재정', color: '#A88A2E' }, { id: 'play', name: 'Play', color: '#D2793F' }, { id: 'luck', name: 'Luck', color: '#3A9E86' },
+];
+const STAT_MAP = { health: 'vitality', skill: 'competence', rel: 'communication', finance: 'capital', play: 'enjoyment', luck: 'optionality', happy: 'enjoyment' };
+const FIELD_MOVE = { 'r-resp': 'authority', 'l-kind': 'communication', 'l-tidy': 'vitality', 'l-thanks': 'enjoyment' };
+// 두 개의 점수판: 서로 대체할 수 없으므로 합산하지 않아요
+const POWER = ['competence', 'authority', 'capital', 'communication'];
+const FREEDOM = ['optionality', 'vitality', 'enjoyment', 'capital'];
+const DEFAULT_RULES = [
+  '능력치를 높이는 것만으로는 승리하지 않습니다.',
+  '직함이나 연봉이 올라가도 자유가 줄면 재평가합니다.',
+  '휴식과 즐거움은 성과를 위한 보상이 아니라 그 자체로 가치가 있습니다.',
+  '다른 사람과 경쟁하되, 모든 사람을 경쟁 상대로 취급하지 않습니다.',
+  '미래의 선택지를 늘리면서 현재의 삶도 즐깁니다.',
+];
+function boardScore(vals, ids) {
+  const xs = ids.filter((id) => STATS.some((s) => s.id === id) && vals && vals[id] != null).map((id) => vals[id]);
+  return xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length * 10) / 10 : null;
+}
+const PALETTE = ['#5E9A6E', '#5675B5', '#B95C80', '#A88A2E', '#D2793F', '#3A9E86', '#8A6BBE', '#4E8FA8', '#9A6A4A', '#C1912A'];
+// 리마인더 목록 이름 → 능력치 (소문자로 비교)
+const LIST_STAT = { 'health': 'vitality', 'ai engineering': 'competence', 'law': 'competence', 'communication': 'communication',
+  'responsibility': 'authority', 'finance': 'capital', 'play': 'enjoyment', 'luck': 'optionality' };
+const BLOCKS = [0, 1, 2, 3, 5, 6, 7, 8];
+// 분야: 능력치마다 분야를 두고, 분야를 묶음으로 만들어 세부 분야를 둘 수도 있어요(예: 법 > 민법).
+// 기록 경로는 '분야' 또는 '묶음/세부'. 저장 키는 이전 버전과 같은 skillTree예요.
+const SKILL_STAT = 'skill';
+const F = (id, stat, name, subs = [], grp, req) => {
+  const o = { id, stat, name, subs: subs.map(([i, n]) => ({ id: i, name: n })) };
+  if (grp) o.grp = grp;
+  if (req) o.req = true;
+  return o;
+};
+// 토요타 자동차 제122회 정기주주총회 소집통지(2026)의 이사 스킬 매트릭스: 3개 묶음, 10개 스킬
+const SKILL_GROUPS = [
+  ['oversight', '경영 감독에 필요한 스킬'],
+  ['transform', '변혁을 추진하는 스킬'],
+  ['core', '계속 소중히 할 스킬'],
+];
+const FOCUS_MAX = 5;
+const DEFAULT_TREE = [
+  F('tech', 'competence', '최신기술', [['ai', 'AI·머신러닝'], ['llm', 'LLM·에이전트'], ['eval', '평가·프롬프트'], ['mlops', 'MLOps·배포'],
+    ['dev', '프로그래밍'], ['cloud', '클라우드·인프라'], ['data', '데이터'], ['sec', '보안']]),
+  F('law', 'competence', '법', [['const', '헌법'], ['civil', '민법'], ['crim', '형법'], ['admin', '행정법'], ['comm', '상법'],
+    ['civpro', '민사소송법'], ['crimpro', '형사소송법'], ['labor', '노동법'], ['ip', '지식재산권'], ['privacy', '개인정보·데이터법'], ['aireg', 'AI 규제·거버넌스']]),
+  F('biz', 'competence', '전략·사업', [['roi', 'ROI·사업성'], ['budget', '예산'], ['risk', '리스크'], ['strategy', '전략 수립']]),
+  // 토요타 이사 스킬 매트릭스 — 경영 감독에 필요한 스킬
+  F('mgmt', 'competence', '기업경영', [['judge', '경영 판단'], ['plan', '사업 계획'], ['org', '조직 운영']], 'oversight'),
+  F('gov', 'competence', '거버넌스·리스크관리·컴플라이언스', [['corpgov', '기업 거버넌스'], ['riskmgmt', '리스크 관리'], ['compliance', '컴플라이언스']], 'oversight', true),
+  F('glob', 'competence', '글로벌', [['lang', '어학'], ['cross', '이문화 이해'], ['abroad', '해외 업무·프로젝트']], 'oversight'),
+  F('fin', 'competence', '재무·회계', [['acct', '회계'], ['fa', '재무 분석'], ['capstr', '자본 전략']], 'oversight'),
+  // 변혁을 추진하는 스킬
+  F('env', 'competence', '환경·사회', [['cn', '탄소중립·에너지'], ['social', '사회 과제'], ['esg', '지속가능성·ESG']], 'transform'),
+  F('it', 'competence', 'IT·디지털', [['dx', '디지털 전환'], ['infosys', '정보 시스템'], ['datause', '데이터 활용']], 'transform'),
+  // 계속 소중히 할 스킬
+  F('rnd', 'competence', '기술개발', [['research', '연구'], ['proto', '프로토타이핑'], ['patent', '특허·발명']], 'core'),
+  F('prod', 'competence', '생산', [['kaizen', 'TPS·카이젠'], ['quality', '품질'], ['make', '하드웨어 제작']], 'core'),
+  F('sports', 'competence', '스포츠·모터스포츠', [], 'core'),
+  F('people', 'competence', '인재육성', [['mentor', '멘토링·코칭'], ['teach', '가르치기·지식 공유'], ['team', '팀 만들기']], 'core', true),
+  F('r-resp', 'authority', '책임'), F('a-lead', 'authority', '리더십'), F('a-decide', 'authority', '의사결정'), F('a-scope', 'authority', '맡은 범위 넓히기'),
+  F('f-spend', 'capital', '지출 관리'), F('f-save', 'capital', '저축'), F('f-invest', 'capital', '투자'), F('f-income', 'capital', '수입 늘리기'), F('f-tax', 'capital', '세금·보험'),
+  F('r-family', 'communication', '가족'), F('r-friend', 'communication', '친구'), F('r-comm', 'communication', '동료·커뮤니티'), F('r-talk', 'communication', '소통 기술'),
+  F('c-out', 'communication', '발신(블로그·GitHub·발표)'), F('c-trust', 'communication', '신뢰(약속 지키기)'), F('l-kind', 'communication', '선행'),
+  F('l-meet', 'optionality', '새로운 만남'), F('l-try', 'optionality', '도전·응모'), F('o-no', 'optionality', '거절 연습'), F('o-port', 'optionality', '이식 가능한 기술'),
+  F('h-str', 'vitality', '근력'), F('h-cardio', 'vitality', '유산소'), F('h-flex', 'vitality', '유연성·자세'),
+  F('h-sleep', 'vitality', '수면'), F('h-diet', 'vitality', '식단'), F('h-mind', 'vitality', '마음 건강'), F('l-tidy', 'vitality', '정리정돈'),
+  F('p-travel', 'enjoyment', '여행'), F('p-sport', 'enjoyment', '운동 취미'), F('p-culture', 'enjoyment', '문화'), F('p-make', 'enjoyment', '만들기'),
+  F('p-game', 'enjoyment', '게임'), F('p-new', 'enjoyment', '처음 해 보는 일'), F('l-thanks', 'enjoyment', '감사 기록'),
+];
+const DEFAULT_SUBSKILL = { 0: 'tech', 2: 'law' };
+const LIST_SK = { 'ai engineering': 'tech', 'law': 'law' };
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const RARITY_KEYS = ['common', 'rare', 'legend'];
+const fieldsOf = (stat) => (state.skillTree || []).filter((c) => c.stat === stat);
+const catOf = (path) => (state.skillTree || []).find((c) => c.id === String(path || '').split('/')[0]);
+function fieldValid(path, stat) {
+  if (!path) return false;
+  const si = path.split('/')[1], c = catOf(path);
+  if (!c || c.stat !== stat) return false;
+  return !si || c.subs.some((x) => x.id === si);
+}
+function skLabel(path) {
+  const c = catOf(path);
+  if (!c) return '';
+  const si = path.split('/')[1];
+  if (!si) return c.name;
+  const sub = c.subs.find((x) => x.id === si);
+  return sub ? sub.name : c.name;
+}
+function skillOptions(stat, sel, emptyLabel) {
+  const cats = fieldsOf(stat);
+  const opt = (v, n) => `<option value="${v}"${sel === v ? ' selected' : ''}>${esc(n)}</option>`;
+  return opt('', emptyLabel)
+    + cats.filter((c) => !c.subs.length).map((c) => opt(c.id, c.name)).join('')
+    + cats.filter((c) => c.subs.length).map((c) => `<optgroup label="${esc(c.name)}">${opt(c.id, `${c.name} (묶음 전체)`)}`
+      + c.subs.map((x) => opt(`${c.id}/${x.id}`, x.name)).join('') + '</optgroup>').join('');
+}
+const DEFAULT_SUB = { 0: 'competence', 1: 'vitality', 2: 'competence', 3: 'authority', 5: 'capital', 6: 'communication', 7: 'optionality', 8: 'enjoyment' };
+const MANDALA_XP = 20;
+let STATS = DEFAULT_STATS;
+const statOf = (id) => STATS.find((s) => s.id === id) || STATS[0] || { id: '', name: '', color: '#888' };
+const statName = (id) => statOf(id).name;
+const statColor = (id) => statOf(id).color;
 
-  // ---------- 단위별 레이아웃 ----------
-  // 일: 7의 배수 열(요일 정렬) / 주: 1년=52칸 / 월: 1년=12칸 / 년: 10년=1줄
-  function model(unit, width) {
-    const birth = parse(state.birth);
-    const today = sod(new Date());
-    const end = addYears(birth, LIFESPAN);
-    const age = Math.min(LIFESPAN, Math.max(0, ageAt(birth, today)));
-    const G = 30;
-    const w = Math.max(200, width - G);
-    let cols, pitch, total, current, start, ypr, rScale = 0.34;
-
-    if (unit === 'year') {
-      cols = 10; pitch = Math.min(54, w / cols); total = 100; current = age;
-      start = (i) => addYears(birth, i); ypr = 10; rScale = 0.38;
-    } else if (unit === 'month') {
-      const k = [5, 2, 1].find((k) => w / (12 * k) >= 13) || 1;
-      cols = 12 * k; pitch = Math.min(24, w / cols); total = 1200; current = monthsAt(birth, today);
-      start = (i) => addMonths(birth, i); ypr = k;
-    } else if (unit === 'week') {
-      const k = w / 104 >= 8 ? 2 : 1;
-      cols = 52 * k; pitch = Math.min(17, w / cols); total = 5200;
-      const wk = Math.min(51, Math.floor(dayDiff(addYears(birth, age), today) / 7));
-      current = age * 52 + wk;
-      start = (i) => addDays(addYears(birth, Math.floor(i / 52)), (i % 52) * 7); ypr = k;
-    } else {
-      const k = Math.max(4, Math.min(30, Math.floor(w / 49)));
-      cols = 7 * k; pitch = Math.min(10, w / cols); total = dayDiff(birth, end); current = dayDiff(birth, today);
-      start = (i) => addDays(birth, i); ypr = 0;
+// ---------- 상태 ----------
+const newId = () => Math.random().toString(36).slice(2, 9);
+const blankMandala = () => Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => ({ t: '', d: null })));
+const defaultQuests = () => {
+  const t = todayStr();
+  return [
+    { id: newId(), name: '30분 걷기', stat: 'vitality', sk: 'h-cardio', xp: 10, created: t },
+    { id: newId(), name: '책 10쪽 읽기', stat: 'competence', xp: 10, created: t },
+    { id: newId(), name: '소중한 사람에게 연락하기', stat: 'communication', sk: 'r-friend', xp: 10, created: t },
+    { id: newId(), name: '좋아하는 일 30분 하기', stat: 'enjoyment', xp: 10, created: t },
+  ];
+};
+let state = { unit: 'week', goals: [], birth: null };
+try { Object.assign(state, JSON.parse(localStorage.getItem(LS_KEY)) || {}); } catch (e) {}
+// 따로 써 본 확장 버전(lifegame.v2)의 기록이 있으면 합칩니다
+if (!state.quests) {
+  try {
+    const v2 = JSON.parse(localStorage.getItem('lifegame.v2') || 'null');
+    if (v2) {
+      for (const k of ['quests', 'log', 'notes', 'pauses', 'trophies', 'mandala', 'subStat', 'stats']) if (v2[k] != null) state[k] = v2[k];
+      if (!state.birth && v2.birth) state.birth = v2.birth;
     }
-    current = Math.min(total, Math.max(-1, current));
-    const rows = Math.ceil(total / cols);
-    const gap = pitch * 0.9;
-    const rowY = (r) => r * pitch + (ypr && unit !== 'year' ? Math.floor((r * ypr) / 10) * gap : 0);
-    const idxForAge = (a) =>
-      unit === 'year' ? a : unit === 'month' ? a * 12 : unit === 'week' ? a * 52 : dayDiff(birth, addYears(birth, a));
-    return { unit, birth, today, end, age, G, cols, pitch, total, current, start, ypr, rows, rowY, rScale, idxForAge,
-             height: rowY(rows - 1) + pitch };
+  } catch (e) {}
+}
+const qp = new URLSearchParams(location.search).get('birth');
+if (qp && /^\d{4}-\d{2}-\d{2}$/.test(qp)) state.birth = qp;
+
+function migrateToyotaSkills() {
+  // 앞 버전에서 이름을 바꿨던 기존 분야는 원래대로 되돌림
+  const V5 = { tech: 'IT·디지털', law: '거버넌스·리스크관리·컴플라이언스', biz: '기업경영' };
+  const PREV = { tech: '최신기술', law: '법', biz: '전략·사업' };
+  for (const id of Object.keys(PREV)) {
+    const c = state.skillTree.find((x) => x.id === id);
+    if (!c) continue;
+    if (c.name === V5[id]) c.name = PREV[id];
+    delete c.grp; delete c.req;
   }
-
-  // ---------- 그리기 ----------
-  const cv = $('#grid'), wrap = $('#gridWrap'), pulse = $('#pulse'), tip = $('#tip');
-  let M = null;
-  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const center = (i) => {
-    const r = Math.floor(i / M.cols), c = i % M.cols;
-    return [M.G + c * M.pitch + M.pitch / 2, M.rowY(r) + M.pitch / 2];
-  };
-
-  function draw() {
-    if (!state.birth) return;
-    const width = wrap.clientWidth;
-    if (!width) return;
-    M = model(state.unit, width);
-    const dpr = window.devicePixelRatio || 1;
-    cv.style.width = width + 'px';
-    cv.style.height = M.height + 'px';
-    cv.width = Math.round(width * dpr);
-    cv.height = Math.round(M.height * dpr);
-    const ctx = cv.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, width, M.height);
-
-    const past = cssVar('--dot-past'), fut = cssVar('--dot-future'), clay = cssVar('--clay'), faint = cssVar('--faint');
-    const r = M.pitch * M.rScale, TAU = Math.PI * 2;
-
-    const pPast = new Path2D(), pFut = new Path2D();
-    for (let i = 0; i < M.total; i++) {
-      if (i === M.current) continue;
-      const [x, y] = center(i);
-      const p = i < M.current ? pPast : pFut;
-      p.moveTo(x + r, y);
-      p.arc(x, y, r, 0, TAU);
+  const law = state.skillTree.find((x) => x.id === 'law');
+  if (law) law.subs = law.subs.filter((x) => !['riskmgmt', 'compliance'].includes(x.id));
+  const biz = state.skillTree.find((x) => x.id === 'biz');
+  if (biz) { const r = biz.subs.find((x) => x.id === 'risk'); if (r && r.name === '사업 리스크') r.name = '리스크'; }
+  // 앞 버전에서 법 아래에 기록한 리스크 관리·컴플라이언스는 토요타 거버넌스 스킬로 옮김
+  const REMAP = { 'law/riskmgmt': 'gov/riskmgmt', 'law/compliance': 'gov/compliance' };
+  const fix = (p) => REMAP[p] || p;
+  state.quests.forEach((q) => { if (q.sk) q.sk = fix(q.sk); });
+  (state.items || []).forEach((it) => { if (it.sk) it.sk = fix(it.sk); });
+  state.mandala.forEach((blk) => blk.forEach((cell) => { if (cell.sk) cell.sk = fix(cell.sk); }));
+  for (const k of Object.keys(state.subSkill || {})) state.subSkill[k] = fix(state.subSkill[k]);
+  state.skillFocus = (state.skillFocus || []).map((id) => ({ biz: 'mgmt', law: 'gov', tech: 'it' }[id] || id));
+  // 토요타 10개 스킬 추가
+  const toyota = DEFAULT_TREE.filter((d) => d.grp);
+  const hasComp = STATS.some((x) => x.id === 'competence');
+  for (const d of toyota) {
+    const ex = state.skillTree.find((c) => c.id === d.id);
+    if (!ex) { if (hasComp) state.skillTree.push(clone(d)); continue; }
+    ex.grp = d.grp;
+    if (d.req) ex.req = true;
+    for (const sub of d.subs) if (!ex.subs.some((x) => x.id === sub.id)) ex.subs.push({ ...sub });
+  }
+  // 기존 분야 뒤에 토요타 스킬이 매트릭스 순서로 오게
+  const pos = new Map(state.skillTree.map((c, i) => [c, i]));
+  const prevOrder = ['tech', 'law', 'biz'];
+  const ord = (c) => { const i = toyota.findIndex((d) => d.id === c.id); const p = prevOrder.indexOf(c.id); return i >= 0 ? 10000 + i : p >= 0 ? -10 + p : pos.get(c); };
+  state.skillTree.sort((a, b) => ord(a) - ord(b));
+  state.fieldsV6 = true;
+}
+function migrateToSeven() {
+  const mapId = (id) => STAT_MAP[id] || id;
+  // 능력치 목록: 일곱 축 + 사용자가 따로 만든 능력치
+  const custom = state.stats.filter((s) => !STAT_MAP[s.id] && !DEFAULT_STATS.some((d) => d.id === s.id));
+  state.stats = [...DEFAULT_STATS.map((x) => ({ ...x })), ...custom];
+  // 분야
+  if (Array.isArray(state.skillTree)) {
+    state.skillTree.forEach((c) => { c.stat = FIELD_MOVE[c.id] || mapId(c.stat || 'skill'); if (!Array.isArray(c.subs)) c.subs = []; });
+    for (const d of DEFAULT_TREE) {
+      const ex = state.skillTree.find((c) => c.id === d.id);
+      if (!ex) state.skillTree.push(clone(d));
+      else for (const sub of d.subs) if (!ex.subs.some((x) => x.id === sub.id)) ex.subs.push({ ...sub });
     }
-    ctx.fillStyle = past; ctx.fill(pPast);
-    ctx.fillStyle = fut; ctx.fill(pFut);
-
-    // 목표 기한 링
-    ctx.strokeStyle = clay;
-    ctx.lineWidth = Math.max(1, M.pitch * 0.09);
-    for (const g of state.goals) {
-      if (g.done) continue;
-      const i = M.idxForAge(g.age);
-      if (i < 0 || i >= M.total) continue;
-      const [x, y] = center(i);
-      ctx.beginPath(); ctx.arc(x, y, r + M.pitch * 0.17, 0, TAU); ctx.stroke();
+    state.fieldsV2 = true;
+  }
+  const fieldStat = (path) => { const c = catOf(path); return c ? c.stat : null; };
+  // 퀘스트·물건: 분야가 옮겨 갔으면 그 축을 따라감
+  state.quests.forEach((q) => { q.stat = (q.sk && fieldStat(q.sk)) || mapId(q.stat); });
+  (state.items || []).forEach((it) => { if (it.stat) it.stat = (it.sk && fieldStat(it.sk)) || mapId(it.stat); });
+  // 만다라트 세부 목표: 리마인더 목록 이름이 있으면 그 이름으로, 아니면 축 대응표로
+  for (const b of BLOCKS) {
+    const nm = (state.mandala[4][b].t || '').trim().toLowerCase();
+    state.subStat[b] = LIST_STAT[nm] || (state.subSkill && state.subSkill[b] && fieldStat(state.subSkill[b])) || mapId(state.subStat[b]);
+  }
+  // 트로피 기록 이름 바꾸기 (예: health-lv5 → vitality-lv5)
+  for (const k of Object.keys(state.trophies || {})) {
+    const m = k.match(/^(health|skill|rel|finance|play|luck)-(lv\d+|cond)$/);
+    if (m) { const nk = `${STAT_MAP[m[1]]}-${m[2]}`; if (!state.trophies[nk]) state.trophies[nk] = state.trophies[k]; delete state.trophies[k]; }
+  }
+}
+function normalize() {
+  if (!Array.isArray(state.goals)) state.goals = [];
+  if (!Array.isArray(state.quests)) state.quests = defaultQuests();
+  for (const k of ['log', 'notes', 'pauses', 'trophies']) if (!state[k] || typeof state[k] !== 'object') state[k] = {};
+  if (!Array.isArray(state.mandala) || state.mandala.length !== 9) state.mandala = blankMandala();
+  if (!state.subStat || typeof state.subStat !== 'object') state.subStat = { ...DEFAULT_SUB };
+  const oldIds = Object.keys(STAT_MAP);
+  const usesOld = state.quests.some((q) => oldIds.includes(q.stat)) || Object.values(state.subStat).some((v) => oldIds.includes(v));
+  if (!Array.isArray(state.stats) || !state.stats.length) {
+    state.stats = (!state.statsV3 && usesOld ? OLD_STATS : DEFAULT_STATS).map((x) => ({ ...x }));
+    if (state.stats === DEFAULT_STATS || !usesOld) state.statsV3 = true;
+  }
+  if (!state.statsV3) migrateToSeven();
+  state.statsV3 = true;
+  STATS = state.stats;
+  const ids = STATS.map((s) => s.id);
+  state.quests.forEach((q) => { if (!ids.includes(q.stat)) q.stat = ids[0]; });
+  for (const b of BLOCKS) if (!ids.includes(state.subStat[b])) state.subStat[b] = ids[0];
+  if (!state.assess || typeof state.assess !== 'object') state.assess = {};
+  if (!Array.isArray(state.skillTree)) state.skillTree = clone(DEFAULT_TREE);
+  else if (!state.fieldsV2) {
+    // 이전 버전(스킬에만 분야) → 모든 능력치로 확장하고, 추천 세부 분야를 덧붙임
+    state.skillTree.forEach((c) => { if (!c.stat) c.stat = SKILL_STAT; });
+    for (const d of DEFAULT_TREE) {
+      const ex = state.skillTree.find((c) => c.id === d.id);
+      if (!ex) state.skillTree.push(clone(d));
+      else for (const sub of d.subs) if (!ex.subs.some((x) => x.id === sub.id)) ex.subs.push({ ...sub });
     }
+  }
+  state.fieldsV2 = true;
+  if (!state.fieldsV4) {
+    const biz = DEFAULT_TREE.find((d) => d.id === 'biz');
+    if (!state.skillTree.some((c) => c.id === 'biz') && STATS.some((x) => x.id === biz.stat)) state.skillTree.push(clone(biz));
+    state.fieldsV4 = true;
+  }
+  if (!state.fieldsV6) migrateToyotaSkills();
+  if (!Array.isArray(state.skillFocus)) state.skillFocus = [];
+  state.skillFocus = state.skillFocus.filter((id) => state.skillTree.some((c) => c.id === id)).slice(0, FOCUS_MAX);
+  if (!state.targets || typeof state.targets !== 'object') state.targets = {};
+  if (!state.rest || typeof state.rest !== 'object') state.rest = {};
+  if (!Array.isArray(state.rules) || !state.rules.length) state.rules = [...DEFAULT_RULES];
+  if (!Array.isArray(state.items)) state.items = [];
+  state.items.forEach((it) => {
+    if (!RARITY_KEYS.includes(it.tier)) it.tier = 'common';
+    if (!['use', 'keep', 'gone', 'wish'].includes(it.status)) it.status = 'use';
+    if (it.stat && !STATS.some((x) => x.id === it.stat)) { it.stat = null; it.equipped = false; }
+    if (it.sk && !fieldValid(it.sk, it.stat)) it.sk = null;
+  });
+  state.quests.forEach((q) => { if (q.item && !state.items.some((it) => it.id === q.item)) delete q.item; });
+  state.skillTree.forEach((c) => { if (!c.stat) c.stat = SKILL_STAT; if (!Array.isArray(c.subs)) c.subs = []; });
+  if (!state.subSkill || typeof state.subSkill !== 'object') state.subSkill = { ...DEFAULT_SUBSKILL };
+  state.quests.forEach((q) => { if (q.sk && !fieldValid(q.sk, q.stat)) delete q.sk; });
+  for (const k of Object.keys(state.subSkill)) if (!fieldValid(state.subSkill[k], state.subStat[k])) delete state.subSkill[k];
+  state.mandala.forEach((blk, b) => blk.forEach((cell) => { if (cell.sk && !fieldValid(cell.sk, state.subStat[b])) delete cell.sk; }));
+  if (!['day', 'week', 'month', 'year'].includes(state.unit)) state.unit = 'week';
+  if (!state.travel || typeof state.travel !== 'object') state.travel = {};
+  for (const k of ['countries', 'regions', 'totals']) if (!state.travel[k] || typeof state.travel[k] !== 'object') state.travel[k] = {};
+  if (!['life', 'today', 'mandala', 'travel', 'inv', 'trophy'].includes(state.tab)) state.tab = 'life';
+}
+normalize();
+const save = () => { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} };
 
-    // 지금
-    if (M.current >= 0 && M.current < M.total) {
-      const [x, y] = center(M.current);
-      ctx.fillStyle = clay;
-      ctx.beginPath(); ctx.arc(x, y, r * 1.15, 0, TAU); ctx.fill();
-      const s = Math.max(10, r * 2.4);
-      Object.assign(pulse.style, { left: x + 'px', top: y + 'px', width: s + 'px', height: s + 'px' });
-      pulse.hidden = false;
-    } else {
-      pulse.hidden = true;
+// ---------- 게임 계산 ----------
+function levelInfo(xp) {
+  let L = 1;
+  while (25 * L * (L + 1) <= xp) L++;
+  const base = 25 * (L - 1) * L, next = 25 * L * (L + 1);
+  return { level: L, base, next, pct: (xp - base) / (next - base) };
+}
+const activeOn = (q, k) => (q.created || '0000') <= k && (!q.archivedAt || q.archivedAt > k);
+
+let lastCtx = null;
+function computeCtx() {
+  const t = todayStr();
+  const events = [];
+  for (const [k, ids] of Object.entries(state.log)) {
+    for (const id of ids) {
+      const q = state.quests.find((q) => q.id === id);
+      if (q) events.push({ k, stat: q.stat, xp: q.xp, sk: q.sk || '', item: q.item || null });
     }
-
-    // 10년 단위 나이 라벨
-    ctx.fillStyle = faint;
-    ctx.font = `11px ${cssVar('--sans')}`;
-    ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
-    let prevDecade = -1;
-    for (let row = 0; row < M.rows; row++) {
-      let dec;
-      if (M.ypr) {
-        const yr = row * M.ypr;
-        if (yr % 10 !== 0) continue;
-        dec = yr;
-      } else {
-        const d = Math.floor(ageAt(M.birth, M.start(row * M.cols)) / 10) * 10;
-        if (d === prevDecade) continue;
-        prevDecade = d; dec = d;
+  }
+  const m = state.mandala;
+  const blockDone = {};
+  let actDone = 0, subsN = 0;
+  for (const b of BLOCKS) {
+    if (m[4][b].t.trim()) subsN++;
+    blockDone[b] = 0;
+    for (const c of BLOCKS) {
+      const cell = m[b][c];
+      if (cell.t.trim() && cell.d) {
+        events.push({ k: cell.d, stat: state.subStat[b], xp: MANDALA_XP, sk: cell.sk || state.subSkill[b] || '' });
+        blockDone[b]++; actDone++;
       }
-      ctx.fillText(String(dec), M.G - 8, M.rowY(row) + M.pitch / 2);
     }
+  }
+  const st = {};
+  for (const s of STATS) {
+    let xp = 0, last30 = 0, last90 = 0, last7 = 0, last14 = 0;
+    for (const e of events) if (e.stat === s.id) {
+      xp += e.xp;
+      const dd = diffKeys(e.k, t);
+      if (dd >= 0 && dd < 30) last30 += e.xp;
+      if (dd >= 0 && dd < 90) last90 += e.xp;
+      if (dd >= 0 && dd < 14) last14 += e.xp;
+      if (dd >= 0 && dd < 7) last7 += e.xp;
+    }
+    // 쉼으로 표시한 날은 컨디션 기준에서 뺌
+    const rest30 = Object.keys(state.rest).filter((k) => { const dd = diffKeys(k, t); return dd >= 0 && dd < 30; }).length;
+    const base = 300 * Math.max(1, 30 - rest30) / 30;
+    st[s.id] = { xp, x90: last90, xp30: last30, x14: last14, x7: last7, cond: Math.min(100, Math.round(last30 / base * 100)), ...levelInfo(xp) };
+  }
+  const itemXp = {};
+  for (const e of events) if (e.item) itemXp[e.item] = (itemXp[e.item] || 0) + e.xp;
+  const countByDay = {};
+  for (const e of events) countByDay[e.k] = (countByDay[e.k] || 0) + 1;
+  // 쉼으로 표시한 날은 연속 기록을 끊지 않고 건너뜀
+  const streakOf = (has) => {
+    let d = sod(new Date()), s = 0;
+    if (!has(keyOf(d))) d = addDays(d, -1);
+    for (let guard = 0; guard < 40000; guard++) {
+      const k = keyOf(d);
+      if (has(k)) s++;
+      else if (!state.rest[k]) break;
+      d = addDays(d, -1);
+    }
+    return s;
+  };
+  let perfect = 0, checks = 0;
+  for (const [k, ids] of Object.entries(state.log)) {
+    checks += ids.length;
+    const act = state.quests.filter((q) => activeOn(q, k));
+    if (act.length && act.every((q) => ids.includes(q.id))) perfect++;
+  }
+  return {
+    t, st, countByDay, streakOf, perfect, checks,
+    streak: streakOf((k) => !!countByDay[k]),
+    activeStreak14: Array.from({ length: 14 }, (_, i) => keyOf(addDays(sod(new Date()), -i))).every((k) => countByDay[k]),
+    rest14: Array.from({ length: 14 }, (_, i) => keyOf(addDays(sod(new Date()), -i))).some((k) => state.rest[k]),
+    boards: Object.values(state.assess).map((m) => ({ p: boardScore(m, POWER), f: boardScore(m, FREEDOM) })),
+    notesN: Object.values(state.notes).filter((v) => v && v.trim()).length,
+    pausesN: Object.values(state.pauses).filter((v) => v && v.trim()).length,
+    assessMonths: Object.values(state.assess).filter((m) => m && Object.keys(m).length).length,
+    balanced: Object.values(state.assess).some((m) => STATS.length && STATS.every((s) => (m || {})[s.id] >= 7)) ? 1 : 0,
+    goalsDone: state.goals.filter((g) => g.done).length,
+    core: !!m[4][4].t.trim(), subsN, actDone, blockDone,
+    bestBlock: Math.max(0, ...Object.values(blockDone)),
+    minLevel: Math.min(...STATS.map((s) => st[s.id].level)),
+    sk: skillStats(events, t),
+    tv: travelStats(),
+    itemXp, inv: inventoryStats(itemXp),
+  };
+}
 
-    $('#caption').textContent =
-      `한 점 = ${UNIT_ONE[M.unit]} · 전체 ${fmt(M.total)}개 중 ${fmt(Math.max(0, M.current))}개를 지나왔습니다 · 왼쪽 숫자는 나이`;
+function skillStats(events, t) {
+  const xp = {}, x30 = {}, un = {};
+  for (const e of events) {
+    const dd = diffKeys(e.k, t), recent = dd >= 0 && dd < 30;
+    if (!fieldValid(e.sk, e.stat)) { un[e.stat] = (un[e.stat] || 0) + e.xp; continue; }
+    xp[e.sk] = (xp[e.sk] || 0) + e.xp;
+    if (recent) x30[e.sk] = (x30[e.sk] || 0) + e.xp;
+  }
+  const lv = {};
+  const cats = (state.skillTree || []).map((c) => {
+    const subs = c.subs.map((x) => {
+      const p = `${c.id}/${x.id}`, v = xp[p] || 0;
+      const li = levelInfo(v); lv[p] = li.level;
+      return { id: x.id, path: p, name: x.name, xp: v, x30: x30[p] || 0, ...li };
+    });
+    const total = (xp[c.id] || 0) + subs.reduce((a, x) => a + x.xp, 0);
+    const li = levelInfo(total); lv[c.id] = li.level;
+    return { id: c.id, stat: c.stat, grp: c.grp || null, req: !!c.req, name: c.name, xp: total, own: xp[c.id] || 0, x30: (x30[c.id] || 0) + subs.reduce((a, x) => a + x.x30, 0),
+      minSub: subs.length ? Math.min(...subs.map((x) => x.level)) : 1, subs, ...li };
+  });
+  return { cats, lv, un };
+}
+
+// ---------- 트로피 ----------
+const TIER = { bronze: 'var(--bronze)', silver: 'var(--silver)', gold: 'var(--gold)', plat: 'var(--plat)' };
+const TIER_NAME = { bronze: '브론즈', silver: '실버', gold: '골드', plat: '플래티넘' };
+const STAT_TROPHY_NAMES = {
+  health: ['첫 땀방울', '단단한 몸', '강철 체력', '불굴의 몸'],
+  skill: ['스킬 종합 Lv 5', '스킬 종합 Lv 10', '스킬 종합 Lv 20', '스킬 종합 Lv 35'],
+  rel: ['다정한 안부', '믿음직한 친구', '든든한 울타리', '모두의 등대'],
+  finance: ['첫 저금통', '탄탄한 지갑', '자산가', '경제적 자유'],
+  play: ['놀 줄 아는 사람', '모험가', '즐거움의 달인', '인생 플레이어'],
+  luck: ['네잎클로버', '행운의 손', '럭키 스트릭', '행운의 별'],
+  happy: ['작은 미소', '맑은 날들', '충만한 마음', '행복의 정원'],
+};
+let TROPHIES = [], GROUPS = [];
+function buildTrophies() {
+  TROPHIES = [];
+  STATS.forEach((s) => {
+    const names = [5, 10, 20, 35].map((lv) => `${s.name} Lv ${lv}`);
+    [[5, 'bronze'], [10, 'silver'], [20, 'gold'], [35, 'plat']].forEach(([lv, tier], i) => {
+      TROPHIES.push({ id: `${s.id}-lv${lv}`, group: s.id, tier, name: names[i], desc: `레벨 ${lv} 달성`, check: (c) => [c.st[s.id].level, lv] });
+    });
+    TROPHIES.push({ id: `${s.id}-cond`, group: s.id, tier: 'gold', name: '한 달 만점', desc: `${s.name} 컨디션 100`, check: (c) => [c.st[s.id].cond, 100] });
+  });
+  // 분야마다 Lv 3·8·15. 묶음은 세부 분야마다 같은 단계 + 모든 세부 분야 Lv 5·10
+  const FT = [[3, 'bronze'], [8, 'silver'], [15, 'gold']];
+  (state.skillTree || []).forEach((c) => {
+    if (!STATS.some((s) => s.id === c.stat)) return;
+    if (!c.subs.length) {
+      FT.forEach(([lv, tier]) => TROPHIES.push({ id: `sk-${c.id}-${lv}`, group: c.stat, tier, name: c.name, desc: `Lv ${lv} 달성`, check: (ctx) => [ctx.sk.lv[c.id] || 1, lv] }));
+      return;
+    }
+    c.subs.forEach((x) => {
+      const p = `${c.id}/${x.id}`;
+      FT.forEach(([lv, tier]) => TROPHIES.push({ id: `sk-${c.id}-${x.id}-${lv}`, group: `sk-${c.id}`, tier, name: x.name, desc: `Lv ${lv} 달성`, check: (ctx) => [ctx.sk.lv[p] || 1, lv] }));
+    });
+    const minSub = (ctx) => (ctx.sk.cats.find((k) => k.id === c.id) || { minSub: 1 }).minSub;
+    TROPHIES.push({ id: `sk-${c.id}-all5`, group: `sk-${c.id}`, tier: 'silver', name: `${c.name} 전 분야`, desc: '모든 세부 분야 Lv 5', check: (ctx) => [minSub(ctx), 5] });
+    TROPHIES.push({ id: `sk-${c.id}-all10`, group: `sk-${c.id}`, tier: 'plat', name: `${c.name} 전 분야`, desc: '모든 세부 분야 Lv 10', check: (ctx) => [minSub(ctx), 10] });
+  });
+  TROPHIES.push(
+    { id: 'h-first', group: 'habit', tier: 'bronze', name: '첫 걸음', desc: '퀘스트 처음 완료', check: (c) => [c.checks, 1] },
+    { id: 'h-s7', group: 'habit', tier: 'bronze', name: '일주일 연속', desc: '7일 연속 기록', check: (c) => [c.streak, 7] },
+    { id: 'h-s30', group: 'habit', tier: 'silver', name: '한 달 연속', desc: '30일 연속 기록', check: (c) => [c.streak, 30] },
+    { id: 'h-s100', group: 'habit', tier: 'gold', name: '백일', desc: '100일 연속 기록', check: (c) => [c.streak, 100] },
+    { id: 'h-s365', group: 'habit', tier: 'plat', name: '한 바퀴', desc: '365일 연속 기록', check: (c) => [c.streak, 365] },
+    { id: 'h-p1', group: 'habit', tier: 'bronze', name: '완벽한 하루', desc: '하루 퀘스트 전부 완료', check: (c) => [c.perfect, 1] },
+    { id: 'h-p30', group: 'habit', tier: 'gold', name: '완벽한 서른 날', desc: '완벽한 하루 30번', check: (c) => [c.perfect, 30] },
+    { id: 'h-c1000', group: 'habit', tier: 'gold', name: '천 번의 체크', desc: '퀘스트 1,000번 완료', check: (c) => [c.checks, 1000] },
+    { id: 'm-core', group: 'mandala', tier: 'bronze', name: '북극성', desc: '핵심 목표 작성', check: (c) => [c.core ? 1 : 0, 1] },
+    { id: 'm-subs', group: 'mandala', tier: 'silver', name: '여덟 갈래 길', desc: '세부 목표 8개 작성', check: (c) => [c.subsN, 8] },
+    { id: 'm-a10', group: 'mandala', tier: 'bronze', name: '실천가', desc: '실천 10개 완료', check: (c) => [c.actDone, 10] },
+    { id: 'm-block', group: 'mandala', tier: 'gold', name: '한 갈래 완주', desc: '세부 목표 하나의 실천 8개 완료', check: (c) => [c.bestBlock, 8] },
+    { id: 'm-all', group: 'mandala', tier: 'plat', name: '만다라트 완성', desc: '실천 64개 전부 완료', check: (c) => [c.actDone, 64] },
+    { id: 't-1', group: 'travel', tier: 'bronze', name: '첫 발자국', desc: '가 본 나라 1곳', check: (c) => [c.tv.countries, 1] },
+    { id: 't-5', group: 'travel', tier: 'silver', name: '여권 도장 다섯 개', desc: '가 본 나라 5곳', check: (c) => [c.tv.countries, 5] },
+    { id: 't-20', group: 'travel', tier: 'gold', name: '세계 여행자', desc: '가 본 나라 20곳', check: (c) => [c.tv.countries, 20] },
+    { id: 't-50', group: 'travel', tier: 'plat', name: '지구인', desc: '가 본 나라 50곳', check: (c) => [c.tv.countries, 50] },
+    { id: 't-c3', group: 'travel', tier: 'silver', name: '세 대륙', desc: '3개 대륙 방문', check: (c) => [c.tv.continents, 3] },
+    { id: 't-c6', group: 'travel', tier: 'plat', name: '여섯 대륙', desc: '6개 대륙 모두 방문', check: (c) => [c.tv.continents, 6] },
+    { id: 't-r100', group: 'travel', tier: 'gold', name: '지역 100곳', desc: '지역 100곳 방문', check: (c) => [c.tv.regions, 100] },
+    { id: 't-full', group: 'travel', tier: 'gold', name: '한 나라 완주', desc: '한 나라의 모든 지역 방문', check: (c) => [c.tv.full ? 1 : 0, 1] },
+    { id: 't-jp', group: 'travel', tier: 'plat', name: '47 도도부현 제패', desc: '일본 도도부현 전부 방문', check: (c) => [c.tv.jp, c.tv.jpTotal] },
+    { id: 'i-1', group: 'inv', tier: 'bronze', name: '첫 장비', desc: '물건 1개 등록', check: (c) => [c.inv.ever, 1] },
+    { id: 'i-5y', group: 'inv', tier: 'silver', name: '오래 쓰기', desc: '5년 넘게 쓰는 물건', check: (c) => [Math.floor(c.inv.oldestYears), 5] },
+    { id: 'i-10y', group: 'inv', tier: 'gold', name: '골동품', desc: '10년 넘게 쓰는 물건', check: (c) => [Math.floor(c.inv.oldestYears), 10] },
+    { id: 'i-legend', group: 'inv', tier: 'gold', name: '전설 장비', desc: '전설 등급 물건 보유', check: (c) => [c.inv.legend, 1] },
+    { id: 'i-bond', group: 'inv', tier: 'silver', name: '애착 장비', desc: '한 물건으로 1,000 XP', check: (c) => [c.inv.maxBond, 1000] },
+    { id: 'i-equip', group: 'inv', tier: 'plat', name: '풀 장착', desc: '모든 능력치에 장착', check: (c) => [c.inv.eqStats, STATS.length] },
+    { id: 'i-wish', group: 'inv', tier: 'bronze', name: '위시 달성', desc: '위시리스트 물건 얻기', check: (c) => [c.inv.wishDone, 1] },
+    { id: 'i-min', group: 'inv', tier: 'silver', name: '미니멀리스트', desc: '물건 10개 처분', check: (c) => [c.inv.gone, 10] },
+    { id: 'i-col', group: 'inv', tier: 'gold', name: '수집가', desc: '한 종류 30개 보유', check: (c) => [c.inv.maxKind, 30] },
+    { id: 'g-1', group: 'life', tier: 'bronze', name: '첫 깃발', desc: '인생 목표 하나 달성', check: (c) => [c.goalsDone, 1] },
+    { id: 'g-5', group: 'life', tier: 'gold', name: '다섯 개의 깃발', desc: '인생 목표 다섯 개 달성', check: (c) => [c.goalsDone, 5] },
+    { id: 'l-n7', group: 'life', tier: 'bronze', name: '기록하는 사람', desc: '오늘의 한 줄 7일', check: (c) => [c.notesN, 7] },
+    { id: 'l-n100', group: 'life', tier: 'gold', name: '백 일의 기록', desc: '오늘의 한 줄 100일', check: (c) => [c.notesN, 100] },
+    { id: 'mx-req', group: 'competence', tier: 'silver', name: '이사의 기본기', desc: '필수 스킬 모두 Lv 5', check: (c) => { const r = c.sk.cats.filter((k) => k.req); return [r.length ? Math.min(...r.map((k) => k.level)) : 1, 5]; } },
+    { id: 'mx-focus', group: 'competence', tier: 'gold', name: '나만의 매트릭스', desc: `우선 스킬 ${FOCUS_MAX}개 모두 Lv 5`, check: (c) => { const f = c.sk.cats.filter((k) => state.skillFocus.includes(k.id)); return [f.length >= FOCUS_MAX ? Math.min(...f.map((k) => k.level)) : 1, 5]; } },
+    { id: 'mx-all', group: 'competence', tier: 'plat', name: '열 개의 ●', desc: '매트릭스 10개 스킬 모두 Lv 5', check: (c) => { const g = c.sk.cats.filter((k) => k.grp); return [g.length ? g.filter((k) => k.level >= 5).length : 0, Math.max(1, g.length)]; } },
+    { id: 'a-1', group: 'life', tier: 'bronze', name: '첫 상태 점검', desc: '한 달 상태 점검 하기', check: (c) => [c.assessMonths, 1] },
+    { id: 'a-12', group: 'life', tier: 'gold', name: '열두 번의 점검', desc: '상태 점검 12개월', check: (c) => [c.assessMonths, 12] },
+    { id: 'ps-7', group: 'life', tier: 'gold', name: 'Power 7', desc: '한 달 Power Score 7 이상', check: (c) => [Math.max(0, ...c.boards.map((b) => b.p || 0)), 7] },
+    { id: 'fs-7', group: 'life', tier: 'gold', name: 'Freedom 7', desc: '한 달 Freedom Score 7 이상', check: (c) => [Math.max(0, ...c.boards.map((b) => b.f || 0)), 7] },
+    { id: 'pf-bal', group: 'life', tier: 'plat', name: '균형 빌드', desc: '같은 달 Power·Freedom 모두 7 이상', check: (c) => [c.boards.some((b) => b.p >= 7 && b.f >= 7) ? 1 : 0, 1] },
+    { id: 'a-bal', group: 'life', tier: 'plat', name: '일곱 축의 균형', desc: '한 달에 모든 축 7점 이상', check: (c) => [c.balanced, 1] },
+    { id: 'l-pause', group: 'life', tier: 'bronze', name: '첫 쉼표', desc: '인생의 쉼표 한 줄 남기기', check: (c) => [c.pausesN, 1] },
+    { id: 'l-balance', group: 'life', tier: 'plat', name: '균형 잡힌 삶', desc: '모든 능력치 Lv 10', check: (c) => [c.minLevel, 10] },
+  );
+  GROUPS = [
+    ...STATS.map((s) => ({ id: s.id, name: s.name, stat: true })),
+    ...(state.skillTree || []).filter((c) => c.subs.length && STATS.some((s) => s.id === c.stat)).map((c) => ({ id: `sk-${c.id}`, name: `${statName(c.stat)} · ${c.name}`, skcat: c.id })),
+    { id: 'habit', name: '습관' }, { id: 'mandala', name: '만다라트' }, { id: 'travel', name: '여행' }, { id: 'inv', name: '소지품' }, { id: 'life', name: '인생' },
+  ];
+}
+function cupSVG(tier, got) {
+  const col = got ? TIER[tier] : 'none';
+  const stroke = got ? TIER[tier] : 'var(--faint)';
+  return `<svg viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M14 11H8v3a7 7 0 0 0 7 7M34 11h6v3a7 7 0 0 1-7 7" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M13 7h22v10a11 11 0 0 1-22 0z" fill="${col}" stroke="${stroke}" stroke-width="2.5" stroke-linejoin="round"/>
+    ${got ? '<path d="M18 11v5a6 6 0 0 0 3 5" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/>' : ''}
+    <path d="M24 28v6" stroke="${stroke}" stroke-width="3"/>
+    <rect x="15" y="34" width="18" height="6" rx="2" fill="${col}" stroke="${stroke}" stroke-width="2.5"/>
+  </svg>`;
+}
+function evaluateTrophies(ctx, announce) {
+  const fresh = [];
+  for (const tr of TROPHIES) {
+    const [cur, tg] = tr.check(ctx);
+    if (cur >= tg && !state.trophies[tr.id]) { state.trophies[tr.id] = ctx.t; fresh.push(tr); }
+  }
+  if (!fresh.length) return;
+  save();
+  if (!announce) return;
+  fresh.slice(0, 3).forEach((tr) => toast(`${cupSVG(tr.tier, true)}<span>트로피 획득: ${esc(tr.name)}</span>`));
+  if (fresh.length > 3) toast(`<span>트로피 ${fresh.length - 3}개를 더 획득했어요</span>`);
+}
+
+// ---------- 토스트 ----------
+const tq = []; let toasting = false;
+function toast(html) { tq.push(html); if (!toasting) nextToast(); }
+function nextToast() {
+  const el = $('#toast');
+  if (!tq.length) { toasting = false; return; }
+  toasting = true;
+  el.innerHTML = tq.shift();
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => { el.classList.remove('show'); setTimeout(nextToast, 400); }, 2600);
+}
+
+// ---------- 단위별 레이아웃 ----------
+// 일: 7의 배수 열(요일 정렬) / 주: 1년=52칸 / 월: 1년=12칸 / 년: 10년=1줄
+function model(unit, width) {
+  const birth = parse(state.birth);
+  const today = sod(new Date());
+  const end = addYears(birth, LIFESPAN);
+  const age = Math.min(LIFESPAN, Math.max(0, ageAt(birth, today)));
+  const G = 30;
+  const w = Math.max(200, width - G);
+  let cols, pitch, total, current, start, ypr, rScale = 0.34;
+  if (unit === 'year') {
+    cols = 10; pitch = Math.min(54, w / cols); total = 100; current = age;
+    start = (i) => addYears(birth, i); ypr = 10; rScale = 0.38;
+  } else if (unit === 'month') {
+    const k = [5, 2, 1].find((k) => w / (12 * k) >= 13) || 1;
+    cols = 12 * k; pitch = Math.min(24, w / cols); total = 1200; current = monthsAt(birth, today);
+    start = (i) => addMonths(birth, i); ypr = k;
+  } else if (unit === 'week') {
+    const k = w / 104 >= 8 ? 2 : 1;
+    cols = 52 * k; pitch = Math.min(17, w / cols); total = 5200;
+    const wk = Math.min(51, Math.floor(dayDiff(addYears(birth, age), today) / 7));
+    current = age * 52 + wk;
+    start = (i) => addDays(addYears(birth, Math.floor(i / 52)), (i % 52) * 7); ypr = k;
+  } else {
+    const k = Math.max(4, Math.min(30, Math.floor(w / 49)));
+    cols = 7 * k; pitch = Math.min(10, w / cols); total = dayDiff(birth, end); current = dayDiff(birth, today);
+    start = (i) => addDays(birth, i); ypr = 0;
+  }
+  current = Math.min(total, Math.max(-1, current));
+  const rows = Math.ceil(total / cols);
+  const gap = pitch * 0.9;
+  const rowY = (r) => r * pitch + (ypr && unit !== 'year' ? Math.floor((r * ypr) / 10) * gap : 0);
+  const idxForAge = (a) =>
+    unit === 'year' ? a : unit === 'month' ? a * 12 : unit === 'week' ? a * 52 : dayDiff(birth, addYears(birth, a));
+  const idxForDate = (d) => {
+    if (unit === 'year') return ageAt(birth, d);
+    if (unit === 'month') return monthsAt(birth, d);
+    if (unit === 'week') { const a = ageAt(birth, d); return a * 52 + Math.min(51, Math.floor(dayDiff(addYears(birth, a), d) / 7)); }
+    return dayDiff(birth, d);
+  };
+  return { unit, birth, today, end, age, G, cols, pitch, total, current, start, ypr, rows, rowY, rScale, idxForAge, idxForDate,
+    height: rowY(rows - 1) + pitch };
+}
+
+// ---------- 그리기 ----------
+const cv = $('#grid'), wrap = $('#gridWrap'), pulse = $('#pulse'), tip = $('#tip');
+let M = null;
+const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const center = (i) => {
+  const r = Math.floor(i / M.cols), c = i % M.cols;
+  return [M.G + c * M.pitch + M.pitch / 2, M.rowY(r) + M.pitch / 2];
+};
+
+function draw() {
+  if (!state.birth) return;
+  const width = wrap.clientWidth;
+  if (!width) return;
+  M = model(state.unit, width);
+  const dpr = window.devicePixelRatio || 1;
+  cv.style.width = width + 'px';
+  cv.style.height = M.height + 'px';
+  cv.width = Math.round(width * dpr);
+  cv.height = Math.round(M.height * dpr);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, width, M.height);
+
+  const past = cssVar('--dot-past'), fut = cssVar('--dot-future'), clay = cssVar('--clay'), faint = cssVar('--faint');
+  const r = M.pitch * M.rScale, TAU = Math.PI * 2;
+
+  // 퀘스트·실천을 기록한 날
+  const act = new Set();
+  const counts = (lastCtx || computeCtx()).countByDay;
+  for (const k of Object.keys(counts)) {
+    const d = parse(k);
+    if (d < M.birth || d > M.today) continue;
+    act.add(M.idxForDate(d));
   }
 
-  // ---------- 툴팁 ----------
-  function hit(clientX, clientY) {
-    if (!M) return -1;
-    const rect = cv.getBoundingClientRect();
-    const x = clientX - rect.left, y = clientY - rect.top;
-    const c = Math.floor((x - M.G) / M.pitch);
-    if (c < 0 || c >= M.cols) return -1;
-    let row = Math.min(M.rows - 1, Math.max(0, Math.floor(y / M.pitch)));
-    while (row > 0 && M.rowY(row) > y) row--;
-    if (y < M.rowY(row) || y > M.rowY(row) + M.pitch) return -1;
-    const i = row * M.cols + c;
-    return i < M.total ? i : -1;
-  }
-
-  function describe(i) {
-    const s = M.start(i);
-    let t;
-    if (M.unit === 'day') t = `${fmtDate(s)} · ${ageAt(M.birth, s)}세 · ${fmt(i + 1)}번째 날`;
-    else if (M.unit === 'week') {
-      const e = addDays(s, 6);
-      t = `${Math.floor(i / 52)}세 ${(i % 52) + 1}번째 주 · ${fmtDate(s)} – ${e.getMonth() + 1}. ${e.getDate()}.`;
-    } else if (M.unit === 'month') t = `${fmtYM(s)} · ${ageAt(M.birth, s)}세 · ${fmt(i + 1)}번째 달`;
-    else t = `${i}세 · ${fmtDate(s)} – ${fmtDate(addDays(addYears(M.birth, i + 1), -1))}`;
-    const prefix = i < M.current ? '' : i === M.current ? '지금 · ' : '';
-    const g = state.goals.find((g) => !g.done && M.idxForAge(g.age) === i);
-    return prefix + t + (g ? ` · 목표: ${g.title}` : '');
-  }
-
-  let hideTimer = null;
-  function showTip(e) {
-    const i = hit(e.clientX, e.clientY);
-    if (i < 0) { tip.classList.remove('on'); return; }
+  const restSet = new Set();
+  for (const k of Object.keys(state.rest || {})) { const d = parse(k); if (d >= M.birth && d <= M.today) restSet.add(M.idxForDate(d)); }
+  const pPast = new Path2D(), pAct = new Path2D(), pFut = new Path2D(), pRest = new Path2D();
+  for (let i = 0; i < M.total; i++) {
+    if (i === M.current) continue;
     const [x, y] = center(i);
-    tip.textContent = describe(i);
-    const half = tip.offsetWidth / 2;
-    const cx = Math.min(wrap.clientWidth - half, Math.max(half, x));
-    tip.style.left = cx + 'px';
-    tip.style.top = (y - M.pitch * 0.3) + 'px';
-    tip.classList.add('on');
-    if (e.pointerType === 'touch') {
-      clearTimeout(hideTimer);
-      hideTimer = setTimeout(() => tip.classList.remove('on'), 2200);
-    }
+    const p = i < M.current ? (act.has(i) ? pAct : restSet.has(i) ? pRest : pPast) : pFut;
+    p.moveTo(x + r, y);
+    p.arc(x, y, r, 0, TAU);
   }
-  cv.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') showTip(e); });
-  cv.addEventListener('pointerdown', showTip);
-  cv.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') tip.classList.remove('on'); });
+  ctx.fillStyle = past; ctx.fill(pPast);
+  ctx.fillStyle = fut; ctx.fill(pFut);
+  ctx.globalAlpha = 0.6; ctx.fillStyle = clay; ctx.fill(pAct); ctx.globalAlpha = 1;
+  ctx.fillStyle = faint; ctx.fill(pRest);
 
-  // ---------- 숫자 ----------
-  function tick() {
-    if (!state.birth) return;
-    const birth = parse(state.birth), end = addYears(birth, LIFESPAN), now = new Date();
-    const p = Math.min(1, Math.max(0, (now - birth) / (end - birth)));
-    $('#pct').textContent = (p * 100).toFixed(6);
+  // 목표 기한 링
+  ctx.strokeStyle = clay;
+  ctx.lineWidth = Math.max(1, M.pitch * 0.09);
+  for (const g of state.goals) {
+    if (g.done) continue;
+    const i = M.idxForAge(g.age);
+    if (i < 0 || i >= M.total) continue;
+    const [x, y] = center(i);
+    ctx.beginPath(); ctx.arc(x, y, r + M.pitch * 0.17, 0, TAU); ctx.stroke();
   }
 
-  function updateStats() {
-    const birth = parse(state.birth);
-    const today = sod(new Date());
-    const end = addYears(birth, LIFESPAN);
-    const age = Math.min(LIFESPAN, Math.max(0, ageAt(birth, today)));
-    $('#dayNo').textContent = fmt(dayDiff(birth, today) + 1);
-    $('#daysLeft').textContent = fmt(Math.max(0, dayDiff(today, end)));
+  // 지금
+  if (M.current >= 0 && M.current < M.total) {
+    const [x, y] = center(M.current);
+    ctx.fillStyle = clay;
+    ctx.beginPath(); ctx.arc(x, y, r * 1.15, 0, TAU); ctx.fill();
+    const s = Math.max(10, r * 2.4);
+    Object.assign(pulse.style, { left: x + 'px', top: y + 'px', width: s + 'px', height: s + 'px' });
+    pulse.hidden = false;
+  } else {
+    pulse.hidden = true;
+  }
 
-    $('#sAge').textContent = `${age}세`;
-    $('#sAgeSub').textContent = `다음 생일까지 D-${fmt(dayDiff(today, addYears(birth, age + 1)))}`;
-
-    const m = model(state.unit, wrap.clientWidth || 800);
-    const word = UNIT_WORD[state.unit];
-    $('#sUnitK').textContent = `지나온 ${word}`;
-    $('#sUnit').textContent = fmt(Math.max(0, m.current));
-    $('#sUnitSub').textContent = `남은 ${word} ${fmt(Math.max(0, m.total - m.current))}`;
-
-    const ch = Math.min(9, Math.floor(age / 10));
-    const chStart = addYears(birth, ch * 10), chEnd = addYears(birth, ch * 10 + 10);
-    const chPct = Math.min(100, Math.max(0, ((today - chStart) / (chEnd - chStart)) * 100));
-    $('#sChap').textContent = ch === 0 ? '유년기' : `${ch * 10}대`;
-    $('#sChapSub').textContent = `${chPct.toFixed(1)}% 지남`;
-
-    const next = state.goals.filter((g) => !g.done && addYears(birth, g.age) >= today).sort((a, b) => a.age - b.age)[0];
-    if (next) {
-      $('#sGoal').textContent = next.title;
-      $('#sGoalSub').textContent = `${next.age}세까지 · D-${fmt(dayDiff(today, addYears(birth, next.age)))}`;
+  // 10년 단위 나이 라벨
+  ctx.fillStyle = faint;
+  ctx.font = `11px ${cssVar('--sans')}`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  let prevDecade = -1;
+  for (let row = 0; row < M.rows; row++) {
+    let dec;
+    if (M.ypr) {
+      const yr = row * M.ypr;
+      if (yr % 10 !== 0) continue;
+      dec = yr;
     } else {
-      $('#sGoal').textContent = '—';
-      $('#sGoalSub').textContent = '아래에서 목표를 추가하세요';
+      const d = Math.floor(ageAt(M.birth, M.start(row * M.cols)) / 10) * 10;
+      if (d === prevDecade) continue;
+      prevDecade = d; dec = d;
     }
+    ctx.fillText(String(dec), M.G - 8, M.rowY(row) + M.pitch / 2);
   }
 
-  // ---------- 목표 ----------
-  function renderGoals() {
-    const list = $('#goalList');
-    list.innerHTML = '';
-    const birth = parse(state.birth), today = sod(new Date());
-    const sorted = [...state.goals].sort((a, b) => (a.done - b.done) || (a.age - b.age));
-    if (!sorted.length) {
-      const li = document.createElement('li');
-      li.className = 'empty';
-      li.textContent = '아직 목표가 없습니다.';
-      list.appendChild(li);
-    }
-    for (const g of sorted) {
-      const li = document.createElement('li');
-      li.className = 'goal' + (g.done ? ' done' : '');
+  $('#caption').textContent =
+    `한 점 = ${UNIT_ONE[M.unit]} · 전체 ${fmt(M.total)}개 중 ${fmt(Math.max(0, M.current))}개를 지나왔습니다 · 왼쪽 숫자는 나이`;
+}
 
-      const chk = document.createElement('button');
-      chk.className = 'chk';
-      chk.setAttribute('aria-label', g.done ? '달성 취소' : '달성으로 표시');
-      chk.onclick = () => { g.done = !g.done; save(); refresh(); };
-
-      const body = document.createElement('div');
-      body.className = 'gbody';
-      const t = document.createElement('div');
-      t.className = 'gtitle';
-      t.textContent = g.title;
-      const date = addYears(birth, g.age), dd = dayDiff(today, date);
-      const meta = document.createElement('div');
-      meta.className = 'gmeta';
-      meta.textContent = `${g.age}세까지 · ${fmtYM(date)} · ${g.done ? '달성' : dd >= 0 ? 'D-' + fmt(dd) : '기한 지남'}`;
-      body.append(t, meta);
-
-      const del = document.createElement('button');
-      del.className = 'del';
-      del.textContent = '×';
-      del.setAttribute('aria-label', '삭제');
-      del.onclick = () => { state.goals = state.goals.filter((x) => x.id !== g.id); save(); refresh(); };
-
-      li.append(chk, body, del);
-      list.appendChild(li);
-    }
-    const age = ageAt(birth, today);
-    const ageInput = $('#goalAge');
-    ageInput.min = Math.max(1, age);
-    if (!ageInput.value) ageInput.value = Math.min(LIFESPAN, age + 5);
+// ---------- 툴팁 ----------
+function hit(clientX, clientY) {
+  if (!M) return -1;
+  const rect = cv.getBoundingClientRect();
+  const x = clientX - rect.left, y = clientY - rect.top;
+  const c = Math.floor((x - M.G) / M.pitch);
+  if (c < 0 || c >= M.cols) return -1;
+  let row = Math.min(M.rows - 1, Math.max(0, Math.floor(y / M.pitch)));
+  while (row > 0 && M.rowY(row) > y) row--;
+  if (y < M.rowY(row) || y > M.rowY(row) + M.pitch) return -1;
+  const i = row * M.cols + c;
+  return i < M.total ? i : -1;
+}
+function describe(i) {
+  const s = M.start(i);
+  let t;
+  if (M.unit === 'day') {
+    t = `${fmtDate(s)} · ${ageAt(M.birth, s)}세 · ${fmt(i + 1)}번째 날`;
+    const n = lastCtx && lastCtx.countByDay[keyOf(s)];
+    if (n) t += ` · 기록 ${n}개`;
+  } else if (M.unit === 'week') {
+    const e = addDays(s, 6);
+    t = `${Math.floor(i / 52)}세 ${(i % 52) + 1}번째 주 · ${fmtDate(s)} – ${e.getMonth() + 1}. ${e.getDate()}.`;
+  } else if (M.unit === 'month') t = `${fmtYM(s)} · ${ageAt(M.birth, s)}세 · ${fmt(i + 1)}번째 달`;
+  else t = `${i}세 · ${fmtDate(s)} – ${fmtDate(addDays(addYears(M.birth, i + 1), -1))}`;
+  const prefix = i === M.current ? '지금 · ' : '';
+  const g = state.goals.find((g) => !g.done && M.idxForAge(g.age) === i);
+  const next = i + 1 < M.total ? M.start(i + 1) : M.end;
+  const its = itemsAround(s, next);
+  return prefix + t + (g ? ` · 목표: ${g.title}` : '') + (its.length ? ` · ${its.slice(0, 2).join(', ')}${its.length > 2 ? ` 외 ${its.length - 2}` : ''}` : '');
+}
+let hideTimer = null;
+function showTip(e) {
+  const i = hit(e.clientX, e.clientY);
+  if (i < 0) { tip.classList.remove('on'); return; }
+  const [x, y] = center(i);
+  tip.textContent = describe(i);
+  const half = tip.offsetWidth / 2;
+  const cx = Math.min(wrap.clientWidth - half, Math.max(half, x));
+  tip.style.left = cx + 'px';
+  tip.style.top = (y - M.pitch * 0.3) + 'px';
+  tip.classList.add('on');
+  if (e.pointerType === 'touch') {
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => tip.classList.remove('on'), 2200);
   }
+}
+cv.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') showTip(e); });
+cv.addEventListener('pointerdown', showTip);
+cv.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') tip.classList.remove('on'); });
 
-  $('#goalForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const title = $('#goalTitle').value.trim();
-    const age = parseInt($('#goalAge').value, 10);
-    if (!title || !(age >= 1 && age <= LIFESPAN)) return;
-    state.goals.push({ id: Date.now(), title, age, done: false });
-    $('#goalTitle').value = '';
+// ---------- 숫자 ----------
+function tick() {
+  if (!state.birth) return;
+  const birth = parse(state.birth), end = addYears(birth, LIFESPAN), now = new Date();
+  const p = Math.min(1, Math.max(0, (now - birth) / (end - birth)));
+  $('#pct').textContent = (p * 100).toFixed(6);
+}
+function updateStats() {
+  const birth = parse(state.birth);
+  const today = sod(new Date());
+  const end = addYears(birth, LIFESPAN);
+  const age = Math.min(LIFESPAN, Math.max(0, ageAt(birth, today)));
+  $('#dayNo').textContent = fmt(dayDiff(birth, today) + 1);
+  $('#daysLeft').textContent = fmt(Math.max(0, dayDiff(today, end)));
+  $('#sAge').textContent = `${age}세`;
+  $('#sAgeSub').textContent = `다음 생일까지 D-${fmt(dayDiff(today, addYears(birth, age + 1)))}`;
+  const m = model(state.unit, wrap.clientWidth || 800);
+  const word = UNIT_WORD[state.unit];
+  $('#sUnitK').textContent = `지나온 ${word}`;
+  $('#sUnit').textContent = fmt(Math.max(0, m.current));
+  $('#sUnitSub').textContent = `남은 ${word} ${fmt(Math.max(0, m.total - m.current))}`;
+  const ch = Math.min(9, Math.floor(age / 10));
+  const chStart = addYears(birth, ch * 10), chEnd = addYears(birth, ch * 10 + 10);
+  const chPct = Math.min(100, Math.max(0, ((today - chStart) / (chEnd - chStart)) * 100));
+  $('#sChap').textContent = ch === 0 ? '유년기' : `${ch * 10}대`;
+  $('#sChapSub').textContent = `${chPct.toFixed(1)}% 지남`;
+  const next = state.goals.filter((g) => !g.done && addYears(birth, g.age) >= today).sort((a, b) => a.age - b.age)[0];
+  if (next) {
+    $('#sGoal').textContent = next.title;
+    $('#sGoalSub').textContent = `${next.age}세까지 · D-${fmt(dayDiff(today, addYears(birth, next.age)))}`;
+  } else {
+    $('#sGoal').textContent = '—';
+    $('#sGoalSub').textContent = '아래에서 목표를 추가하세요';
+  }
+}
+function renderGameLine(ctx) {
+  const t = ctx.t;
+  const active = state.quests.filter((q) => !q.archivedAt);
+  const done = (state.log[t] || []).filter((id) => active.some((q) => q.id === id)).length;
+  const got = TROPHIES.filter((x) => state.trophies[x.id]).length;
+  const { cur } = assessInfo();
+  const ps = boardScore(cur, POWER), fs = boardScore(cur, FREEDOM);
+  $('#gameLine').textContent = `오늘 퀘스트 ${done}/${active.length}개 완료, 트로피 ${got}/${TROPHIES.length}개.`
+    + (ps != null || fs != null ? ` Power ${ps != null ? ps.toFixed(1) : '—'} · Freedom ${fs != null ? fs.toFixed(1) : '—'}` : '');
+}
+
+// ---------- 목표 ----------
+function renderGoals() {
+  const list = $('#goalList');
+  list.innerHTML = '';
+  const birth = parse(state.birth), today = sod(new Date());
+  const sorted = [...state.goals].sort((a, b) => (a.done - b.done) || (a.age - b.age));
+  if (!sorted.length) {
+    const li = document.createElement('li');
+    li.className = 'empty';
+    li.textContent = '아직 목표가 없습니다.';
+    list.appendChild(li);
+  }
+  for (const g of sorted) {
+    const li = document.createElement('li');
+    li.className = 'goal' + (g.done ? ' done' : '');
+    const chk = document.createElement('button');
+    chk.className = 'chk';
+    chk.setAttribute('aria-label', g.done ? '달성 취소' : '달성으로 표시');
+    chk.onclick = () => { g.done = !g.done; save(); refresh(); };
+    const body = document.createElement('div');
+    body.className = 'gbody';
+    const t = document.createElement('div');
+    t.className = 'gtitle';
+    t.textContent = g.title;
+    const date = addYears(birth, g.age), dd = dayDiff(today, date);
+    const meta = document.createElement('div');
+    meta.className = 'gmeta';
+    meta.textContent = `${g.age}세까지 · ${fmtYM(date)} · ${g.done ? '달성' : dd >= 0 ? 'D-' + fmt(dd) : '기한 지남'}`;
+    body.append(t, meta);
+    const del = document.createElement('button');
+    del.className = 'del';
+    del.textContent = '×';
+    del.setAttribute('aria-label', '삭제');
+    del.onclick = () => { state.goals = state.goals.filter((x) => x.id !== g.id); save(); refresh(); };
+    li.append(chk, body, del);
+    list.appendChild(li);
+  }
+  const age = ageAt(birth, today);
+  const ageInput = $('#goalAge');
+  ageInput.min = Math.max(1, age);
+  if (!ageInput.value) ageInput.value = Math.min(LIFESPAN, age + 5);
+}
+$('#goalForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const title = $('#goalTitle').value.trim();
+  const age = parseInt($('#goalAge').value, 10);
+  if (!title || !(age >= 1 && age <= LIFESPAN)) return;
+  state.goals.push({ id: Date.now(), title, age, done: false });
+  $('#goalTitle').value = '';
+  save(); refresh();
+});
+
+// ---------- 인생의 쉼표 ----------
+function renderPauses() {
+  const ul = $('#pauses');
+  if (ul.contains(document.activeElement)) return;
+  const age = ageAt(parse(state.birth), sod(new Date()));
+  let html = '';
+  for (let a = 10; a <= LIFESPAN; a += 10) {
+    const past = age >= a;
+    html += `<li class="pause ${past ? 'past' : 'future'}">
+      <span class="age">${a}세</span>
+      <input type="text" data-pause="${a}" value="${esc(state.pauses[a] || '')}" maxlength="80"
+        placeholder="${past ? `${a}세의 나는 어땠나요?` : `${a}세의 나에게 바라는 것`}" aria-label="${a}세의 한 줄">
+    </li>`;
+  }
+  ul.innerHTML = html;
+}
+$('#pauses').addEventListener('change', (e) => {
+  const i = e.target.closest('[data-pause]');
+  if (!i) return;
+  const v = i.value.trim();
+  if (v) state.pauses[i.dataset.pause] = v; else delete state.pauses[i.dataset.pause];
+  save(); i.blur(); refresh();
+});
+
+// ---------- 능력치 · 퀘스트 ----------
+function renderAbil(ctx) {
+  $('#abil').innerHTML = STATS.map((s) => {
+    const v = ctx.st[s.id];
+    return `<div class="ab" style="--c:${s.color}">
+      <div class="k" title="${esc(statQ(s))}"><i></i>${esc(s.name)}</div>
+      <div class="v"><small>Lv</small>${v.level}${(() => { const a = (state.assess[monthKey()] || {})[s.id]; return a != null ? `<small style="margin-left:8px">상태 ${a}/10</small>` : ''; })()}</div>
+      <div class="bar" title="컨디션 ${v.cond}"><i style="width:${v.cond}%"></i></div>
+      <div class="s">컨디션 ${v.cond}, 다음 레벨까지 ${fmt(v.next - v.xp)} XP</div>
+      ${(() => { const eq = state.items.filter((it) => it.equipped && it.status === 'use' && it.stat === s.id); return eq.length ? `<div class="gear" title="장착 중">${eq.map((it) => `${esc(it.icon || '')} ${esc(it.name)}`).join(', ')}</div>` : ''; })()}
+    </div>`;
+  }).join('');
+}
+const fieldOpen = new Set();
+let fieldOpenInit = false;
+function renderSkillTree(ctx) {
+  const box = $('#skillTree');
+  const statsWith = STATS.filter((s) => fieldsOf(s.id).length);
+  if (!statsWith.length) { box.innerHTML = '<p class="sub">분야가 없어요. 맨 아래 \'능력치·데이터\'에서 추가하세요.</p>'; return; }
+  if (!fieldOpenInit) {
+    statsWith.forEach((s) => { if (ctx.sk.cats.some((c) => c.stat === s.id && c.xp)) fieldOpen.add(s.id); });
+    if (!fieldOpen.size) fieldOpen.add(statsWith[0].id);
+    fieldOpenInit = true;
+  }
+  const row = (name, x, idle) => `<div class="sk${idle ? ' idle' : ''}">
+      <div class="skrow"><span>${esc(name)}</span><span class="lv">Lv ${x.level}</span></div>
+      <div class="bar"><i style="width:${Math.round(x.pct * 100)}%"></i></div>
+      <div class="s">${x.xp ? `${fmt(x.xp)} XP${x.x30 ? ` · 최근 30일 +${fmt(x.x30)}` : ''}` : '아직 기록 없음'}</div>
+    </div>`;
+  const catsHtml = (cats) => {
+    const flat = cats.filter((c) => !c.subs.length), grp = cats.filter((c) => c.subs.length);
+    return (flat.length ? `<div class="skgrid">${flat.map((c) => row(c.name, c, !c.xp)).join('')}</div>` : '')
+      + grp.map((c) => `<div class="skcat">
+        <div class="skhead"><b>${esc(c.name)}</b><span>Lv ${c.level} · ${fmt(c.xp)} XP</span></div>
+        <div class="skgrid">${c.subs.map((x) => row(x.name, x, !x.xp)).join('')}${c.own ? row(`${c.name} 일반`, { ...levelInfo(c.own), xp: c.own, x30: 0 }, false) : ''}</div>
+      </div>`).join('');
+  };
+  const matrix = (cats) => {
+    const focus = state.skillFocus;
+    const rows = SKILL_GROUPS.map(([g, label]) => {
+      const list = cats.filter((c) => c.grp === g);
+      if (!list.length) return '';
+      return `<tr class="mxg"><td colspan="4">${label}</td></tr>` + list.map((c) => {
+        const on = focus.includes(c.id);
+        return `<tr>
+          <td>${esc(c.name)}${c.req ? '<span class="req">필수</span>' : ''}</td>
+          <td class="num">Lv ${c.level}</td>
+          <td class="num">${c.level >= 5 ? '<span class="dot on" title="Lv 5 이상">●</span>' : '<span class="dot" title="아직 Lv 5 미만">○</span>'}</td>
+          <td class="num"><button type="button" class="star" data-focus="${c.id}" aria-pressed="${on}" aria-label="${esc(c.name)} 우선 스킬">${on ? '★' : '☆'}</button></td>
+        </tr>`;
+      }).join('');
+    }).join('');
+    return `<div class="mxwrap"><table class="mx">
+      <thead><tr><th>스킬 매트릭스</th><th class="num">레벨</th><th class="num">보유</th><th class="num">우선 ${focus.length}/${FOCUS_MAX}</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+      <p class="sub" style="margin:8px 0 0;font-size:12px">토요타 이사 스킬 매트릭스처럼, 모두가 갖출 '필수' 2개에 더해 나만의 우선 스킬을 최대 ${FOCUS_MAX}개 고르세요. ●는 Lv 5 이상으로 실적이 쌓인 스킬이에요.</p></div>`;
+  };
+  box.innerHTML = statsWith.map((s) => {
+    const cats = ctx.sk.cats.filter((c) => c.stat === s.id);
+    const count = cats.reduce((a, c) => a + (c.subs.length || 1), 0);
+    const total = cats.reduce((a, c) => a + c.xp, 0), un = ctx.sk.un[s.id] || 0;
+    const grouped = cats.some((c) => c.grp);
+    const mine = cats.filter((c) => !c.grp);
+    const body = grouped
+      ? (mine.length ? `<div class="skgrp"><div class="skgrp-h">내 분야</div>${catsHtml(mine)}</div>` : '')
+        + `<div class="skgrp"><div class="skgrp-h">토요타 이사 스킬 매트릭스</div>${matrix(cats)}</div>`
+        + SKILL_GROUPS.map(([g, label]) => {
+          const list = cats.filter((c) => c.grp === g);
+          return list.length ? `<div class="skgrp"><div class="skgrp-h">${label}</div>${catsHtml(list)}</div>` : '';
+        }).join('')
+      : catsHtml(cats);
+    return `<details class="fstat" data-fs="${s.id}" style="--c:${s.color}"${fieldOpen.has(s.id) ? ' open' : ''}>
+      <summary><span class="fname"><i></i>${esc(s.name)}</span><span class="fmeta">분야 ${count}개 · ${fmt(total)} XP</span></summary>
+      ${body}
+      ${un ? `<p class="sub" style="margin:12px 0 0">분야를 정하지 않은 경험치 ${fmt(un)} XP. 퀘스트나 세부 목표에 분야를 정하면 나뉘어 쌓여요.</p>` : ''}
+    </details>`;
+  }).join('');
+}
+$('#skillTree').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-focus]');
+  if (!b) return;
+  const id = b.dataset.focus, i = state.skillFocus.indexOf(id);
+  if (i >= 0) state.skillFocus.splice(i, 1);
+  else if (state.skillFocus.length >= FOCUS_MAX) { toast(`<span>우선 스킬은 ${FOCUS_MAX}개까지예요. 하나를 먼저 해제하세요</span>`); return; }
+  else state.skillFocus.push(id);
+  save(); refresh();
+});
+$('#skillTree').addEventListener('toggle', (e) => {
+  const d = e.target.closest && e.target.closest('details[data-fs]');
+  if (d) { if (d.open) fieldOpen.add(d.dataset.fs); else fieldOpen.delete(d.dataset.fs); }
+}, true);
+function syncQuestSk() {
+  const stat = $('#qStat').value;
+  const sel = $('#qSk'), v = sel.value;
+  sel.hidden = !fieldsOf(stat).length;
+  sel.innerHTML = skillOptions(stat, v, '분야 없음');
+}
+$('#qStat').addEventListener('change', syncQuestSk);
+function renderStatOptions() {
+  const sel = $('#qStat'), v = sel.value;
+  sel.innerHTML = STATS.map((s) => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  if (STATS.some((s) => s.id === v)) sel.value = v;
+  syncQuestSk();
+}
+function renderQuests(ctx) {
+  const d = new Date(), t = ctx.t;
+  $('#todayLabel').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${WD[d.getDay()]}요일. 체크할 때마다 능력치에 경험치가 쌓여요.`;
+  const done = state.log[t] || [];
+  const qs = state.quests.filter((q) => !q.archivedAt);
+  const days7 = Array.from({ length: 7 }, (_, i) => keyOf(addDays(sod(d), i - 6)));
+  $('#quests').innerHTML = qs.length ? qs.map((q) => {
+    const on = done.includes(q.id);
+    const streak = ctx.streakOf((k) => (state.log[k] || []).includes(q.id));
+    const week = days7.map((k) => `<i class="${(state.log[k] || []).includes(q.id) ? 'on' : ''}"></i>`).join('');
+    return `<li class="goal ${on ? 'done' : ''}" style="--c:${statColor(q.stat)}">
+      <button class="qchk" data-q="${q.id}" aria-pressed="${on}" aria-label="${esc(q.name)} 완료">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3L13 4.5"/></svg>
+      </button>
+      <div class="gbody"><div class="gtitle">${esc(q.name)}</div>
+        <div class="gmeta">${esc(statName(q.stat))}${q.sk ? ` · ${esc(skLabel(q.sk))}` : ''}${(() => { const it = q.item && state.items.find((x) => x.id === q.item); return it ? ` · ${esc(it.icon || '')} ${esc(it.name)}` : ''; })()} +${q.xp} XP${streak ? ` · ${streak}일 연속` : ''}</div></div>
+      <div class="week" aria-hidden="true">${week}</div>
+      <button class="del" data-del="${q.id}" aria-label="${esc(q.name)} 삭제">×</button>
+    </li>`;
+  }).join('') : '<li class="empty">아래에서 매일 하고 싶은 일을 퀘스트로 추가해 보세요.</li>';
+  const note = $('#note');
+  if (document.activeElement !== note) note.value = state.notes[t] || '';
+}
+$('#quests').addEventListener('click', (e) => {
+  const chk = e.target.closest('[data-q]');
+  const del = e.target.closest('[data-del]');
+  const t = todayStr();
+  if (chk) {
+    const arr = state.log[t] || [];
+    const i = arr.indexOf(chk.dataset.q);
+    if (i >= 0) arr.splice(i, 1); else arr.push(chk.dataset.q);
+    if (arr.length) state.log[t] = arr; else delete state.log[t];
     save(); refresh();
-  });
-
-  // ---------- 컨트롤 ----------
-  document.querySelectorAll('.seg button').forEach((b) => {
-    b.addEventListener('click', () => { state.unit = b.dataset.unit; save(); refresh(); });
-  });
-
-  const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
-
-  $('#birthInput').addEventListener('change', (e) => {
-    if (!e.target.value) return;
-    state.birth = e.target.value; save(); refresh();
-  });
-
-  $('#resetBtn').addEventListener('click', () => {
-    if (!confirm('생년월일과 목표를 모두 지울까요?')) return;
-    try { localStorage.removeItem(LS_KEY); } catch (e) {}
-    location.href = location.pathname;
-  });
-
-  $('#onboardForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const v = $('#onboardBirth').value;
-    if (!v) return;
-    state.birth = v; save();
-    $('#onboard').hidden = true;
-    refresh();
-  });
-
-  function refresh() {
-    document.querySelectorAll('.seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.unit === state.unit)));
-    if (!state.birth) { $('#onboard').hidden = false; return; }
-    $('#birthInput').value = state.birth;
-    tick(); updateStats(); renderGoals(); draw();
+  } else if (del) {
+    const q = state.quests.find((q) => q.id === del.dataset.del);
+    if (!q || !confirm(`"${q.name}" 퀘스트를 목록에서 뺄까요? 지금까지 쌓은 경험치는 남아요.`)) return;
+    q.archivedAt = t;
+    if (state.log[t]) {
+      state.log[t] = state.log[t].filter((x) => x !== q.id);
+      if (!state.log[t].length) delete state.log[t];
+    }
+    if (!Object.values(state.log).some((ids) => ids.includes(q.id))) state.quests = state.quests.filter((x) => x !== q);
+    save(); refresh();
   }
+});
+$('#questForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = $('#qName').value.trim();
+  if (!name) return;
+  const q = { id: newId(), name, stat: $('#qStat').value, xp: Number($('#qXp').value), created: todayStr() };
+  if (fieldValid($('#qSk').value, q.stat)) q.sk = $('#qSk').value;
+  if ($('#qItem').value) q.item = $('#qItem').value;
+  state.quests.push(q);
+  $('#qName').value = '';
+  save(); refresh();
+});
+$('#note').addEventListener('input', (e) => {
+  const t = todayStr(), v = e.target.value;
+  if (v.trim()) state.notes[t] = v; else delete state.notes[t];
+  save();
+});
+$('#note').addEventListener('change', () => refresh());
 
-  // ---------- 시작 ----------
-  $('#onboardBirth').max = todayStr();
-  $('#birthInput').max = todayStr();
-
-  let lastWidth = 0, lastDay = todayStr();
-  new ResizeObserver(() => {
-    const w = wrap.clientWidth;
-    if (w !== lastWidth) { lastWidth = w; requestAnimationFrame(() => { draw(); updateStats(); }); }
-  }).observe(wrap);
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
-
-  setInterval(() => {
-    tick();
-    const d = todayStr();
-    if (d !== lastDay) { lastDay = d; refresh(); }
-  }, 1000);
-
+// ---------- 만다라트 ----------
+let mmode = 'edit';
+function renderMandala(ctx) {
+  const m = state.mandala;
+  let html = '';
+  for (let b = 0; b < 9; b++) {
+    html += '<div class="block">';
+    for (let c = 0; c < 9; c++) {
+      let cls = 'cell', text, ph = '', stat = null;
+      if (b === 4 && c === 4) { cls += ' core'; text = m[4][4].t; ph = '핵심 목표'; }
+      else if (b === 4) { cls += ' sub'; text = m[4][c].t; ph = '세부 목표'; stat = state.subStat[c]; }
+      else if (c === 4) { cls += ' mirror'; text = m[4][b].t; ph = '세부 목표'; stat = state.subStat[b]; }
+      else { cls += ' action'; text = m[b][c].t; stat = state.subStat[b]; if (text.trim() && m[b][c].d) cls += ' done'; }
+      text = text.trim();
+      if (!text) cls += ' blank';
+      const style = stat ? ` style="--c:${statColor(stat)}"` : '';
+      html += `<button class="${cls}" data-b="${b}" data-c="${c}"${style} aria-label="${esc(text || ph || '빈 실천 칸')}"><span>${esc(text || ph)}</span></button>`;
+    }
+    html += '</div>';
+  }
+  $('#mandala').innerHTML = html;
+  $('#mandala').classList.toggle('checkmode', mmode === 'check');
+  $('#mprog').textContent = `실천 ${ctx.actDone}/64`;
+  $('#mhint').textContent = mmode === 'edit'
+    ? '칸을 눌러 내용을 적어요. 가운데는 핵심 목표, 그 둘레 8칸은 세부 목표, 바깥 블록의 칸은 실천이에요.'
+    : `실천 칸을 눌러 완료를 표시해요. 완료할 때마다 그 세부 목표의 능력치에 +${MANDALA_XP} XP.`;
+  const opts = (sel) => STATS.map((s) => `<option value="${s.id}"${s.id === sel ? ' selected' : ''}>${esc(s.name)}</option>`).join('');
+  $('#subgoals').innerHTML = BLOCKS.map((b, i) => {
+    const name = m[4][b].t.trim(), n = ctx.blockDone[b];
+    const label = name || `세부 목표 ${i + 1}`;
+    return `<li class="subgoal" style="--c:${statColor(state.subStat[b])}">
+      <span class="name ${name ? '' : 'blank'}">${esc(label)}</span>
+      <select data-sub="${b}" aria-label="${esc(label)} 능력치">${opts(state.subStat[b])}</select>
+      ${fieldsOf(state.subStat[b]).length ? `<select data-subsk="${b}" aria-label="${esc(label)} 분야">${skillOptions(state.subStat[b], state.subSkill[b] || '', '분야 없음')}</select>` : ''}
+      <span class="prog">${n}/8</span>
+      <div class="bar"><i style="width:${n / 8 * 100}%"></i></div>
+    </li>`;
+  }).join('');
+}
+document.querySelectorAll('[data-mmode]').forEach((b) => b.addEventListener('click', () => {
+  mmode = b.dataset.mmode;
+  document.querySelectorAll('[data-mmode]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  refresh(false);
+}));
+let editing = null;
+$('#mandala').addEventListener('click', (e) => {
+  const el = e.target.closest('.cell');
+  if (!el) return;
+  let b = Number(el.dataset.b), c = Number(el.dataset.c);
+  const isAction = b !== 4 && c !== 4;
+  if (mmode === 'check') {
+    if (!isAction) return;
+    const cell = state.mandala[b][c];
+    if (!cell.t.trim()) { toast('<span>작성 모드에서 먼저 실천 내용을 적어 주세요</span>'); return; }
+    cell.d = cell.d ? null : todayStr();
+    save(); refresh();
+    return;
+  }
+  if (b !== 4 && c === 4) { c = b; b = 4; }  // 바깥 블록 가운데 칸 = 그 세부 목표
+  editing = { b, c, isAction };
+  $('#dlgTitle').textContent = b === 4 && c === 4 ? '핵심 목표' : b === 4 ? '세부 목표' : `실천 (${state.mandala[4][b].t.trim() || '세부 목표'})`;
+  $('#dlgText').value = state.mandala[b][c].t;
+  $('#toQuest').hidden = !isAction;
+  const skBlock = isAction && fieldsOf(state.subStat[b]).length;
+  $('#dlgSkWrap').hidden = !skBlock;
+  if (skBlock) {
+    const base = state.subSkill[b] ? skLabel(state.subSkill[b]) : '분야 없음';
+    $('#dlgSk').innerHTML = skillOptions(state.subStat[b], state.mandala[b][c].sk || '', `세부 목표 분야 따르기 (${base})`);
+  }
+  $('#cellDlg').returnValue = '';
+  $('#cellDlg').showModal();
+  $('#dlgText').focus();
+});
+$('#cellDlg').addEventListener('close', () => {
+  if ($('#cellDlg').returnValue === 'ok' && editing) {
+    const cell = state.mandala[editing.b][editing.c];
+    cell.t = $('#dlgText').value.trim();
+    if (!cell.t) cell.d = null;
+    if (!$('#dlgSkWrap').hidden) { if ($('#dlgSk').value) cell.sk = $('#dlgSk').value; else delete cell.sk; }
+    save(); refresh();
+  }
+  editing = null;
+});
+$('#toQuest').addEventListener('click', () => {
+  if (!editing) return;
+  const name = $('#dlgText').value.trim();
+  if (!name) { $('#dlgText').focus(); return; }
+  state.mandala[editing.b][editing.c].t = name;
+  const nq = { id: newId(), name, stat: state.subStat[editing.b], xp: 10, created: todayStr() };
+  const skp = (!$('#dlgSkWrap').hidden && $('#dlgSk').value) || state.subSkill[editing.b];
+  if (fieldValid(skp, nq.stat)) nq.sk = skp;
+  state.quests.push(nq);
+  save();
+  $('#cellDlg').close('cancel');
   refresh();
+  toast(`<span>"${esc(name)}"을(를) 오늘의 퀘스트에 추가했어요</span>`);
+});
+$('#subgoals').addEventListener('change', (e) => {
+  const k = e.target.closest('[data-subsk]');
+  if (k) {
+    if (k.value) state.subSkill[k.dataset.subsk] = k.value; else delete state.subSkill[k.dataset.subsk];
+    save(); refresh(); return;
+  }
+  const s = e.target.closest('[data-sub]');
+  if (!s) return;
+  const sb = s.dataset.sub;
+  state.subStat[sb] = s.value;
+  if (state.subSkill[sb] && !fieldValid(state.subSkill[sb], s.value)) delete state.subSkill[sb];
+  state.mandala[sb].forEach((cell) => { if (cell.sk && !fieldValid(cell.sk, s.value)) delete cell.sk; });
+  save(); refresh();
+});
+
+// ---------- 트로피 화면 ----------
+function renderTrophies(ctx) {
+  const got = TROPHIES.filter((t) => state.trophies[t.id]).length;
+  const count = (tier) => TROPHIES.filter((x) => x.tier === tier && state.trophies[x.id]).length;
+  $('#tsum').innerHTML = `${cupSVG('gold', got > 0)}
+    <div><div class="num">${got}<small> / ${TROPHIES.length}</small></div>
+    <div class="tiers">${['bronze', 'silver', 'gold', 'plat'].map((t) => `<span style="--t:${TIER[t]}">${TIER_NAME[t]} ${count(t)}</span>`).join('')}</div>
+    <p>${got ? '한 번 얻은 트로피는 사라지지 않아요.' : '오늘 퀘스트 하나를 끝내면 첫 트로피가 열려요.'}</p></div>`;
+  $('#tgroups').innerHTML = GROUPS.map((g) => {
+    const list = TROPHIES.filter((t) => t.group === g.id);
+    const n = list.filter((t) => state.trophies[t.id]).length;
+    if (!list.length) return '';
+    const skc = g.skcat ? ctx.sk.cats.find((k) => k.id === g.skcat) : null;
+    const meta = g.stat ? `Lv ${ctx.st[g.id].level}, 트로피 ${n}/${list.length}` : skc ? `Lv ${skc.level}, 트로피 ${n}/${list.length}` : `${n}/${list.length}`;
+    return `<div class="tgroup"><h3>${esc(g.name)} <small>${meta}</small></h3><div class="tgrid">${list.map((t) => {
+      const date = state.trophies[t.id];
+      const [cur, tg] = t.check(ctx);
+      return `<div class="trophy ${date ? 'got' : 'locked'}" style="--t:${TIER[t.tier]}" title="${TIER_NAME[t.tier]}">
+        ${cupSVG(t.tier, !!date)}
+        <div class="tn">${esc(t.name)}</div>
+        <div class="td">${esc(t.desc)}</div>
+        <div class="tp">${date ? `${fmtKey(date)} 획득` : `${fmt(Math.min(cur, tg))} / ${fmt(tg)}`}</div>
+        ${date ? '' : `<div class="tbar"><i style="width:${Math.min(100, cur / tg * 100)}%"></i></div>`}
+      </div>`;
+    }).join('')}</div></div>`;
+  }).join('');
+}
+
+// ---------- 리마인더 동기화 (단축어 → #sync=) ----------
+// 한 줄에 하나: 목록|제목|완료여부|완료일(yyyy-MM-dd)
+function syncFromHash() {
+  if (!location.hash.startsWith('#sync=')) return false;
+  let text = '';
+  try { text = decodeURIComponent(location.hash.slice(6).replace(/\+/g, '%20')); } catch (e) { text = ''; }
+  history.replaceState(null, '', location.pathname + location.search);
+  const rows = text.split(/\r?\n/).map((l) => l.split('|').map((x) => x.trim())).filter((r) => r.length >= 2 && r[0] && r[1]);
+  if (!rows.length) { toast('<span>단축어에서 받은 리마인더가 없어요. 목록 이름과 필터를 확인해 주세요</span>'); return true; }
+  const m = state.mandala;
+  const yes = /^(yes|true|1|예|네|はい|是)$/i;
+  let added = 0, updated = 0, skipped = 0;
+  for (const name of [...new Set(rows.map((r) => r[0]))]) {
+    const items = rows.filter((r) => r[0] === name);
+    let b = BLOCKS.find((b) => m[4][b].t.trim().toLowerCase() === name.toLowerCase());
+    if (b === undefined) {
+      b = BLOCKS.find((b) => !m[4][b].t.trim());
+      if (b === undefined) { skipped += items.length; continue; }
+      m[4][b].t = name;
+    }
+    const mapped = LIST_STAT[name.toLowerCase()];
+    if (mapped && STATS.some((s) => s.id === mapped)) state.subStat[b] = mapped;
+    const skm = LIST_SK[name.toLowerCase()];
+    if (skm && !state.subSkill[b] && fieldValid(skm, state.subStat[b])) state.subSkill[b] = skm;
+    for (const [, title, doneRaw = '', date = ''] of items) {
+      const done = !!date || yes.test(doneRaw);
+      const day = /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : todayStr();
+      let c = BLOCKS.find((c) => m[b][c].t.trim() === title);
+      if (c === undefined) {
+        c = BLOCKS.find((c) => !m[b][c].t.trim());
+        if (c === undefined) { skipped++; continue; }
+        m[b][c].t = title; added++;
+      } else updated++;
+      if (done && !m[b][c].d) m[b][c].d = day;
+      if (!done) m[b][c].d = null;
+    }
+  }
+  state.tab = 'mandala';
+  save();
+  toast(`<span>리마인더 동기화: 새 항목 ${added}개, 갱신 ${updated}개${skipped ? `, 칸이 모자라 ${skipped}개 제외` : ''}</span>`);
+  return true;
+}
+
+// ---------- 능력치·데이터 설정 ----------
+let draftStats = [];
+function renderStatEdit() {
+  if (document.getElementById('setDlg').open) setTimeout(renderSkEdit, 0);
+  $('#statEdit').innerHTML = draftStats.map((s, i) => `<li>
+    <input type="color" value="${s.color}" data-si="${i}" data-k="color" aria-label="${esc(s.name)} 색">
+    <input type="text" value="${esc(s.name)}" data-si="${i}" data-k="name" maxlength="16" aria-label="능력치 이름">
+    <button class="del" type="button" data-sdel="${i}" aria-label="${esc(s.name)} 삭제">×</button></li>`).join('');
+}
+$('#statEdit').addEventListener('input', (e) => {
+  const i = e.target.dataset.si;
+  if (i != null) draftStats[i][e.target.dataset.k] = e.target.value;
+});
+$('#statEdit').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-sdel]');
+  if (!b || draftStats.length <= 1) return;
+  const s = draftStats[b.dataset.sdel];
+  const used = state.quests.some((q) => !q.archivedAt && q.stat === s.id) || Object.values(state.subStat).includes(s.id);
+  if (used && !confirm(`"${s.name}"을(를) 쓰는 퀘스트나 세부 목표가 있어요. 삭제하면 첫 번째 능력치로 옮겨져요. 삭제할까요?`)) return;
+  draftStats.splice(b.dataset.sdel, 1);
+  renderStatEdit();
+});
+$('#addStat').addEventListener('click', () => {
+  if (draftStats.length >= 8) { toast('<span>능력치는 8개까지 만들 수 있어요</span>'); return; }
+  draftStats.push({ id: 's' + newId(), name: '새 능력치', color: PALETTE[draftStats.length % PALETTE.length] });
+  renderStatEdit();
+});
+let draftTree = [];
+function renderSkEdit() {
+  const pill = (val, attrs, delAttr, label) => `<span class="skedit-sub">
+      <input type="text" value="${esc(val)}" ${attrs} maxlength="16" aria-label="${label}">
+      <button class="del" type="button" ${delAttr} aria-label="${esc(val)} 삭제">×</button></span>`;
+  $('#skEdit').innerHTML = draftStats.map((s) => {
+    const items = draftTree.map((c, i) => [c, i]).filter(([c]) => c.stat === s.id);
+    const flat = items.filter(([c]) => !c.subs.length), grp = items.filter(([c]) => c.subs.length);
+    return `<div class="skedit-stat">
+      <div class="skedit-title" style="--c:${s.color}"><i></i>${esc(s.name)}</div>
+      <div class="skedit-subs">${flat.map(([c, i]) => pill(c.name, `data-tc="${i}"`, `data-tcdel="${i}"`, '분야 이름')).join('')}
+        <button class="btn ghost small" type="button" data-tcadd="${s.id}">분야 추가</button>
+        <button class="btn ghost small" type="button" data-tgadd="${s.id}">묶음 추가</button>
+      </div>
+      ${grp.map(([c, i]) => `<div class="skedit-cat">
+        <div class="catrow">
+          <input type="text" value="${esc(c.name)}" data-tc="${i}" maxlength="16" aria-label="묶음 이름">
+          <button class="del" type="button" data-tcdel="${i}" data-grp="1" aria-label="${esc(c.name)} 묶음 삭제">×</button>
+        </div>
+        <div class="skedit-subs">${c.subs.map((x, j) => pill(x.name, `data-tc="${i}" data-ts="${j}"`, `data-tsdel="${i},${j}"`, '세부 분야 이름')).join('')}
+          <button class="btn ghost small" type="button" data-tsadd="${i}">세부 분야 추가</button>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+$('#skEdit').addEventListener('input', (e) => {
+  const el = e.target, i = el.dataset.tc;
+  if (i == null) return;
+  if (el.dataset.ts != null) draftTree[i].subs[el.dataset.ts].name = el.value; else draftTree[i].name = el.value;
+});
+$('#skEdit').addEventListener('click', (e) => {
+  const cd = e.target.closest('[data-tcdel]'), sd = e.target.closest('[data-tsdel]'), sa = e.target.closest('[data-tsadd]');
+  const ca = e.target.closest('[data-tcadd]'), ga = e.target.closest('[data-tgadd]');
+  if (cd) {
+    const c = draftTree[cd.dataset.tcdel];
+    if (cd.dataset.grp && !confirm(`"${c.name}" 묶음을 지울까요? 쌓인 경험치는 '분야 미정'으로 돌아가요.`)) return;
+    draftTree.splice(cd.dataset.tcdel, 1);
+  } else if (sd) {
+    const [i, j] = sd.dataset.tsdel.split(',').map(Number);
+    draftTree[i].subs.splice(j, 1);
+    if (!draftTree[i].subs.length) draftTree[i].subs.push({ id: 's' + newId(), name: '새 분야' });
+  } else if (sa) {
+    draftTree[sa.dataset.tsadd].subs.push({ id: 's' + newId(), name: '새 분야' });
+  } else if (ca) {
+    draftTree.push({ id: 'c' + newId(), stat: ca.dataset.tcadd, name: '새 분야', subs: [] });
+  } else if (ga) {
+    draftTree.push({ id: 'c' + newId(), stat: ga.dataset.tgadd, name: '새 묶음', subs: [{ id: 's' + newId(), name: '새 분야' }] });
+  } else return;
+  renderSkEdit();
+});
+$('#settingsBtn').addEventListener('click', () => {
+  draftStats = STATS.map((x) => ({ ...x }));
+  draftTree = clone(state.skillTree || []);
+  renderStatEdit();
+  renderSkEdit();
+  $('#setDlg').returnValue = '';
+  $('#setDlg').showModal();
+});
+$('#setDlg').addEventListener('close', () => {
+  if ($('#setDlg').returnValue !== 'ok') return;
+  const next = draftStats.filter((x) => x.name.trim()).map((x) => ({ ...x, name: x.name.trim() }));
+  state.stats = next.length ? next : DEFAULT_STATS.map((x) => ({ ...x }));
+  state.skillTree = draftTree.filter((c) => c.name.trim()).map((c) => {
+    const o = { id: c.id, stat: c.stat, name: c.name.trim(), subs: c.subs.filter((x) => x.name.trim()).map((x) => ({ id: x.id, name: x.name.trim() })) };
+    if (c.grp) o.grp = c.grp;
+    if (c.req) o.req = true;
+    return o;
+  });
+  normalize(); save(); refresh();
+});
+$('#exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `lifegame-${todayStr()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$('#importBtn').addEventListener('click', () => $('#importFile').click());
+$('#importFile').addEventListener('change', async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const s = JSON.parse(await f.text());
+    if (!s || typeof s !== 'object' || !(s.birth || Array.isArray(s.goals) || Array.isArray(s.quests))) throw new Error('format');
+    state = Object.assign({ unit: 'week', goals: [], birth: null }, s);
+    normalize(); save();
+    $('#setDlg').close('cancel');
+    refresh(false);
+    toast('<span>기록을 가져왔어요</span>');
+  } catch (err) {
+    toast('<span>LifeGame에서 내보낸 JSON 파일만 가져올 수 있어요</span>');
+  }
+  e.target.value = '';
+});
+
+// ---------- 여행 지도 ----------
+// 지도 데이터: CORS가 확실한 jsDelivr(npm 패키지)를 먼저, 안 되면 Highcharts CDN
+const MAP_SOURCES = [
+  'https://cdn.jsdelivr.net/npm/@highcharts/map-collection@2.3.0/',
+  'https://code.highcharts.com/mapdata/',
+];
+// 라이브러리: 각 항목은 [기본 주소, 예비 주소]
+const MAP_LIBS = [
+  ['https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js'],
+  ['https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js'],
+];
+const CONT_KO = { 'Asia': '아시아', 'Europe': '유럽', 'Africa': '아프리카', 'North America': '북아메리카', 'South America': '남아메리카', 'Oceania': '오세아니아' };
+const WB_CONT = { 'South Asia': 'Asia', 'Sub-Saharan Africa': 'Africa', 'Middle East & North Africa': 'Asia', 'East Asia & Pacific': 'Oceania',
+  'Latin America & Caribbean': 'South America', 'Europe & Central Asia': 'Europe', 'North America': 'North America' };
+// 일본 47 도도부현 (JIS 순서)
+const JP_PREF = [['Hokkaido','北海道'],['Aomori','青森'],['Iwate','岩手'],['Miyagi','宮城'],['Akita','秋田'],['Yamagata','山形'],['Fukushima','福島'],
+  ['Ibaraki','茨城'],['Tochigi','栃木'],['Gunma','群馬'],['Saitama','埼玉'],['Chiba','千葉'],['Tokyo','東京'],['Kanagawa','神奈川'],
+  ['Niigata','新潟'],['Toyama','富山'],['Ishikawa','石川'],['Fukui','福井'],['Yamanashi','山梨'],['Nagano','長野'],['Gifu','岐阜'],['Shizuoka','静岡'],['Aichi','愛知'],
+  ['Mie','三重'],['Shiga','滋賀'],['Kyoto','京都'],['Osaka','大阪'],['Hyogo','兵庫'],['Nara','奈良'],['Wakayama','和歌山'],
+  ['Tottori','鳥取'],['Shimane','島根'],['Okayama','岡山'],['Hiroshima','広島'],['Yamaguchi','山口'],
+  ['Tokushima','徳島'],['Kagawa','香川'],['Ehime','愛媛'],['Kochi','高知'],
+  ['Fukuoka','福岡'],['Saga','佐賀'],['Nagasaki','長崎'],['Kumamoto','熊本'],['Oita','大分'],['Miyazaki','宮崎'],['Kagoshima','鹿児島'],['Okinawa','沖縄']];
+const normName = (s) => String(s || '').toLowerCase().replace(/[^a-z]/g, '');
+const JP_IDX = Object.fromEntries(JP_PREF.map(([en], i) => [normName(en), i]));
+const KR_PROV = [['northchungcheong','충청북도'],['southchungcheong','충청남도'],['chungcheongbuk','충청북도'],['chungcheongnam','충청남도'],
+  ['northjeolla','전라북도'],['southjeolla','전라남도'],['jeollabuk','전라북도'],['jeollanam','전라남도'],
+  ['northgyeongsang','경상북도'],['southgyeongsang','경상남도'],['gyeongsangbuk','경상북도'],['gyeongsangnam','경상남도'],
+  ['seoul','서울'],['busan','부산'],['daegu','대구'],['incheon','인천'],['gwangju','광주'],['daejeon','대전'],['ulsan','울산'],['sejong','세종'],
+  ['gyeonggi','경기도'],['gangwon','강원도'],['jeju','제주도']];
+const SPECIAL_REGION_MAP = { us: 'countries/us/us-all', fr: 'countries/fr/custom/fr-all-mainland' };
+const koRegion = (() => { try { return new Intl.DisplayNames(['ko'], { type: 'region' }); } catch (e) { return null; } })();
+
+const T = () => state.travel;
+const regionCount = (ck) => Object.keys(T().regions[ck] || {}).length;
+const isCountryOn = (ck) => !!T().countries[ck] || regionCount(ck) > 0;
+function isoLabel(iso, fallback) {
+  if (koRegion && iso && /^[A-Z]{2}$/.test(iso)) {
+    try { const n = koRegion.of(iso); if (n && n !== iso) return n; } catch (e) {}
+  }
+  return fallback;
+}
+const countryLabel = (p) => isoLabel(p['iso-a2'], p.name);
+const storedLabel = (ck) => { const c = T().countries[ck] || {}; return isoLabel(c.iso, c.name || ck.toUpperCase()); };
+function continentOf(p) {
+  if (CONT_KO[p.continent]) return p.continent;
+  return WB_CONT[p['region-wb']] || null;
+}
+function regionPathFor(ck, p) {
+  if (SPECIAL_REGION_MAP[ck]) return SPECIAL_REGION_MAP[ck];
+  if (!p || !p['iso-a2'] || p['iso-a2'].toLowerCase() !== ck || ck.length !== 2) return null;
+  return `countries/${ck}/${ck}-all`;
+}
+const regionKey = (p) => p['hc-key'] || normName(p.name);
+function regionLabel(ck, p) {
+  if (ck === 'jp') {
+    const i = JP_IDX[normName(p.name)];
+    if (i != null) {
+      const [en, kj] = JP_PREF[i];
+      return kj + (en === 'Hokkaido' ? '' : en === 'Tokyo' ? '都' : (en === 'Osaka' || en === 'Kyoto') ? '府' : '県');
+    }
+  }
+  if (ck === 'kr') {
+    const n = normName(p.name);
+    const hit = KR_PROV.find(([k]) => n.includes(k));
+    if (hit) return hit[1];
+  }
+  return p.name || p['hc-key'] || '?';
+}
+function regionOrder(ck, list) {
+  if (ck === 'jp') return list.sort((a, b) => (JP_IDX[normName(a.properties.name)] ?? 99) - (JP_IDX[normName(b.properties.name)] ?? 99));
+  return list.sort((a, b) => regionLabel(ck, a.properties).localeCompare(regionLabel(ck, b.properties), 'ko'));
+}
+function travelStats() {
+  const tv = state.travel;
+  const keys = new Set([...Object.keys(tv.countries), ...Object.keys(tv.regions).filter((k) => regionCount(k))]);
+  let regions = 0, best = null;
+  for (const k of Object.keys(tv.regions)) {
+    const n = regionCount(k), tot = tv.totals[k] || 0;
+    regions += n;
+    if (n && (!best || n / (tot || n) > best.pct || (n / (tot || n) === best.pct && n > best.n))) best = { k, n, tot, pct: n / (tot || n) };
+  }
+  return {
+    countries: keys.size, regions,
+    continents: new Set(Object.values(tv.countries).map((c) => c.continent).filter(Boolean)).size,
+    jp: regionCount('jp'), jpTotal: tv.totals.jp || 47,
+    full: Object.keys(tv.regions).some((k) => (tv.totals[k] || 0) >= 5 && regionCount(k) >= tv.totals[k]),
+    best,
+  };
+}
+function setCountry(ck, on) {
+  if (on) {
+    const f = worldIndex[ck], p = f ? f.properties : {};
+    T().countries[ck] = { name: p.name || storedLabel(ck), iso: p['iso-a2'] || null, continent: f ? continentOf(p) : (T().countries[ck] || {}).continent || null, at: todayStr() };
+  } else {
+    delete T().countries[ck];
+    delete T().regions[ck];
+  }
+}
+function toggleRegion(ck, rk) {
+  const r = T().regions[ck] || (T().regions[ck] = {});
+  if (r[rk]) delete r[rk];
+  else { r[rk] = todayStr(); if (!T().countries[ck]) setCountry(ck, true); }
+  if (!Object.keys(r).length) delete T().regions[ck];
+  save(); afterTravelChange();
+}
+function afterTravelChange() { updateMapClasses(); renderCountryPanel(); refresh(); }
+
+let libsReady = null, worldFC = null, worldIndex = {}, mapView = 'world', curRegions = null, mapSel = null, zoomBeh = null, mapToken = 0;
+const topoCache = {};
+const loadScript = (u) => new Promise((res, rej) => {
+  const s = document.createElement('script');
+  s.src = u; s.onload = res; s.onerror = () => rej(new Error(u));
+  document.head.appendChild(s);
+});
+function loadLibs() {
+  if (!libsReady) {
+    libsReady = MAP_LIBS.reduce((p, urls) => p.then(() =>
+      urls.slice(1).reduce((q, u) => q.catch(() => loadScript(u)), loadScript(urls[0]))
+    ), Promise.resolve())
+      .then(() => { if (!window.d3 || !window.topojson) throw new Error('지도 라이브러리를 불러오지 못했어요'); })
+      .catch((e) => { libsReady = null; throw new Error('지도 라이브러리를 불러오지 못했어요'); });
+  }
+  return libsReady;
+}
+// d3는 바깥 고리를 시계 방향으로 읽어서, 반대 방향이면 지구 전체를 덮는 도형이 돼요.
+// 반구보다 넓게 계산되는 다각형은 고리 방향을 뒤집어 바로잡습니다.
+function fixWinding(f) {
+  const g = f.geometry;
+  const fixPoly = (rings) => (d3.geoArea({ type: 'Polygon', coordinates: rings }) > 2 * Math.PI ? rings.map((r) => r.slice().reverse()) : rings);
+  if (g.type === 'Polygon') g.coordinates = fixPoly(g.coordinates);
+  else if (g.type === 'MultiPolygon') g.coordinates = g.coordinates.map(fixPoly);
+  return f;
+}
+async function loadTopo(path) {
+  if (topoCache[path]) return topoCache[path];
+  let lastErr = null;
+  for (const base of MAP_SOURCES) {
+    try {
+      const r = await fetch(base + path + '.topo.json');
+      if (r.status === 404) { lastErr = Object.assign(new Error('지도 파일 없음'), { notFound: true }); continue; }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const t = await r.json();
+      const fc = topojson.feature(t, t.objects.default);
+      fc.features = fc.features.filter((f) => f.geometry).map(fixWinding);
+      topoCache[path] = fc;
+      return fc;
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('지도 데이터를 불러오지 못했어요');
+}
+async function ensureWorld() {
+  await loadLibs();
+  if (worldFC) return;
+  const fc = await loadTopo('custom/world');
+  fc.features = fc.features.filter((f) => f.properties['hc-key'] !== 'aq');
+  worldFC = fc;
+  worldIndex = Object.fromEntries(fc.features.map((f) => [f.properties['hc-key'], f]));
+  // 저장해 둔 나라에 대륙 정보가 없으면 채움
+  for (const [k, c] of Object.entries(T().countries)) if (!c.continent && worldIndex[k]) c.continent = continentOf(worldIndex[k].properties);
+  $('#countryOptions').innerHTML = fc.features
+    .map((f) => countryLabel(f.properties)).sort((a, b) => a.localeCompare(b, 'ko'))
+    .map((n) => `<option value="${esc(n)}"></option>`).join('');
+}
+const mapMsg = (t) => { const m = $('#mapMsg'); m.textContent = t || ''; m.hidden = !t; };
+function openTravel() {
+  if (!worldFC) mapMsg('지도를 불러오는 중…');
+  ensureWorld()
+    .then(() => {
+      mapMsg('');
+      try { drawView(); }
+      catch (e) { console.error(e); mapMsg(`지도를 그리는 중 문제가 생겼어요. (${e.message})`); }
+    })
+    .catch((e) => {
+      console.error(e);
+      mapMsg(`지도를 불러오지 못했어요. 잠시 뒤 여행 탭을 다시 열어 주세요. (${e.message})`);
+    });
+}
+function openCountry(ck) { mapView = ck; drawView(); $('#crumb').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+
+function renderCrumb() {
+  $('#crumb').innerHTML = mapView === 'world' ? '<b>세계</b>'
+    : `<button type="button" data-world>세계</button> › <b>${esc(worldIndex[mapView] ? countryLabel(worldIndex[mapView].properties) : storedLabel(mapView))}</b>`;
+  $('#mapHint').textContent = mapView === 'world'
+    ? '나라를 누르면 그 나라의 지역 지도가 열려요. 두 손가락이나 휠로 확대할 수 있어요.'
+    : '지역을 누르면 가 본 곳으로 표시돼요. 작은 지역은 아래 목록에서 눌러도 돼요.';
+}
+function renderPaths(features, proj, w, h, keyFn, labelFn, onClick) {
+  const svg = d3.select('#mapSvg').attr('viewBox', `0 0 ${w} ${h}`).attr('height', h);
+  svg.selectAll('*').remove();
+  const g = svg.append('g');
+  const path = d3.geoPath(proj);
+  const tipEl = $('#mapTip');
+  mapSel = g.selectAll('path').data(features).join('path')
+    .attr('class', 'land').attr('d', path)
+    .on('click', (e, d) => onClick(d))
+    .on('pointermove', (e, d) => {
+      const r = $('#mapWrap').getBoundingClientRect();
+      tipEl.textContent = labelFn(d);
+      tipEl.style.left = (e.clientX - r.left) + 'px';
+      tipEl.style.top = (e.clientY - r.top) + 'px';
+      tipEl.classList.add('on');
+    })
+    .on('pointerleave', () => tipEl.classList.remove('on'));
+  mapSel.append('title').text(labelFn);
+  zoomBeh = d3.zoom().scaleExtent([0.6, 14]).translateExtent([[-w, -h], [2 * w, 2 * h]])
+    .on('zoom', (e) => g.attr('transform', e.transform));
+  svg.call(zoomBeh).on('dblclick.zoom', null);
+}
+function updateMapClasses() {
+  if (!mapSel) return;
+  if (mapView === 'world' || !curRegions) mapSel.classed('on', (d) => isCountryOn(d.properties['hc-key'] || mapView));
+  else mapSel.classed('on', (d) => !!(T().regions[mapView] || {})[regionKey(d.properties)]);
+}
+function countryProjection(ck, fc, w, h) {
+  const ext = [[14, 14], [w - 14, h - 14]];
+  if (ck === 'us') return d3.geoAlbersUsa().fitExtent(ext, fc);
+  const c = d3.geoCentroid(fc);
+  const proj = d3.geoMercator().rotate([-c[0], 0]);
+  // 멀리 떨어진 섬·해외 영토는 화면 맞춤에서 빼서 본토가 작아지지 않게
+  const ds = fc.features.map((f) => d3.geoDistance(d3.geoCentroid(f), c));
+  const med = [...ds].sort((a, b) => a - b)[Math.floor(ds.length / 2)] || 0;
+  const lim = Math.max(med * 4, 0.25);
+  const core = fc.features.filter((f, i) => ds[i] <= lim);
+  return proj.fitExtent(ext, { type: 'FeatureCollection', features: core.length ? core : fc.features });
+}
+function drawView() {
+  if (!worldFC) return;
+  const w = $('#mapWrap').clientWidth;
+  if (!w) return;
+  renderCrumb();
+  const token = ++mapToken;
+  if (mapView === 'world') {
+    curRegions = null;
+    $('#cpanel').hidden = true;
+    const h = Math.round(w * 0.52);
+    const proj = d3.geoNaturalEarth1().fitExtent([[8, 8], [w - 8, h - 8]], worldFC);
+    renderPaths(worldFC.features, proj, w, h, null, (d) => countryLabel(d.properties), (d) => openCountry(d.properties['hc-key']));
+    updateMapClasses();
+    return;
+  }
+  const ck = mapView, f = worldIndex[ck];
+  const h = Math.round(Math.min(w * 0.8, 560));
+  const path = regionPathFor(ck, f && f.properties);
+  $('#cpanel').hidden = false;
+  curRegions = null;
+  renderCountryPanel();
+  const drawSingle = () => {
+    if (!f) return;
+    const fc = { type: 'FeatureCollection', features: [f] };
+    renderPaths(fc.features, countryProjection(ck, fc, w, h), w, h, null, () => countryLabel(f.properties), () => { setCountry(ck, !T().countries[ck]); save(); afterTravelChange(); });
+    updateMapClasses();
+  };
+  if (!path) { drawSingle(); return; }
+  mapMsg('지역 지도를 불러오는 중…');
+  loadTopo(path).then((fc) => {
+    if (token !== mapToken) return;
+    mapMsg('');
+    curRegions = regionOrder(ck, [...fc.features]);
+    if (T().totals[ck] !== fc.features.length) { T().totals[ck] = fc.features.length; save(); refresh(false); }
+    renderPaths(fc.features, countryProjection(ck, fc, w, h), w, h, null, (d) => regionLabel(ck, d.properties), (d) => toggleRegion(ck, regionKey(d.properties)));
+    updateMapClasses();
+    renderCountryPanel();
+  }).catch(() => {
+    if (token !== mapToken) return;
+    mapMsg('');
+    curRegions = null;
+    drawSingle();
+    renderCountryPanel();
+  });
+}
+function renderCountryPanel() {
+  if (mapView === 'world') return;
+  const ck = mapView;
+  const label = worldIndex[ck] ? countryLabel(worldIndex[ck].properties) : storedLabel(ck);
+  const on = !!T().countries[ck];
+  $('#cpName').textContent = label;
+  const n = regionCount(ck), tot = curRegions ? curRegions.length : T().totals[ck];
+  $('#cpSub').textContent = curRegions
+    ? `지역 ${tot}곳 중 ${n}곳을 가 봤어요${tot && n >= tot ? '. 완주!' : '.'}`
+    : (regionPathFor(ck, worldIndex[ck] && worldIndex[ck].properties) && !curRegions && T().totals[ck] === undefined
+      ? '지역 지도를 불러오는 중이에요.' : '이 나라는 지역 지도가 없어서 나라 단위로 기록해요.');
+  $('#cpToggle').textContent = on ? '가 본 나라에서 빼기' : '이 나라에 가 봤어요';
+  $('#cpToggle').className = on ? 'btn ghost' : 'btn';
+  const visited = T().regions[ck] || {};
+  $('#cpRegions').innerHTML = (curRegions || []).map((f) => {
+    const rk = regionKey(f.properties);
+    return `<button type="button" class="rchip" data-r="${esc(rk)}" aria-pressed="${!!visited[rk]}">${esc(regionLabel(ck, f.properties))}</button>`;
+  }).join('');
+}
+function renderTravel(ctx) {
+  const s = ctx.tv;
+  const best = s.best;
+  $('#travelStats').innerHTML = `
+    <div class="stat"><div class="k">가 본 나라</div><div class="v">${s.countries}곳</div><div class="s">대륙 ${s.continents}/6</div></div>
+    <div class="stat"><div class="k">가 본 지역</div><div class="v">${s.regions}곳</div><div class="s">나라 지도에서 체크</div></div>
+    <div class="stat"><div class="k">일본 도도부현</div><div class="v">${s.jp}/${s.jpTotal}</div><div class="s">${Math.round(s.jp / s.jpTotal * 100)}% 제패</div></div>
+    <div class="stat"><div class="k">가장 많이 채운 나라</div><div class="v">${best ? esc(storedLabel(best.k)) : '—'}</div><div class="s">${best ? (best.tot ? `${best.n}/${best.tot} 지역` : `${best.n}곳`) : '지역을 체크해 보세요'}</div></div>`;
+  const keys = Object.keys(T().countries).sort((a, b) => storedLabel(a).localeCompare(storedLabel(b), 'ko'));
+  $('#visitedList').innerHTML = keys.length ? keys.map((k) => {
+    const n = regionCount(k), tot = T().totals[k];
+    return `<button type="button" class="rchip" data-c="${esc(k)}" aria-pressed="true">${esc(storedLabel(k))}${n ? `<small>${tot ? `${n}/${tot}` : n}</small>` : ''}</button>`;
+  }).join('') : '<p class="sub" style="margin:0">아직 없어요. 지도에서 나라를 눌러 시작하세요.</p>';
+}
+$('#cpRegions').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-r]');
+  if (b) toggleRegion(mapView, b.dataset.r);
+});
+$('#cpToggle').addEventListener('click', () => {
+  const ck = mapView, on = !!T().countries[ck];
+  if (on && regionCount(ck) && !confirm('체크한 지역도 함께 지워져요. 가 본 나라에서 뺄까요?')) return;
+  setCountry(ck, !on); save(); afterTravelChange();
+});
+$('#visitedList').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-c]');
+  if (!b) return;
+  ensureWorld().then(() => openCountry(b.dataset.c)).catch(() => {});
+});
+$('#crumb').addEventListener('click', (e) => { if (e.target.closest('[data-world]')) { mapView = 'world'; drawView(); } });
+$('#countrySearch').addEventListener('change', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  if (!q || !worldFC) return;
+  const f = worldFC.features.find((f) => countryLabel(f.properties).toLowerCase() === q || String(f.properties.name).toLowerCase() === q)
+    || worldFC.features.find((f) => countryLabel(f.properties).toLowerCase().includes(q) || String(f.properties.name).toLowerCase().includes(q));
+  if (f) { e.target.value = ''; openCountry(f.properties['hc-key']); }
+  else toast('<span>그 이름의 나라를 찾지 못했어요</span>');
+});
+$('#zoomIn').addEventListener('click', () => zoomBeh && d3.select('#mapSvg').transition().duration(250).call(zoomBeh.scaleBy, 1.6));
+$('#zoomOut').addEventListener('click', () => zoomBeh && d3.select('#mapSvg').transition().duration(250).call(zoomBeh.scaleBy, 1 / 1.6));
+$('#zoomReset').addEventListener('click', () => zoomBeh && d3.select('#mapSvg').transition().duration(250).call(zoomBeh.transform, d3.zoomIdentity));
+let mapW = 0, mapRz;
+new ResizeObserver(() => {
+  const w = $('#mapWrap').clientWidth;
+  if (w && w !== mapW) { mapW = w; clearTimeout(mapRz); mapRz = setTimeout(() => { if (state.tab === 'travel') drawView(); }, 150); }
+}).observe($('#mapWrap'));
+
+// ---------- 소지품 ----------
+const KINDS = [['device', '기기', '💻'], ['vehicle', '탈것', '🚲'], ['gear', '의류·장비', '🧥'], ['sport', '운동용품', '👟'],
+  ['book', '책', '📚'], ['collect', '컬렉션', '🎴'], ['home', '가구·가전', '🛋️'], ['etc', '기타', '📦']];
+const KIND_NAME = Object.fromEntries(KINDS.map(([k, n]) => [k, n]));
+const KIND_ICON = Object.fromEntries(KINDS.map(([k, , i]) => [k, i]));
+const RARITY = { common: { name: '일반', c: 'var(--line)' }, rare: { name: '희귀', c: 'var(--plat)' }, legend: { name: '전설', c: 'var(--gold)' } };
+const QUICK_ICONS = ['💻', '🖥️', '📱', '⌚', '🎧', '📷', '🍓', '🤖', '🚲', '🚗', '👟', '🎒', '🧥', '📚', '🎮', '🎸', '🛏️', '🪴'];
+const STATUS_NAME = { use: '사용 중', keep: '보관 중', gone: '처분', wish: '위시' };
+const owned = (it) => it.status === 'use' || it.status === 'keep';
+const itemYears = (it) => (it.got ? Math.max(0, diffKeys(it.got, it.status === 'gone' && it.goneAt ? it.goneAt : todayStr()) / 365.25) : 0);
+const yearsText = (it) => {
+  if (it.status === 'wish' || !it.got) return '';
+  const y = itemYears(it);
+  return y >= 1 ? `${Math.floor(y)}년${it.status === 'gone' ? ' 함께함' : '째'}` : `${Math.max(1, Math.round(y * 12))}개월${it.status === 'gone' ? ' 함께함' : '째'}`;
+};
+const money = (n) => Number(n).toLocaleString('ko-KR');
+function inventoryStats(itemXp) {
+  const items = state.items;
+  const ownedItems = items.filter(owned);
+  const byKind = {};
+  ownedItems.forEach((it) => { byKind[it.kind] = (byKind[it.kind] || 0) + 1; });
+  const using = items.filter((it) => it.status === 'use');
+  const oldest = using.reduce((a, it) => (itemYears(it) > (a ? itemYears(a) : -1) ? it : a), null);
+  const eqStats = STATS.filter((s) => items.some((it) => it.equipped && it.status === 'use' && it.stat === s.id)).length;
+  const priced = ownedItems.filter((it) => it.price > 0), wish = items.filter((it) => it.status === 'wish');
+  return {
+    ever: items.filter((it) => it.status !== 'wish').length,
+    owned: ownedItems.length, using: using.length, keep: ownedItems.length - using.length,
+    gone: items.filter((it) => it.status === 'gone').length,
+    maxKind: Math.max(0, ...Object.values(byKind)),
+    legend: ownedItems.some((it) => it.tier === 'legend') ? 1 : 0,
+    oldest, oldestYears: oldest ? itemYears(oldest) : 0,
+    maxBond: Math.max(0, ...Object.values(itemXp)),
+    eqStats, wishDone: items.filter((it) => it.fromWish && it.status !== 'wish').length,
+    value: priced.reduce((a, it) => a + Number(it.price), 0), priced: priced.length,
+    wishN: wish.length, wishValue: wish.reduce((a, it) => a + (Number(it.price) || 0), 0),
+  };
+}
+let invFilter = 'all', editingItem = null;
+function renderInventory(ctx) {
+  const v = ctx.inv;
+  $('#invStats').innerHTML = `
+    <div class="stat"><div class="k">보유</div><div class="v">${v.owned}개</div><div class="s">사용 중 ${v.using} · 보관 ${v.keep}</div></div>
+    <div class="stat"><div class="k">장착</div><div class="v">${v.eqStats}/${STATS.length}</div><div class="s">능력치에 장착한 물건</div></div>
+    <div class="stat"><div class="k">가장 오래 쓴 물건</div><div class="v">${v.oldest ? `${esc(v.oldest.icon || '')} ${esc(v.oldest.name)}` : '—'}</div><div class="s">${v.oldest ? yearsText(v.oldest) : '물건을 추가해 보세요'}</div></div>
+    <div class="stat"><div class="k">${v.priced ? '보유 물건 구입가' : '위시리스트'}</div><div class="v">${v.priced ? money(v.value) : `${v.wishN}개`}</div><div class="s">${v.priced ? `위시 ${v.wishN}개${v.wishValue ? ` · ${money(v.wishValue)}` : ''}` : (v.wishValue ? `합계 ${money(v.wishValue)}` : '갖고 싶은 물건')}</div></div>`;
+  $('#loadout').innerHTML = STATS.map((s) => {
+    const eq = state.items.filter((it) => it.equipped && it.status === 'use' && it.stat === s.id);
+    return `<div class="lo" style="--c:${s.color}"><div class="k"><i></i>${esc(s.name)}</div>
+      <div class="v${eq.length ? '' : ' none'}">${eq.length ? eq.map((it) => `${esc(it.icon || '')} ${esc(it.name)}`).join(', ') : '비어 있음'}</div></div>`;
+  }).join('');
+  const kindSel = $('#invKind'), kv = kindSel.value;
+  kindSel.innerHTML = '<option value="">모든 종류</option>' + KINDS.map(([k, n]) => `<option value="${k}">${n}</option>`).join('');
+  kindSel.value = kv;
+  const list = state.items
+    .filter((it) => (invFilter === 'all' ? it.status !== 'wish' : it.status === invFilter))
+    .filter((it) => !kindSel.value || it.kind === kindSel.value)
+    .sort((a, b) => (b.equipped - a.equipped) || ['legend', 'rare', 'common'].indexOf(a.tier) - ['legend', 'rare', 'common'].indexOf(b.tier) || String(a.got || '9').localeCompare(String(b.got || '9')));
+  $('#inv').innerHTML = list.length ? list.map((it) => {
+    const xp = ctx.itemXp[it.id] || 0, bond = levelInfo(xp);
+    const link = [it.stat ? statName(it.stat) : '', it.sk ? skLabel(it.sk) : ''].filter(Boolean).join(' › ');
+    return `<button type="button" class="item ${it.status}" data-item="${it.id}" style="--r:${RARITY[it.tier].c}" title="${RARITY[it.tier].name}">
+      ${it.equipped && it.status === 'use' ? '<span class="eq">장착</span>' : ''}
+      <div class="ic">${esc(it.icon || KIND_ICON[it.kind])}</div>
+      <div class="nm">${esc(it.name)}</div>
+      <div class="mt">${esc(KIND_NAME[it.kind] || '기타')}${yearsText(it) ? ` · ${yearsText(it)}` : ''}${it.status === 'keep' || it.status === 'gone' ? ` · ${STATUS_NAME[it.status]}` : ''}</div>
+      ${link ? `<div class="mt">${esc(link)}</div>` : ''}
+      ${it.status === 'wish' ? (it.price ? `<div class="bond">${money(it.price)}</div>` : '') : `<div class="bond">애착 <b>Lv ${bond.level}</b>${xp ? ` · ${fmt(xp)} XP` : ''}</div>`}
+    </button>`;
+  }).join('') : `<p class="sub" style="grid-column:1/-1;margin:0">${invFilter === 'wish' ? '갖고 싶은 물건을 위시리스트에 담아 보세요.' : '아직 물건이 없어요. 오래 쓰고 있는 기기나 운동화부터 추가해 보세요.'}</p>`;
+}
+document.querySelectorAll('[data-if]').forEach((b) => b.addEventListener('click', () => {
+  invFilter = b.dataset.if;
+  document.querySelectorAll('[data-if]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  refresh(false);
+}));
+$('#invKind').addEventListener('change', () => refresh(false));
+$('#iQuick').innerHTML = QUICK_ICONS.map((i) => `<button type="button" data-qi="${i}" aria-label="${i}">${i}</button>`).join('');
+$('#iQuick').addEventListener('click', (e) => { const b = e.target.closest('[data-qi]'); if (b) $('#iIcon').value = b.dataset.qi; });
+$('#iKind').innerHTML = KINDS.map(([k, n]) => `<option value="${k}">${n}</option>`).join('');
+function syncItemForm() {
+  const st = $('#iStatus').value;
+  $('#iGoneWrap').hidden = st !== 'gone';
+  $('#iGotWrap').hidden = st === 'wish';
+  $('#iGotIt').hidden = !(editingItem && st === 'wish');
+  const stat = $('#iStat').value, skv = $('#iSk').value;
+  $('#iSk').innerHTML = skillOptions(stat, skv, fieldsOf(stat).length ? '분야 없음' : '분야 없음');
+  $('#iSk').disabled = !stat || !fieldsOf(stat).length;
+  $('#iEquip').disabled = !stat || st !== 'use';
+  if ($('#iEquip').disabled) $('#iEquip').checked = false;
+}
+['#iStatus', '#iStat'].forEach((sel) => $(sel).addEventListener('change', syncItemForm));
+$('#iKind').addEventListener('change', () => { if (!$('#iIcon').value || Object.values(KIND_ICON).includes($('#iIcon').value)) $('#iIcon').value = KIND_ICON[$('#iKind').value]; });
+function openItem(id, presetStatus) {
+  const it = id ? state.items.find((x) => x.id === id) : null;
+  editingItem = it ? it.id : null;
+  $('#itemTitle').textContent = it ? '물건 편집' : '물건 추가';
+  $('#iName').value = it ? it.name : '';
+  $('#iKind').value = it ? it.kind : 'device';
+  $('#iIcon').value = it ? (it.icon || '') : KIND_ICON.device;
+  $('#iTier').value = it ? it.tier : 'common';
+  $('#iStatus').value = it ? it.status : (presetStatus || 'use');
+  $('#iGot').value = it ? (it.got || '') : todayStr();
+  $('#iGone').value = it ? (it.goneAt || '') : '';
+  $('#iPrice').value = it && it.price ? it.price : '';
+  $('#iStat').innerHTML = '<option value="">연결 안 함</option>' + STATS.map((s) => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  $('#iStat').value = it ? (it.stat || '') : '';
+  $('#iSk').innerHTML = skillOptions($('#iStat').value, it ? (it.sk || '') : '', '분야 없음');
+  $('#iEquip').checked = !!(it && it.equipped);
+  $('#iMemo').value = it ? (it.memo || '') : '';
+  $('#iDelete').hidden = !it;
+  syncItemForm();
+  $('#itemDlg').returnValue = '';
+  $('#itemDlg').showModal();
+  if (!it) $('#iName').focus();
+}
+$('#addItem').addEventListener('click', () => openItem(null, invFilter === 'wish' ? 'wish' : 'use'));
+$('#inv').addEventListener('click', (e) => { const b = e.target.closest('[data-item]'); if (b) openItem(b.dataset.item); });
+$('#iGotIt').addEventListener('click', () => {
+  $('#iStatus').value = 'use';
+  $('#iGot').value = todayStr();
+  const it = state.items.find((x) => x.id === editingItem);
+  if (it) it.fromWish = true;
+  syncItemForm();
+});
+$('#iDelete').addEventListener('click', () => {
+  const it = state.items.find((x) => x.id === editingItem);
+  if (!it || !confirm(`"${it.name}"을(를) 지울까요? 처분했다면 상태를 '처분·양도'로 바꾸면 기록이 남아요.`)) return;
+  state.items = state.items.filter((x) => x !== it);
+  state.quests.forEach((q) => { if (q.item === it.id) delete q.item; });
+  editingItem = null;
+  $('#itemDlg').close('cancel');
+  save(); refresh();
+});
+$('#itemDlg').addEventListener('close', () => {
+  if ($('#itemDlg').returnValue !== 'ok') { editingItem = null; return; }
+  const name = $('#iName').value.trim();
+  if (!name) { toast('<span>물건 이름을 적어 주세요</span>'); editingItem = null; return; }
+  let it = state.items.find((x) => x.id === editingItem);
+  if (!it) { it = { id: 'i' + newId() }; state.items.push(it); }
+  const prevStatus = it.status;
+  Object.assign(it, {
+    name, icon: $('#iIcon').value.trim() || KIND_ICON[$('#iKind').value], kind: $('#iKind').value, tier: $('#iTier').value,
+    status: $('#iStatus').value, got: $('#iStatus').value === 'wish' ? null : ($('#iGot').value || todayStr()),
+    goneAt: $('#iStatus').value === 'gone' ? ($('#iGone').value || todayStr()) : null,
+    price: Number($('#iPrice').value) > 0 ? Number($('#iPrice').value) : null,
+    stat: $('#iStat').value || null, memo: $('#iMemo').value.trim(),
+  });
+  it.sk = fieldValid($('#iSk').value, it.stat) ? $('#iSk').value : null;
+  it.equipped = $('#iEquip').checked && it.status === 'use' && !!it.stat;
+  if (prevStatus === 'wish' && it.status !== 'wish') it.fromWish = true;
+  editingItem = null;
+  save(); refresh();
+});
+function syncQuestItem() {
+  const sel = $('#qItem'), v = sel.value;
+  const using = state.items.filter((it) => it.status === 'use');
+  sel.hidden = !using.length;
+  sel.innerHTML = '<option value="">물건 없음</option>' + using.map((it) => `<option value="${it.id}">${esc(it.icon || '')} ${esc(it.name)}</option>`).join('');
+  if (using.some((it) => it.id === v)) sel.value = v;
+  else {
+    // 고른 능력치에 장착한 물건이 있으면 기본으로 선택
+    const eq = using.find((it) => it.equipped && it.stat === $('#qStat').value);
+    sel.value = eq ? eq.id : '';
+  }
+}
+$('#qStat').addEventListener('change', () => { $('#qItem').value = ''; syncQuestItem(); });
+function itemsAround(start, end) {
+  const a = keyOf(start), b = keyOf(end), out = [];
+  for (const it of state.items) {
+    if (it.got && it.got >= a && it.got < b) out.push(`획득 ${it.icon || ''} ${it.name}`);
+    if (it.goneAt && it.goneAt >= a && it.goneAt < b) out.push(`작별 ${it.icon || ''} ${it.name}`);
+  }
+  return out;
+}
+
+// ---------- Power · Freedom 점수판, 함정 경고, 쉼 ----------
+function renderScoreboard() {
+  const { cur, prev } = assessInfo();
+  const card = (title, sub, ids) => {
+    const v = boardScore(cur, ids), p = prev ? boardScore(prev, ids) : null;
+    const d = v != null && p != null ? Math.round((v - p) * 10) / 10 : null;
+    const names = ids.filter((id) => STATS.some((s) => s.id === id)).map((id) => statName(id)).join(' · ');
+    return `<div class="board">
+      <div class="k">${title}</div>
+      <div class="v">${v != null ? v.toFixed(1) : '—'}<small> / 10</small></div>
+      <div class="s">${sub}${d != null ? ` · 지난 점검 대비 ${d > 0 ? '+' : ''}${d.toFixed(1)}` : ''}</div>
+      <div class="s">${esc(names)}</div>
+    </div>`;
+  };
+  $('#scoreboard').innerHTML = card('Power Score', '세상에서 할 수 있는 일', POWER) + card('Freedom Score', '내가 선택할 수 있는 삶', FREEDOM);
+  // 성장 격차
+  const gaps = STATS.map((s) => ({ s, gap: state.targets[s.id] != null && cur[s.id] != null ? state.targets[s.id] - cur[s.id] : null }))
+    .filter((x) => x.gap > 0).sort((a, b) => b.gap - a.gap);
+  $('#gapNote').innerHTML = gaps.length
+    ? `<p class="sub" style="margin:14px 0 0">가장 큰 성장 격차: <b>${gaps.slice(0, 3).map((x) => `${esc(x.s.name)} +${x.gap}`).join(' · ')}</b>. 이미 높은 축보다 낮지만 중요한 축에 시간을 쓸 때 전체 캐릭터의 효용이 더 크게 올라요.</p>`
+    : (Object.keys(state.targets).length ? '' : '<p class="sub" style="margin:14px 0 0">축마다 목표 점수를 정하면 레이더에 목표선이 생기고, 가장 큰 성장 격차를 알려 줘요.</p>');
+}
+function powerFreedomShift() {
+  const { cur, prev } = assessInfo();
+  if (!prev) return null;
+  const p1 = boardScore(prev, POWER), p2 = boardScore(cur, POWER), f1 = boardScore(prev, FREEDOM), f2 = boardScore(cur, FREEDOM);
+  if ([p1, p2, f1, f2].some((x) => x == null)) return null;
+  return p2 > p1 && f2 < f1 ? { p: p2 - p1, f: f2 - f1 } : null;
+}
+function detectTraps(ctx) {
+  const out = [];
+  const shift = powerFreedomShift();
+  if (shift) out.push(['Power는 오르고 Freedom은 내려갔어요', '원칙: 직함이나 연봉이 올라가도 자유가 줄면 재평가합니다. 무엇을 얻고 무엇을 내주고 있는지 이번 달 회고에 적어 보세요.']);
+  const busy = STATS.filter((s) => ctx.st[s.id].x7 >= 20).length;
+  if (busy >= 5) out.push(['모든 스탯 동시 성장', `이번 주에 ${busy}개 축을 한꺼번에 밀고 있어요. 메인 퀘스트 1개, 성장 퀘스트 1개를 우선하고 나머지는 유지 수준으로 운영해 보세요.`]);
+  const comp = ctx.st.competence, auth = ctx.st.authority;
+  const out30 = (ctx.sk.cats.find((c) => c.id === 'c-out') || { x30: 0 }).x30;
+  if (comp && auth && comp.xp30 >= 200 && auth.xp30 === 0 && out30 === 0) out.push(['끝없는 준비', '최근 30일 동안 배우기만 하고 적용·권한·발신 기록은 없어요. 배운 것을 실무, 프로젝트, 발표 중 하나에 적용한 뒤 다음 단계로 넘어가세요.']);
+  if (ctx.st.enjoyment && ctx.st.enjoyment.x14 === 0 && STATS.some((s) => ctx.st[s.id].x14 > 0)) out.push(['즐거움 예산이 0', '바쁜 주에도 삶의 질은 완전히 0으로 만들지 않아요. 짧아도 좋아하는 일 하나를 넣어 보세요.']);
+  if (ctx.activeStreak14 && !ctx.rest14) out.push(['쉼 없는 2주', '14일 연속으로 기록했고 쉰 날이 없어요. 점수화하지 않는 시간을 일부러 남겨 두세요. 오늘을 \'쉼\'으로 표시해도 연속 기록은 끊기지 않아요.']);
+  $('#traps').innerHTML = out.length ? out.map(([t, d]) => `<div class="trap"><b>${esc(t)}</b><p>${esc(d)}</p></div>`).join('') : '';
+}
+function renderRules() {
+  $('#rulesList').innerHTML = state.rules.map((r) => `<li>${esc(r)}</li>`).join('');
+}
+function renderRest() {
+  const t = todayStr(), on = !!state.rest[t];
+  $('#restBtn').textContent = on ? '쉼 표시 취소' : '오늘은 쉼으로 표시';
+  $('#restBtn').className = on ? 'btn small' : 'btn ghost small';
+  $('#restNote').textContent = on ? '오늘은 쉼. 연속 기록과 컨디션 계산에서 빠지고, 인생 그리드에 따로 표시돼요. 휴식은 보상이 아니라 그 자체로 가치가 있어요.' : '';
+  $('#restNote').hidden = !on;
+}
+$('#restBtn').addEventListener('click', () => {
+  const t = todayStr();
+  if (state.rest[t]) delete state.rest[t]; else state.rest[t] = true;
+  save(); refresh();
+});
+$('#assessList').addEventListener('change', (e) => {
+  const t = e.target.closest('[data-at]');
+  if (!t) return;
+  if (t.value === '') delete state.targets[t.dataset.at]; else state.targets[t.dataset.at] = Number(t.value);
+  save(); refresh(false);
+});
+
+// ---------- 이번 달 상태 점검 ----------
+const monthKey = (d = new Date()) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
+const statQ = (s) => s.q || '이 능력치는 지금 어떤가요?';
+function assessInfo() {
+  const mk = monthKey();
+  const keys = Object.keys(state.assess).filter((k) => Object.keys(state.assess[k] || {}).length).sort();
+  const prevKey = keys.filter((k) => k < mk).pop() || null;
+  return { mk, cur: state.assess[mk] || {}, prevKey, prev: prevKey ? state.assess[prevKey] : null, keys };
+}
+function renderRadar(cur, prev) {
+  const svg = $('#radar');
+  const n = STATS.length;
+  if (n < 3) { svg.innerHTML = ''; return; }
+  const cx = 160, cy = 150, R = 100;
+  const ang = (i) => (-90 + i * 360 / n) * Math.PI / 180;
+  const pt = (i, r) => [cx + r * Math.cos(ang(i)), cy + r * Math.sin(ang(i))];
+  const poly = (vals) => STATS.map((s, i) => pt(i, R * Math.max(0, Math.min(10, vals[s.id] ?? 0)) / 10).map((v) => v.toFixed(1)).join(',')).join(' ');
+  let g = '';
+  for (const lv of [2, 4, 6, 8, 10]) g += `<polygon points="${STATS.map((s, i) => pt(i, R * lv / 10).map((v) => v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--line)" stroke-width="${lv % 10 === 0 ? 1.2 : 0.7}"/>`;
+  STATS.forEach((s, i) => {
+    const [x, y] = pt(i, R);
+    g += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--line)" stroke-width="0.7"/>`;
+    const [lx, ly] = pt(i, R + 16), c = Math.cos(ang(i));
+    const anchor = c > 0.3 ? 'start' : c < -0.3 ? 'end' : 'middle';
+    const v = cur[s.id];
+    g += `<text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="${anchor}" font-size="11" fill="var(--muted)">${esc(s.name)}${v != null ? ` ${v}` : ''}</text>`;
+  });
+  if (prev) g += `<polygon points="${poly(prev)}" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+  const tgt = state.targets || {};
+  if (STATS.some((s) => tgt[s.id] != null)) {
+    g += `<polygon points="${poly(tgt)}" fill="none" stroke="var(--ink)" stroke-width="1" stroke-dasharray="1.5 3" stroke-linecap="round"/>`;
+  }
+  if (Object.keys(cur).length) {
+    g += `<polygon points="${poly(cur)}" fill="var(--clay)" fill-opacity="0.22" stroke="var(--clay)" stroke-width="1.8" stroke-linejoin="round"/>`;
+    STATS.forEach((s, i) => { if (cur[s.id] != null) { const [x, y] = pt(i, R * cur[s.id] / 10); g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="var(--clay)"/>`; } });
+  }
+  svg.innerHTML = g;
+}
+function renderAssess(ctx) {
+  const { mk, cur, prevKey, prev } = assessInfo();
+  const answered = STATS.filter((s) => cur[s.id] != null).length;
+  $('#assessSub').textContent = answered
+    ? `${mk.replace('-', '년 ')}월 · ${answered}/${STATS.length}개 답함${prevKey ? ` · 점선은 지난 점검(${prevKey.replace('-', '년 ')}월)` : ''}`
+    : '한 달에 한 번, 각 질문에 0–10으로 답해요. 레벨은 "얼마나 투자했나", 상태 점수는 "그래서 지금 어떤가"를 보여줘요.';
+  renderRadar(cur, prev);
+  $('#assessList').innerHTML = STATS.map((s) => {
+    const v = cur[s.id];
+    const ref = s.id === 'optionality' && STATS.some((x) => x.id === 'capital')
+      ? `<div class="ref">참고: Capital ${cur.capital ?? '—'} · Communication ${cur.communication ?? '—'}</div>` : '';
+    return `<div class="aq" style="--c:${s.color}">
+      <div class="top"><b><i></i>${esc(s.name)}</b><span class="val" data-av="${s.id}">${v ?? '—'}</span></div>
+      <p>${esc(statQ(s))}</p>
+      <input type="range" min="0" max="10" step="1" value="${v ?? 5}" data-as="${s.id}" class="${v == null ? 'unset' : ''}" aria-label="${esc(s.name)} 상태 점수">
+      <div class="tg"><label>목표 <select data-at="${s.id}" aria-label="${esc(s.name)} 목표 점수"><option value="">—</option>${Array.from({ length: 11 }, (_, i) => `<option value="${i}"${state.targets[s.id] === i ? ' selected' : ''}>${i}</option>`).join('')}</select></label>${state.targets[s.id] != null && v != null && state.targets[s.id] > v ? `<span>격차 +${state.targets[s.id] - v}</span>` : ''}</div>
+      ${ref}
+    </div>`;
+  }).join('');
+  // 레벨은 오르는데 상태는 그대로인 축
+  const stuck = STATS.filter((s) => {
+    const now = cur[s.id];
+    const olds = Object.keys(state.assess).filter((k) => k < mk).sort().slice(-3).map((k) => state.assess[k][s.id]).filter((x) => x != null);
+    return now != null && olds.length && ctx.st[s.id].x90 >= 300 && now <= olds[0];
+  });
+  $('#assessHint').innerHTML = stuck.length
+    ? `<p class="sub" style="margin-top:14px">최근 90일 경험치는 꾸준히 쌓였는데 상태 점수가 그대로인 축: <b>${stuck.map((s) => esc(s.name)).join(', ')}</b>. 노력의 방향을 점검해 볼 때예요.</p>` : '';
+}
+$('#assessList').addEventListener('input', (e) => {
+  const r = e.target.closest('[data-as]');
+  if (!r) return;
+  const mk = monthKey();
+  (state.assess[mk] || (state.assess[mk] = {}))[r.dataset.as] = Number(r.value);
+  r.classList.remove('unset');
+  const lab = document.querySelector(`[data-av="${r.dataset.as}"]`);
+  if (lab) lab.textContent = r.value;
+  save();
+  const { cur, prev } = assessInfo();
+  renderRadar(cur, prev);
+});
+$('#assessList').addEventListener('change', (e) => { if (e.target.closest('[data-as]')) refresh(); });
+
+// ---------- 컨트롤 ----------
+document.querySelectorAll('#unitSeg button').forEach((b) => {
+  b.addEventListener('click', () => { state.unit = b.dataset.unit; save(); refresh(false); });
+});
+function setTab(name) {
+  state.tab = name; save();
+  document.querySelectorAll('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+  ['life', 'today', 'mandala', 'travel', 'inv', 'trophy'].forEach((n) => { $('#tab-' + n).hidden = n !== name; });
+  if (name === 'life') requestAnimationFrame(draw);
+  if (name === 'travel') requestAnimationFrame(openTravel);
+}
+document.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
+$('#birthInput').addEventListener('change', (e) => {
+  if (!e.target.value) return;
+  state.birth = e.target.value; save(); refresh(false);
+});
+$('#resetBtn').addEventListener('click', () => {
+  if (!confirm('생년월일, 목표, 퀘스트, 만다라트, 트로피를 모두 지울까요? 되돌릴 수 없어요.')) return;
+  try { localStorage.removeItem(LS_KEY); localStorage.removeItem('lifegame.v2'); } catch (e) {}
+  location.href = location.pathname;
+});
+$('#onboardForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const v = $('#onboardBirth').value;
+  if (!v) return;
+  state.birth = v; save();
+  $('#onboard').hidden = true;
+  refresh(false);
+});
+
+function refresh(announce = true) {
+  document.querySelectorAll('#unitSeg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.unit === state.unit)));
+  if (!state.birth) { $('#onboard').hidden = false; return; }
+  $('#birthInput').value = state.birth;
+  buildTrophies();
+  renderStatOptions();
+  const ctx = lastCtx = computeCtx();
+  evaluateTrophies(ctx, announce);
+  tick(); updateStats(); renderGameLine(ctx); renderGoals(); renderPauses();
+  renderRules(); renderRest(); detectTraps(ctx);
+  renderAbil(ctx); renderAssess(ctx); renderScoreboard(); renderSkillTree(ctx); renderQuests(ctx); renderMandala(ctx); renderTravel(ctx); renderInventory(ctx); syncQuestItem(); renderTrophies(ctx);
+  draw();
+}
+
+// ---------- 시작 ----------
+$('#onboardBirth').max = todayStr();
+// 생년월일 입력칸의 기본값
+const DEFAULT_BIRTH = '1990-01-01';
+if (!$('#onboardBirth').value) $('#onboardBirth').value = DEFAULT_BIRTH;
+$('#birthInput').max = todayStr();
+const synced = syncFromHash();
+setTab(state.tab);
+refresh(synced);
+window.addEventListener('hashchange', () => { if (syncFromHash()) { setTab('mandala'); refresh(); } });
+
+let lastWidth = 0, lastDay = todayStr();
+new ResizeObserver(() => {
+  const w = wrap.clientWidth;
+  if (w !== lastWidth) { lastWidth = w; requestAnimationFrame(() => { draw(); if (state.birth) updateStats(); }); }
+}).observe(wrap);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+setInterval(() => {
+  tick();
+  const d = todayStr();
+  if (d !== lastDay) { lastDay = d; refresh(); }
+}, 1000);
 })();
 </script>
 </body>
