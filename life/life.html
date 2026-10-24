@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LifeGame — 인생</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%23D97757'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../shared/lifegame.css">
+</head>
+<body data-page="life">
+<div class="wrap">
+  <div id="chrome-top"></div>
+
+  <!-- 인생: 이 탭의 화면은 이 파일에서만 관리해요 -->
+  <section class="panel" id="tab-life">
+    <details class="rules" open>
+      <summary>게임 규칙</summary>
+      <ul id="rulesList"></ul>
+    </details>
+    <div class="stats">
+      <div class="stat"><div class="k">나이</div><div class="v" id="sAge">–</div><div class="s" id="sAgeSub">–</div></div>
+      <div class="stat"><div class="k" id="sUnitK">지나온 주</div><div class="v" id="sUnit">–</div><div class="s" id="sUnitSub">–</div></div>
+      <div class="stat"><div class="k">이번 챕터</div><div class="v" id="sChap">–</div><div class="s" id="sChapSub">–</div></div>
+      <div class="stat"><div class="k">다음 목표</div><div class="v" id="sGoal">–</div><div class="s" id="sGoalSub">–</div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="표시 단위" id="unitSeg">
+        <button data-unit="day">일</button>
+        <button data-unit="week">주</button>
+        <button data-unit="month">월</button>
+        <button data-unit="year">년</button>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--dot-past)"></i>지나온</span>
+        <span><i class="act"></i>퀘스트를 한 날</span>
+        <span><i class="rest"></i>쉼</span>
+        <span><i style="background:var(--clay)"></i>지금</span>
+        <span><i style="background:var(--dot-future)"></i>남은</span>
+        <span><i class="ring"></i>목표 기한</span>
+      </div>
+    </div>
+
+    <div class="grid-wrap" id="gridWrap">
+      <canvas id="grid" aria-label="인생 진행도 점 그리드"></canvas>
+      <span class="pulse" id="pulse" hidden></span>
+      <div class="tip" id="tip"></div>
+    </div>
+    <div class="caption" id="caption"></div>
+
+    <section class="goals">
+      <h2>목표</h2>
+      <p class="sub">"몇 살까지 무엇을" 정해 두면, 그 시점의 점에 표시됩니다.</p>
+      <form class="add" id="goalForm">
+        <input type="text" id="goalTitle" placeholder="예: 풀마라톤 완주" maxlength="60" required>
+        <input type="number" id="goalAge" min="1" max="100" required aria-label="목표 나이">
+        <button class="btn" type="submit">추가</button>
+      </form>
+      <ul class="goal-list" id="goalList"></ul>
+    </section>
+
+    <h2>인생의 쉼표</h2>
+    <p class="sub">10년마다 멈춰 서서 그 나이의 나에게 한 줄을 남겨요. 지난 나이는 회고, 다가올 나이는 바람으로.</p>
+    <ul class="pauses" id="pauses"></ul>
+  </section>
+
+  <div id="chrome-bottom"></div>
+</div>
+<script src="../shared/chrome.js"></script>
+<script src="../shared/backup.js"></script>
+<script src="../shared/lifegame.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LifeGame — 오늘</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%23D97757'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../shared/lifegame.css">
+</head>
+<body data-page="today">
+<div class="wrap">
+  <div id="chrome-top"></div>
+
+  <!-- 오늘: 이 탭의 화면은 이 파일에서만 관리해요 -->
+  <section class="panel" id="tab-today">
+    <div id="traps"></div>
+    <h2 class="first">능력치</h2>
+    <p class="sub">막대는 최근 30일의 컨디션(0–100)이고, 레벨은 지금까지 쌓은 경험치예요. 쉬면 컨디션은 내려가도 레벨은 그대로예요.</p>
+    <div class="abil" id="abil"></div>
+
+    <h2>이번 달 상태 점검</h2>
+    <p class="sub" id="assessSub"></p>
+    <div class="scoreboard" id="scoreboard"></div>
+    <div id="gapNote"></div>
+    <div class="assess">
+      <svg id="radar" viewBox="0 0 320 300" role="img" aria-label="일곱 축 상태 점수 레이더 차트"></svg>
+      <div id="assessList"></div>
+    </div>
+    <div id="assessHint"></div>
+
+    <h2>분야별 레벨</h2>
+    <p class="sub">퀘스트와 만다라트 세부 목표에 분야를 정하면, 능력치 안에서 분야마다 레벨이 따로 쌓여요. 능력치 이름을 눌러 펼쳐 보세요.</p>
+    <div id="skillTree"></div>
+
+    <h2>오늘의 퀘스트</h2>
+    <p class="sub" id="todayLabel"></p>
+    <div class="restbar"><button type="button" id="restBtn" class="btn ghost small"></button><span class="sub" id="restNote" hidden></span></div>
+    <ul class="goal-list" id="quests"></ul>
+    <form class="add" id="questForm">
+      <input type="text" id="qName" placeholder="새 퀘스트 (예: 스쿼트 30개)" maxlength="60" required aria-label="퀘스트 이름">
+      <select id="qStat" aria-label="능력치"></select>
+      <select id="qSk" aria-label="분야" hidden></select>
+      <select id="qItem" aria-label="사용하는 물건" hidden></select>
+      <select id="qXp" aria-label="경험치">
+        <option value="5">+5 XP</option>
+        <option value="10" selected>+10 XP</option>
+        <option value="20">+20 XP</option>
+      </select>
+      <button class="btn" type="submit">추가</button>
+    </form>
+
+    <h2>오늘의 한 줄</h2>
+    <textarea id="note" rows="2" placeholder="오늘 기억하고 싶은 것 하나" aria-label="오늘의 한 줄"></textarea>
+  </section>
+
+  <div id="chrome-bottom"></div>
+</div>
+<script src="../shared/chrome.js"></script>
+<script src="../shared/backup.js"></script>
+<script src="../shared/lifegame.js"></script>
+</body>
+</html>

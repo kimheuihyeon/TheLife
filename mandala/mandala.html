@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LifeGame — 만다라트</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%23D97757'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../shared/lifegame.css">
+</head>
+<body data-page="mandala">
+<div class="wrap">
+  <div id="chrome-top"></div>
+
+  <!-- 만다라트: 이 탭의 화면은 이 파일에서만 관리해요 -->
+  <section class="panel" id="tab-mandala">
+    <div class="mtool">
+      <div class="seg" role="group" aria-label="만다라트 모드" id="mSeg">
+        <button data-mmode="edit" aria-pressed="true">작성</button>
+        <button data-mmode="check" aria-pressed="false">실천 체크</button>
+      </div>
+      <span class="mprog" id="mprog"></span>
+    </div>
+    <div class="mandala" id="mandala"></div>
+    <p class="hint" id="mhint"></p>
+    <p class="hint">iPhone 리마인더와 연동하려면 단축어 'LifeGame 동기화'를 실행하세요. 목록 이름이 세부 목표가 되고, 각 리마인더가 실천 칸에 들어가요.</p>
+
+    <h2>세부 목표와 능력치</h2>
+    <p class="sub">세부 목표마다 능력치를 정하면, 실천을 체크할 때 그 능력치에 +20 XP가 쌓여요.</p>
+    <ul class="subgoals" id="subgoals"></ul>
+  </section>
+
+  <div id="chrome-bottom"></div>
+</div>
+<script src="../shared/chrome.js"></script>
+<script src="../shared/backup.js"></script>
+<script src="../shared/lifegame.js"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LifeGame — 여행</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%23D97757'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../shared/lifegame.css">
+</head>
+<body data-page="travel">
+<div class="wrap">
+  <div id="chrome-top"></div>
+
+  <!-- 여행: 이 탭의 화면은 이 파일에서만 관리해요 -->
+  <section class="panel" id="tab-travel">
+    <div class="stats" id="travelStats"></div>
+
+    <div class="travel-bar">
+      <div class="crumb" id="crumb"><b>세계</b></div>
+      <input type="text" id="countrySearch" list="countryOptions" placeholder="나라 찾기 (예: 일본)" aria-label="나라 찾기">
+      <datalist id="countryOptions"></datalist>
+    </div>
+    <div class="map-wrap" id="mapWrap">
+      <svg id="mapSvg" role="img" aria-label="방문한 나라와 지역 지도"></svg>
+      <div class="map-ctrl">
+        <button type="button" id="zoomIn" aria-label="확대">+</button>
+        <button type="button" id="zoomOut" aria-label="축소">−</button>
+        <button type="button" id="zoomReset" aria-label="처음 크기로">⟲</button>
+      </div>
+      <div class="tip" id="mapTip"></div>
+      <div class="map-msg" id="mapMsg" hidden></div>
+    </div>
+    <p class="caption" id="mapHint">나라를 누르면 그 나라의 지역 지도가 열려요. 두 손가락이나 휠로 확대할 수 있어요.</p>
+
+    <div id="cpanel" hidden>
+      <div class="cpanel-head">
+        <div><h2 id="cpName"></h2><p class="sub" id="cpSub"></p></div>
+        <button class="btn" type="button" id="cpToggle"></button>
+      </div>
+      <div class="chips" id="cpRegions"></div>
+    </div>
+
+    <h2>가 본 나라</h2>
+    <p class="sub">눌러서 그 나라 지도로 이동해요.</p>
+    <div class="chips" id="visitedList"></div>
+    <p class="caption">지도 데이터: Natural Earth, Highcharts Map Collection</p>
+  </section>
+
+  <div id="chrome-bottom"></div>
+</div>
+<script src="../shared/chrome.js"></script>
+<script src="../shared/backup.js"></script>
+<script src="../shared/lifegame.js"></script>
+</body>
+</html>

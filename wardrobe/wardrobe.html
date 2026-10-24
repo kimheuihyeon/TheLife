@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LifeGame — Wardrobe</title>
+<meta name="description" content="옷장을 점으로 보여주고, 도쿄 날씨와 오늘 일정에 맞춰 코디를 추천합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%23D97757'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* ── 메인(index.html)과 같은 디자인 토큰 ── */
+:root {
+  --bg: #FAF9F5;
+  --surface: #F0EEE6;
+  --ink: #141413;
+  --muted: #6B6A64;
+  --faint: #B0AEA5;
+  --line: #E3DFD3;
+  --clay: #D97757;
+  --bronze: #A8703F; --silver: #8E959C; --gold: #C99A2E; --plat: #4E9AA4;
+  --serif: "Noto Serif KR", "Tiempos Text", Georgia, serif;
+  --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1F1E1D; --surface: #2A2927; --ink: #F0EEE6; --muted: #A3A097; --faint: #6B6963; --line: #3A3936;
+  }
+}
+*, *::before, *::after { box-sizing: inherit; }
+html, body { background: var(--bg); }
+body { margin: 0; color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+.wrap { max-width: 920px; margin: 0 auto; padding: 24px 20px 72px; }
+header { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.brand { display: flex; align-items: center; gap: 9px; font-weight: 600; letter-spacing: -0.01em; }
+.brand i { width: 10px; height: 10px; border-radius: 50%; background: var(--clay); }
+header a { color: var(--muted); text-decoration: none; }
+header a:hover, header a.brand { color: var(--ink); }
+
+.hero { margin: 64px 0 40px; }
+.eyebrow { color: var(--muted); font-size: 14px; }
+.big { font-family: var(--serif); font-weight: 400; font-size: clamp(48px, 10.5vw, 104px); letter-spacing: -0.035em; line-height: 1.05; margin: 8px 0 22px; font-variant-numeric: tabular-nums; }
+.big small { font-size: 0.42em; color: var(--muted); margin-left: 0.08em; letter-spacing: 0; }
+.lede { font-family: var(--serif); font-size: clamp(17px, 2.3vw, 20px); line-height: 1.75; max-width: 34em; margin: 0; }
+.lede b { font-weight: 600; }
+.lede .today { color: var(--clay); }
+
+/* 탭: 메인과 같은 모양, 여기서는 링크 */
+.tabs { position: sticky; top: 0; z-index: 5; background: var(--bg); display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin: 0 -20px; padding: 0 20px; overflow-x: auto; scrollbar-width: none; }
+.tab { flex: 1; white-space: nowrap; text-align: center; text-decoration: none; font-size: 14px; color: var(--muted); padding: 14px 4px 12px; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab:hover { color: var(--ink); }
+.tab[aria-current="page"] { color: var(--ink); border-bottom-color: var(--clay); }
+.panel { padding-top: 36px; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.stat { padding: 18px 16px 18px 0; min-width: 0; }
+.stat + .stat { padding-left: 16px; border-left: 1px solid var(--line); }
+.stat .k { font-size: 12px; color: var(--muted); }
+.stat .v { font-family: var(--serif); font-size: 22px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat .s { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 640px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+  .stat:nth-child(3) { padding-left: 0; border-left: 0; }
+  .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+
+h2 { font-family: var(--serif); font-weight: 400; font-size: 28px; letter-spacing: -0.02em; margin: 0 0 6px; }
+.sec-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin: 64px 0 6px; }
+.sec-head h2 { margin: 0; }
+.desc { color: var(--muted); margin: 0 0 22px; }
+.meta { font-size: 13px; color: var(--muted); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.seg { display: inline-flex; background: var(--surface); border-radius: 999px; padding: 4px; }
+.seg button { border: 0; background: transparent; font: inherit; font-size: 14px; color: var(--muted); padding: 7px 18px; border-radius: 999px; cursor: pointer; transition: background .15s, color .15s; }
+.seg button[aria-pressed="true"] { background: var(--bg); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+/* 버튼: .btn = 메인의 .btn.ghost, .btn.primary = 메인의 .btn */
+.btn { font: inherit; font-size: 14px; cursor: pointer; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 9px 20px; }
+.btn:hover { color: var(--ink); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn:disabled { opacity: .4; cursor: default; }
+input, select { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; outline: none; }
+input:focus, select:focus { border-color: var(--clay); }
+
+.legend { display: flex; gap: 16px; font-size: 12px; color: var(--muted); flex-wrap: wrap; margin-bottom: 18px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.legend .ring { background: transparent; border: 1.5px solid var(--clay); width: 11px; height: 11px; }
+
+/* 메인의 '함정' 카드와 같은 안내 */
+.hint { border-left: 3px solid var(--clay); background: var(--surface); border-radius: 0 10px 10px 0; padding: 10px 14px; margin: 0 0 8px; font-size: 14px; }
+
+/* 오늘 코디 카드: 메인의 인벤토리 .item과 같은 모양 */
+.outfit { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin: 14px 0 18px; }
+.piece { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 2px solid var(--tier); border-radius: 12px; padding: 12px; min-width: 0; }
+.piece .sw { width: 48px; height: 48px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.piece img.sw { border-radius: 10px; object-fit: contain; background: var(--bg); box-shadow: none; }
+.piece .c { font-size: 12px; color: var(--muted); }
+.piece strong { display: block; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.tier { font-size: 12px; color: color-mix(in srgb, var(--tier) 70%, var(--ink)); }
+.empty { color: var(--muted); padding: 16px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+/* 콜라주 보드 */
+.checker { background: repeating-conic-gradient(var(--surface) 0 25%, var(--bg) 0 50%) 0 0/16px 16px; }
+.board { position: relative; height: 360px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin: 14px 0 4px; }
+.board img { position: absolute; object-fit: contain; filter: drop-shadow(0 10px 14px rgba(0,0,0,.18)); }
+.board .p-outer { left: 2%; top: 4%; width: 36%; height: 64%; transform: rotate(-6deg); }
+.board .p-top { left: 31%; top: 3%; width: 37%; height: 46%; transform: rotate(3deg); z-index: 2; }
+.board .p-bottom { left: 34%; top: 40%; width: 33%; height: 54%; transform: rotate(-2deg); z-index: 1; }
+.board .p-dress { left: 29%; top: 3%; width: 40%; height: 92%; transform: rotate(2deg); z-index: 2; }
+.board .p-shoes { left: 5%; top: 68%; width: 27%; height: 28%; transform: rotate(-3deg); z-index: 3; }
+.board .p-acc1 { left: 72%; top: 5%; width: 24%; height: 27%; transform: rotate(4deg); }
+.board .p-acc2 { left: 73%; top: 36%; width: 22%; height: 26%; transform: rotate(-4deg); }
+.board .p-acc3 { left: 72%; top: 66%; width: 24%; height: 28%; transform: rotate(3deg); }
+.board.solo .p-top { left: 24%; } .board.solo .p-bottom { left: 27%; } .board.solo .p-dress { left: 22%; }
+.board .chip { position: absolute; left: 14px; bottom: 12px; font-size: 12px; color: var(--muted); }
+@media (max-width: 640px) { .board { height: 300px; } }
+
+/* 옷장 점 필드: 메인의 인생 점 그리드와 같은 언어 */
+.cat { display: grid; grid-template-columns: 6.5em 1fr; gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); }
+.cat:last-child { border-bottom: 1px solid var(--line); }
+.cat h3 { margin: 0; font-size: 12px; font-weight: 400; color: var(--muted); padding-top: 4px; }
+.cat h3 span { display: block; font-family: var(--serif); font-size: 22px; color: var(--ink); line-height: 1.15; }
+.dots { display: flex; flex-wrap: wrap; gap: 12px; }
+.cdot { position: relative; width: 38px; height: 38px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); transition: transform .15s; }
+.cdot.dormant { opacity: .3; }
+.type-row[hidden] { display: none; }
+.cdot.today { outline: 1.5px solid var(--clay); outline-offset: 3px; }
+.cdot.sel { transform: scale(1.12); }
+.cdot .lv { position: absolute; right: -5px; bottom: -5px; min-width: 18px; height: 18px; border-radius: 9px; background: var(--badge); color: var(--bg); font-size: 10px; line-height: 18px; font-weight: 600; padding: 0 4px; }
+.add-dot { width: 38px; height: 38px; border-radius: 50%; border: 1px dashed var(--faint); background: transparent; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; }
+.add-dot:hover { border-color: var(--clay); color: var(--clay); }
+
+.detail { display: grid; grid-template-columns: 64px 1fr; gap: 16px; background: var(--surface); border: 2px solid var(--tier); border-radius: 12px; padding: 16px; margin-top: 16px; }
+.detail .sw { width: 64px; height: 64px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.detail img.sw { border-radius: 10px; object-fit: contain; background: var(--bg); box-shadow: none; }
+.detail strong { font-weight: 600; }
+.xp { height: 4px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 8px 0 5px; max-width: 280px; }
+.xp span { display: block; height: 100%; background: var(--badge); border-radius: 999px; }
+
+/* 계절 구성: 메인의 능력치 막대와 같은 두께 */
+.bars { display: grid; grid-template-columns: 7.5em 1fr 2.5em; gap: 12px 14px; align-items: center; font-size: 14px; border-top: 1px solid var(--line); padding-top: 14px; }
+.bar { height: 4px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--clay); border-radius: 999px; }
+
+details.ai { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-top: 64px; }
+details.ai summary { cursor: pointer; padding: 12px 0; font-size: 13px; color: var(--muted); }
+details.ai[open] { padding-bottom: 16px; }
+.ai-out { white-space: pre-wrap; background: var(--surface); border-radius: 12px; padding: 14px; margin-top: 12px; font-family: var(--serif); line-height: 1.75; }
+
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+footer button { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+footer button:hover { color: var(--ink); }
+
+/* 다이얼로그: 메인과 같은 모양 */
+dialog { border: 0; border-radius: 16px; background: var(--bg); color: var(--ink); width: min(520px, 92vw); max-height: calc(100% - 32px); padding: 0; }
+dialog::backdrop { background: rgba(0,0,0,.4); }
+dialog form { padding: 22px; display: grid; gap: 14px; }
+dialog h3 { font-family: var(--serif); font-weight: 400; font-size: 22px; margin: 0; }
+dialog label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+dialog label.btn { display: inline-block; font-size: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips label { display: inline-block; }
+.chips input { position: absolute; opacity: 0; pointer-events: none; }
+.chips span { display: inline-block; border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 6px 12px; font-size: 13px; color: var(--ink); cursor: pointer; }
+.chips input:checked + span { background: var(--clay); border-color: var(--clay); color: #fff; }
+.chips input:focus-visible + span { outline: 2px solid var(--clay); outline-offset: 2px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.photo { display: grid; grid-template-columns: 128px 1fr; gap: 14px; align-items: start; }
+.ph-prev { width: 128px; height: 150px; border-radius: 12px; border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; color: var(--muted); font-size: 12px; text-align: center; }
+.ph-prev img { max-width: 100%; max-height: 100%; object-fit: contain; }
+#ph-msg { margin: 0; min-height: 1.4em; }
+@media (max-width: 480px) { .photo { grid-template-columns: 1fr; } .ph-prev { width: 100%; } }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="../life/life.html"><i></i>LifeGame</a>
+    <a href="https://github.com/kimheuihyeon/TheLife">GitHub ↗</a>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">Wardrobe · 도쿄의 오늘</div>
+    <div class="big" id="temp">–<small>℃</small></div>
+    <p class="lede" id="lede">날씨를 불러오는 중입니다.</p>
+  </section>
+
+  <nav class="tabs" aria-label="화면 전환">
+    <a class="tab" href="../life/life.html">인생</a>
+    <a class="tab" href="../today/today.html">오늘</a>
+    <a class="tab" href="../mandala/mandala.html">만다라트</a>
+    <a class="tab" href="../travel/travel.html">여행</a>
+    <a class="tab" href="../inventory/inventory.html">소지품</a>
+    <a class="tab" href="../wardrobe/wardrobe.html" aria-current="page">옷장</a>
+    <a class="tab" href="../trophy/trophy.html">트로피</a>
+  </nav>
+
+  <div class="panel">
+  <div class="stats">
+    <div class="stat"><div class="k">기온</div><div class="v" id="s-range">–</div><div class="s">최저 / 최고</div></div>
+    <div class="stat"><div class="k">강수 확률</div><div class="v" id="s-rain">–</div><div class="s" id="s-rain-s">–</div></div>
+    <div class="stat"><div class="k">옷장</div><div class="v" id="s-count">–</div><div class="s" id="s-count-s">–</div></div>
+    <div class="stat"><div class="k">잠든 아이템</div><div class="v" id="s-dormant">–</div><div class="s">60일 넘게 안 입음</div></div>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <h2>Today’s recommendation</h2>
+      <div class="seg" role="group" aria-label="오늘 일정">
+        <button id="m-office" aria-pressed="true">Work</button>
+        <button id="m-home" aria-pressed="false">Private</button>
+      </div>
+    </div>
+    <p class="desc">체감 온도와 일교차, 오늘 일정에 맞춰 오래 안 입은 옷부터 골라요.</p>
+    <div id="hints"></div>
+    <div id="board"></div>
+    <div class="outfit" id="outfit"></div>
+    <div class="row">
+      <button class="btn" id="reroll">다른 조합 보기</button>
+      <button class="btn primary" id="wear">오늘 이렇게 입기</button>
+      <span id="wear-msg" class="meta" role="status"></span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>My wardrobe</h2></div>
+    <p class="desc">점 하나가 옷·신발·소품 하나예요. 우산 같은 도구는 악세서리에 넣어 두면 날씨에 맞춰 같이 골라 줘요. 자주 쓸수록 레벨이 오르고, 등급이 일반 → 희귀 → 전설로 바뀝니다.</p>
+    <div class="legend">
+      <span><i style="background:var(--faint)"></i>일반</span>
+      <span><i style="background:var(--plat)"></i>희귀 (Lv.3+)</span>
+      <span><i style="background:var(--gold)"></i>전설 (Lv.5+)</span>
+      <span><i class="ring"></i>오늘 코디</span>
+      <span><i style="background:var(--faint);opacity:.4"></i>60일 넘게 안 씀</span>
+    </div>
+    <div id="field"></div>
+    <div id="detail"></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>옷장 구성</h2></div>
+    <p class="desc">계절별로 쓸 수 있는 것과 비 오는 날 준비가 얼마나 되어 있는지 보여줘요. 짧은 막대가 다음에 채울 칸이에요.</p>
+    <div class="bars" id="stats"></div>
+  </section>
+
+  <section>
+    <details class="ai">
+      <summary>AI 코디 추천 (선택, 내 OpenAI 키 사용)</summary>
+      <p class="meta">키는 이 브라우저에만 저장되고 GitHub에는 올라가지 않아요.</p>
+      <div class="row">
+        <input id="ai-key" type="password" placeholder="sk-..." style="flex:1;min-width:200px" aria-label="OpenAI API 키">
+        <button class="btn primary" id="ai-go">AI에게 물어보기</button>
+      </div>
+      <div id="ai-out"></div>
+    </details>
+  </section>
+
+  <footer>
+    <span>데이터는 이 브라우저에만 저장됩니다.</span>
+    <button id="export">전체 내보내기</button>
+    <button id="backup-import">전체 가져오기</button>
+    <button id="import-btn">closet.json에서 옷 추가</button>
+    <input type="file" id="import" accept=".json" hidden>
+    <input type="file" id="backup-file" accept=".json" hidden>
+    <span id="backup-msg" role="status"></span>
+  </footer>
+  </div>
+</div>
+
+<dialog id="dlg">
+  <form method="dialog" id="add">
+    <h3 id="dlg-title">옷 추가</h3>
+    <div class="photo">
+      <div class="ph-prev checker" id="ph-prev">사진 없음</div>
+      <div style="display:grid;gap:8px">
+        <label>사진 링크<input id="ph-url" type="url" inputmode="url" placeholder="https://… 이미지 주소"></label>
+        <div class="row">
+          <button type="button" class="btn" id="ph-load">불러오기</button>
+          <label class="btn">파일 선택<input type="file" id="ph-file" accept="image/*" hidden></label>
+        </div>
+        <div class="chips"><label><input type="checkbox" id="ph-cut" checked><span>배경 지우기</span></label></div>
+        <p class="meta" id="ph-msg" role="status"></p>
+      </div>
+    </div>
+    <label>이름<input name="name" placeholder="예: 린넨 셔츠" required></label>
+    <div><div class="meta" style="margin-bottom:6px">종류</div>
+      <div class="chips">
+        <label><input type="radio" name="category" value="top" checked><span>상의</span></label>
+        <label><input type="radio" name="category" value="bottom"><span>하의</span></label>
+        <label><input type="radio" name="category" value="outer"><span>아우터</span></label>
+        <label><input type="radio" name="category" value="dress"><span>원피스</span></label>
+        <label><input type="radio" name="category" value="shoes"><span>신발</span></label>
+        <label><input type="radio" name="category" value="acc"><span>악세서리·도구</span></label>
+      </div></div>
+    <div class="type-row" id="type-row" hidden><div class="meta" style="margin-bottom:6px">세부 종류</div>
+      <div class="chips" id="type-chips"></div></div>
+    <div class="two">
+      <label>색 이름<input name="color" placeholder="예: 네이비" required></label>
+      <label>색<input name="hex" type="color" value="#9AA5B1" style="height:42px;padding:4px"></label>
+    </div>
+    <div><div class="meta" style="margin-bottom:6px">계절</div>
+      <div class="chips">
+        <label><input type="checkbox" name="season" value="Summer"><span>여름</span></label>
+        <label><input type="checkbox" name="season" value="Spring" checked><span>간절기</span></label>
+        <label><input type="checkbox" name="season" value="Winter"><span>겨울</span></label>
+      </div></div>
+    <div class="chips">
+      <label><input type="checkbox" name="office" checked><span>Work에도 쓸 수 있음</span></label>
+    </div>
+    <div class="dlg-actions">
+      <button class="btn" value="cancel" formnovalidate>취소</button>
+      <button class="btn primary" value="ok" id="dlg-save">저장</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="../shared/backup.js"></script>
+<script>
+const KEY = 'lifegame.wardrobe.v1';
+const CAT = {top:'상의', bottom:'하의', outer:'아우터', dress:'원피스', shoes:'신발', acc:'악세서리·도구'};
+const CLOTHES = ['top','bottom','outer','dress'];
+// 세부 종류: 신발과 악세서리(우산 같은 도구 포함)
+const TYPES = {
+  shoes: ['구두','로퍼','스니커즈','부츠','레인부츠','샌들','슬리퍼','기타'],
+  acc: ['가방','시계','모자','벨트','주얼리','스카프·머플러','장갑','선글라스','우산','양산','기타 도구']
+};
+const ALL_SEASONS = ['Summer','Spring','Winter'];
+// 종류를 고르면 계절을 미리 체크해 줌 (직접 바꿀 수 있음)
+const TYPE_SEASON = {샌들:['Summer'], 슬리퍼:['Summer'], 부츠:['Spring','Winter'], '스카프·머플러':['Winter','Spring'],
+  장갑:['Winter'], 선글라스:['Summer','Spring'], 양산:['Summer']};
+const RAIN_SHOES = ['레인부츠','부츠','스니커즈'];
+const CAT_ALIAS = {shoe:'shoes', shoes:'shoes', footwear:'shoes', accessory:'acc', accessories:'acc', acc:'acc', tool:'acc'};
+const kindLabel = it => it.type || CAT[it.category];
+const fullKind = it => it.type ? `${CAT[it.category]} · ${it.type}` : CAT[it.category];
+const SEASON = {Summer:'여름', Spring:'간절기', Winter:'겨울'};
+const COLOR_HEX = {블랙:'#2A2A2A',검정:'#2A2A2A',black:'#2A2A2A',화이트:'#F7F7F2',흰색:'#F7F7F2',white:'#F7F7F2',
+  아이보리:'#F1EAD8',ivory:'#F1EAD8',베이지:'#D9C7A7',beige:'#D9C7A7',네이비:'#2E3B55',navy:'#2E3B55',
+  그레이:'#9A9A98',회색:'#9A9A98',gray:'#9A9A98',grey:'#9A9A98',브라운:'#7A5A43',brown:'#7A5A43',
+  카키:'#7D7A55',khaki:'#7D7A55',블루:'#5B7FB0',blue:'#5B7FB0',하늘:'#A9C6E3',핑크:'#E7B7BE',pink:'#E7B7BE',
+  레드:'#B5473F',red:'#B5473F',그린:'#6E8F6A',green:'#6E8F6A',민트:'#A8D5C2',라벤더:'#C3B6DD',옐로:'#E8CF73',데님:'#5C7393',denim:'#5C7393'};
+
+const store = {
+  load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {items:[], log:[]}; }catch(e){ return {items:[], log:[]}; } },
+  save(s){ try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){} }
+};
+let state = store.load();
+let weather = null, mode = 'office', current = {}, selected = null;
+const $ = id => document.getElementById(id);
+
+const today = () => new Date().toLocaleDateString('sv-SE', {timeZone:'Asia/Tokyo'});
+const daysSince = d => d ? Math.floor((Date.now() - new Date(d)) / 864e5) : 9999;
+const level = it => Math.floor(Math.sqrt(it.wear || 0)) + 1;
+const tierOf = it => level(it) >= 5 ? ['전설','var(--gold)'] : level(it) >= 3 ? ['희귀','var(--plat)'] : ['일반','var(--line)'];
+const badgeOf = it => level(it) >= 3 ? tierOf(it)[1] : 'var(--muted)';
+const isDormant = it => daysSince(it.lastWorn) > 60;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function hexFor(color){
+  const raw = String(color||'').trim(), k = raw.toLowerCase();
+  if (COLOR_HEX[raw] || COLOR_HEX[k]) return COLOR_HEX[raw] || COLOR_HEX[k];
+  let h = 0; for (const ch of k) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return `hsl(${h} 35% 70%)`;
+}
+function normalize(raw){
+  const map = {Fall:'Spring', Autumn:'Spring'};
+  return {
+    id: raw.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random())),
+    name: raw.name, category: CAT_ALIAS[String(raw.category).toLowerCase()] || raw.category, color: raw.color,
+    type: raw.type || null,
+    hex: raw.hex || hexFor(raw.color),
+    season: (raw.season || []).map(s => map[s] || s),
+    office: raw.office !== false, wear: raw.wear || 0, lastWorn: raw.lastWorn || null,
+    img: !!raw.img,
+    imgUrl: raw.imgUrl || (/^https?:\/\//.test(raw.image_path || '') ? raw.image_path : null)
+  };
+}
+
+/* ── 사진 저장: IndexedDB (localStorage는 용량이 작아서) ── */
+const idb = (() => {
+  let p;
+  const open = () => p || (p = new Promise((res, rej) => {
+    const r = indexedDB.open('lifegame-wardrobe', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('images');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const tx = (mode, fn) => open().then(db => new Promise((res, rej) => {
+    const t = db.transaction('images', mode), q = fn(t.objectStore('images'));
+    t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error);
+  }));
+  return { get: k => tx('readonly', s => s.get(k)), set: (k, v) => tx('readwrite', s => s.put(v, k)), del: k => tx('readwrite', s => s.delete(k)) };
+})();
+const IMG = {};  // item id → 표시용 주소
+const imgOf = it => IMG[it.id] || null;
+async function loadImages(){
+  for (const it of state.items){
+    if (it.img){ try{ const b = await idb.get(it.id); if (b) IMG[it.id] = URL.createObjectURL(b); }catch(e){} }
+    else if (it.imgUrl) IMG[it.id] = it.imgUrl;
+  }
+}
+function dropImage(id){
+  if (IMG[id] && IMG[id].startsWith('blob:')) URL.revokeObjectURL(IMG[id]);
+  delete IMG[id]; idb.del(id).catch(() => {});
+}
+
+/* ── 사진 링크 → 누끼(배경 제거) → 색 추출 ── */
+// wsrv.nl: 이미지를 대신 받아 CORS 헤더를 붙여 주는 무료 이미지 프록시. 덕분에 브라우저에서 픽셀을 다룰 수 있음
+const WSRV = u => `https://wsrv.nl/?url=${encodeURIComponent(u)}&w=800&h=800&fit=inside&output=png`;
+let bgLib = null;
+async function removeBg(blob){
+  // 브라우저 안에서 도는 배경 제거 모델 (처음 한 번 모델 파일을 내려받음)
+  if (!bgLib) bgLib = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/+esm');
+  return await bgLib.removeBackground(blob);
+}
+function floodCut(ctx, w, h){
+  // 예비 방식: 테두리에서 배경색과 비슷한 픽셀을 지움 (쇼핑몰의 흰 배경 사진에 잘 맞음)
+  const d = ctx.getImageData(0, 0, w, h), p = d.data;
+  if (p[3] < 20 && p[(w*h-1)*4+3] < 20) return;  // 이미 투명 배경
+  const cs = [0, w-1, (h-1)*w, h*w-1].map(k => [p[k*4], p[k*4+1], p[k*4+2]]);
+  const bg = [0,1,2].map(c => cs.reduce((a, k) => a + k[c], 0) / 4);
+  const tol = 46*46, seen = new Uint8Array(w*h), st = [];
+  for (let x = 0; x < w; x++) st.push(x, (h-1)*w + x);
+  for (let y = 0; y < h; y++) st.push(y*w, y*w + w - 1);
+  while (st.length){
+    const k = st.pop(); if (seen[k]) continue; seen[k] = 1;
+    const i = k*4, dr = p[i]-bg[0], dg = p[i+1]-bg[1], db = p[i+2]-bg[2];
+    if (dr*dr + dg*dg + db*db > tol) continue;
+    p[i+3] = 0; const x = k % w;
+    if (x > 0) st.push(k-1); if (x < w-1) st.push(k+1); if (k >= w) st.push(k-w); if (k < w*h-w) st.push(k+w);
+  }
+  ctx.putImageData(d, 0, 0);
+}
+function dominantHex(ctx, w, h){
+  const p = ctx.getImageData(0, 0, w, h).data, buckets = new Map();
+  const cut = p[3] < 200 || p[(w*h-1)*4+3] < 200;
+  const [x0,x1,y0,y1] = cut ? [0,w,0,h] : [w*.25|0, w*.75|0, h*.25|0, h*.75|0];
+  for (let y = y0; y < y1; y += 3) for (let x = x0; x < x1; x += 3){
+    const i = (y*w + x)*4; if (p[i+3] < 200) continue;
+    const key = (p[i]>>5)<<6 | (p[i+1]>>5)<<3 | (p[i+2]>>5);
+    const b = buckets.get(key) || [0,0,0,0]; b[0]+=p[i]; b[1]+=p[i+1]; b[2]+=p[i+2]; b[3]++; buckets.set(key, b);
+  }
+  let best = null; for (const b of buckets.values()) if (!best || b[3] > best[3]) best = b;
+  return best ? '#' + [0,1,2].map(c => Math.round(best[c]/best[3]).toString(16).padStart(2,'0')).join('') : null;
+}
+function nearestColorName(hex){
+  const rgb = h => [1,3,5].map(i => parseInt(h.slice(i, i+2), 16));
+  const [r,g,b] = rgb(hex); let best = null, bd = Infinity;
+  for (const [name, h] of Object.entries(COLOR_HEX)){
+    if (!/[가-힣]/.test(name)) continue;
+    const [r2,g2,b2] = rgb(h), d = (r-r2)**2 + (g-g2)**2 + (b-b2)**2;
+    if (d < bd){ bd = d; best = name; }
+  }
+  return best;
+}
+async function processPhoto(src, cut){
+  let blob = src, note = '';
+  if (typeof src === 'string'){
+    const r = await fetch(WSRV(src));
+    if (!r.ok) throw new Error('fetch');
+    blob = await r.blob();
+    if (!blob.type.startsWith('image/')) throw new Error('type');
+  }
+  if (cut){ try{ blob = await removeBg(blob); note = '배경을 지웠어요.'; }catch(e){ note = 'flood'; } }
+  const bmp = await createImageBitmap(blob);
+  const k = Math.min(1, 600 / Math.max(bmp.width, bmp.height));
+  const w = Math.round(bmp.width*k), h = Math.round(bmp.height*k);
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d', {willReadFrequently:true}); ctx.drawImage(bmp, 0, 0, w, h);
+  if (note === 'flood'){ floodCut(ctx, w, h); note = '배경이 단색인 사진 기준으로 배경을 지웠어요. 결과가 어색하면 배경 지우기를 끄고 다시 불러오세요.'; }
+  const hex = dominantHex(ctx, w, h);
+  const out = await new Promise(r => cv.toBlob(r, 'image/webp', .88));  // webp를 못 만드는 브라우저는 자동으로 png
+  return {blob: out, hex, note};
+}
+
+/* ── 날씨: Open-Meteo (API 키 불필요) ── */
+const WCODE = c => c===0?'맑음':c<=3?'구름 조금':c<=48?'흐림':c<=67?'비':c<=77?'눈':c<=82?'소나기':'뇌우';
+async function loadWeather(){
+  const url = 'https://api.open-meteo.com/v1/forecast?latitude=35.68&longitude=139.69&current=temperature_2m,apparent_temperature,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTokyo&forecast_days=1';
+  try{
+    const d = await (await fetch(url)).json();
+    weather = {
+      temp: Math.round(d.current.temperature_2m), feels: Math.round(d.current.apparent_temperature),
+      desc: WCODE(d.current.weather_code), code: d.current.weather_code,
+      max: Math.round(d.daily.temperature_2m_max[0]), min: Math.round(d.daily.temperature_2m_min[0]),
+      rain: d.daily.precipitation_probability_max[0] ?? 0
+    };
+  }catch(e){
+    weather = {temp:20, feels:20, desc:'정보 없음', code:3, max:22, min:16, rain:0, offline:true};
+  }
+  $('temp').innerHTML = `${weather.temp}<small>℃</small>`;
+  $('lede').innerHTML = weather.offline
+    ? '날씨를 불러오지 못해서 <b>20℃</b> 기준으로 추천했어요.'
+    : `오늘 도쿄는 <b>${esc(weather.desc)}</b>, 체감 <b class="today">${weather.feels}℃</b>입니다.<br>${seasonLabel(weather.feels)} 옷에서 골랐어요.`;
+  $('s-range').textContent = `${weather.min}° / ${weather.max}°`;
+  $('s-rain').textContent = `${weather.rain}%`;
+  $('s-rain-s').textContent = weather.rain >= 50 ? '우산 챙기기' : '우산 필요 없음';
+  recommend();
+}
+
+/* ── 추천 로직 ── */
+const seasonFor = t => t <= 10 ? 'Winter' : t <= 20 ? 'Spring' : 'Summer';
+const seasonLabel = t => SEASON[seasonFor(t)];
+function pick(list){
+  const ranked = [...list].sort((a,b) => daysSince(b.lastWorn) - daysSince(a.lastWorn) || a.wear - b.wear);
+  const top = ranked.slice(0, 3);
+  return top[Math.floor(Math.random() * top.length)] || null;
+}
+let needOuter = false;
+function recommend(){
+  if (!weather) return;
+  const season = seasonFor(weather.feels);
+  const ok = it => mode === 'home' || it.office;
+  const pool = state.items.filter(it => it.season.includes(season) && ok(it));
+  const by = c => pool.filter(it => it.category === c);
+  const tops = by('top'), bottoms = by('bottom'), dresses = by('dress');
+  const useDress = dresses.length && (!(tops.length && bottoms.length) || Math.random() < 0.3);
+  current = useDress ? {dress: pick(dresses)} : {top: pick(tops), bottom: pick(bottoms)};
+  needOuter = weather.min <= 15 || (weather.max - weather.min) >= 8;
+  if (needOuter){
+    const outers = state.items.filter(it => it.category === 'outer' && ok(it)
+      && it.season.some(s => s === season || s === seasonFor(weather.min)));
+    current.outer = pick(outers);
+  }
+  // 신발: 계절에 맞는 것 중에서, 비 오는 날엔 레인부츠·부츠·스니커즈를 먼저
+  const rainy = weather.rain >= 50 || (weather.code >= 51 && weather.code <= 82);
+  const shoes = by('shoes');
+  const dryShoes = shoes.filter(it => RAIN_SHOES.includes(it.type));
+  current.shoes = pick(rainy && dryShoes.length ? dryShoes : shoes);
+  // 악세서리·도구: 날씨에 필요한 것 → 가방 → 시계 순으로 최대 3개
+  const accs = state.items.filter(it => it.category === 'acc' && ok(it));
+  const ofType = (...t) => accs.filter(it => t.includes(it.type));
+  const inSeason = list => list.filter(it => it.season.includes(season));
+  const picks = [];
+  if (rainy) picks.push(pick(ofType('우산')));
+  if (weather.code <= 1 && weather.max >= 25) picks.push(pick(weather.feels >= 28 && ofType('양산').length ? ofType('양산') : ofType('선글라스','양산')));
+  if (weather.feels <= 10) picks.push(pick(ofType('스카프·머플러')));
+  if (weather.feels <= 5) picks.push(pick(ofType('장갑')));
+  picks.push(pick(inSeason(ofType('가방'))));
+  if (mode === 'office') picks.push(pick(inSeason(ofType('시계'))));
+  picks.filter(Boolean).slice(0, 3).forEach((it, i) => { current['acc' + (i + 1)] = it; });
+  renderOutfit(); renderCloset();
+}
+function renderOutfit(){
+  const hints = [];
+  const umbrella = Object.values(current).find(it => it && it.type === '우산');
+  if (weather.rain >= 50) hints.push(umbrella
+    ? `강수 확률 ${weather.rain}%예요. 우산(${umbrella.name})을 같이 골랐어요.`
+    : `강수 확률 ${weather.rain}%예요. 우산을 챙기세요. 악세서리에 우산을 등록하면 같이 골라 드려요.`);
+  if (current.shoes && weather.rain >= 50 && RAIN_SHOES.includes(current.shoes.type)) hints.push(`비 소식이 있어서 ${current.shoes.type}를 골랐어요.`);
+  if (needOuter) hints.push(`일교차가 있어서 아우터를 같이 골랐어요 (${weather.min}℃ ~ ${weather.max}℃).`);
+  $('hints').innerHTML = hints.map(h => `<p class="hint">${esc(h)}</p>`).join('');
+  const parts = Object.entries(current).filter(([,v]) => v);
+  const withImg = parts.filter(([,it]) => imgOf(it));
+  $('board').innerHTML = withImg.length
+    ? `<div class="board checker ${current.outer && imgOf(current.outer) ? '' : 'solo'}">${
+        withImg.map(([k,it]) => `<img class="p-${k}" src="${esc(imgOf(it))}" alt="${esc(it.name)}">`).join('')
+      }${withImg.length < parts.length ? '<span class="chip">사진이 없는 옷은 아래 카드로만 보여요</span>' : ''}</div>`
+    : '';
+  $('outfit').innerHTML = parts.some(([k]) => CLOTHES.includes(k))
+    ? parts.map(([k,it]) => { const [t,c] = tierOf(it); return `<div class="piece" style="--tier:${c}">
+        ${imgOf(it) ? `<img class="sw" src="${esc(imgOf(it))}" alt="">` : `<div class="sw" style="background:${it.hex}"></div>`}
+        <div><span class="c">${esc(kindLabel(it))} · ${esc(it.color)}</span><strong>${esc(it.name)}</strong>
+        <span class="tier">${t} · Lv.${level(it)}</span></div></div>`; }).join('')
+    : `<div class="empty">${seasonLabel(weather.feels)}에 ${mode==='office'?'Work로 ':''}입을 옷이 아직 없어요. My wardrobe에서 +를 눌러 옷을 추가하거나, 아래에서 closet.json을 가져오세요.</div>`;
+  $('wear').disabled = !parts.some(([k]) => CLOTHES.includes(k));
+}
+
+/* ── 옷장 시각화 ── */
+function renderCloset(){
+  const items = state.items, todayIds = Object.values(current).filter(Boolean).map(i => i.id);
+  const dormant = items.filter(isDormant).length;
+  const nOf = c => items.filter(i => i.category === c).length;
+  $('s-count').textContent = `${items.filter(i => CLOTHES.includes(i.category)).length}벌`;
+  $('s-count-s').textContent = `신발 ${nOf('shoes')}켤레 · 소품 ${nOf('acc')}개`;
+  $('s-dormant').textContent = `${dormant}개`;
+  $('field').innerHTML = Object.entries(CAT).map(([c,label]) => {
+    const order = TYPES[c] || [];
+    const list = items.filter(it => it.category === c)
+      .sort((a,b) => order.indexOf(a.type) - order.indexOf(b.type));
+    return `<div class="cat"><h3>${label}<span>${list.length}</span></h3><div class="dots">${
+      list.map(it => { const [t,col] = tierOf(it); return `<button class="cdot ${isDormant(it)?'dormant':''} ${todayIds.includes(it.id)?'today':''} ${selected===it.id?'sel':''}"
+        data-id="${it.id}" style="background:${it.hex};--badge:${badgeOf(it)}" title="${esc(it.name)}${it.type ? ' · ' + esc(it.type) : ''}" aria-label="${esc(it.name)}, ${esc(it.type || CAT[it.category])}, ${esc(it.color)}, ${t} 레벨 ${level(it)}">${
+        it.wear ? `<span class="lv">${level(it)}</span>` : ''}</button>`; }).join('')
+    }<button class="add-dot" data-cat="${c}" aria-label="${label} 추가">+</button></div></div>`;
+  }).join('');
+  renderDetail(); renderStats();
+}
+function renderDetail(){
+  const it = state.items.find(i => i.id === selected);
+  if (!it){ $('detail').innerHTML = ''; return; }
+  const lv = level(it), [t,col] = tierOf(it), from = (lv-1)**2, to = lv**2;
+  $('detail').innerHTML = `<div class="detail" style="--tier:${col};--badge:${badgeOf(it)}">
+    ${imgOf(it) ? `<img class="sw" src="${esc(imgOf(it))}" alt="">` : `<div class="sw" style="background:${it.hex}"></div>`}
+    <div><strong>${esc(it.name)}</strong> <span class="tier">${t} · Lv.${lv}</span>
+      <div class="xp"><span style="width:${(it.wear-from)/(to-from)*100}%"></span></div>
+      <div class="meta">다음 레벨까지 ${to - it.wear}번 · 지금까지 ${it.wear}번 사용 · ${it.lastWorn ? `마지막 ${daysSince(it.lastWorn)}일 전` : '아직 안 입음'}<br>
+      ${esc(fullKind(it))} · ${esc(it.color)} · ${it.season.map(s => SEASON[s]).join(', ')} · ${it.office ? 'Work 가능' : 'Private 전용'}</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" data-act="edit">${imgOf(it) ? '수정' : '사진 넣기·수정'}</button>
+        <button class="btn" data-act="toggle-office">${it.office ? 'Private 전용으로' : 'Work에도 쓰기'}</button>
+        <button class="btn" data-act="delete">옷장에서 빼기</button></div></div></div>`;
+}
+function renderStats(){
+  const n = state.items.length || 1;
+  const rows = Object.entries(SEASON).map(([s,l]) => [l, state.items.filter(i => i.season.includes(s)).length]);
+  rows.push(['비 오는 날 신발', state.items.filter(i => i.category === 'shoes' && RAIN_SHOES.includes(i.type)).length]);
+  rows.push(['우산', state.items.filter(i => i.type === '우산').length]);
+  $('stats').innerHTML = rows.map(([l,v]) =>
+    `<span>${l}</span><div class="bar"><span style="width:${v/n*100}%"></span></div><span>${v}</span>`).join('');
+}
+
+/* ── 이벤트 ── */
+function setMode(m){
+  mode = m;
+  $('m-office').setAttribute('aria-pressed', m === 'office');
+  $('m-home').setAttribute('aria-pressed', m === 'home');
+  recommend();
+}
+$('m-office').onclick = () => setMode('office');
+$('m-home').onclick = () => setMode('home');
+$('reroll').onclick = recommend;
+$('wear').onclick = () => {
+  const ids = Object.values(current).filter(Boolean).map(i => i.id), ups = [];
+  state.items.forEach(it => { if (ids.includes(it.id)) {
+    const before = tierOf(it)[0], bl = level(it); it.wear++; it.lastWorn = today();
+    if (tierOf(it)[0] !== before) ups.push(`${it.name} ${tierOf(it)[0]} 등급`);
+    else if (level(it) > bl) ups.push(`${it.name} Lv.${level(it)}`);
+  }});
+  state.log.push({date: today(), mode, ids});
+  store.save(state); renderOutfit(); renderCloset();
+  $('wear-msg').textContent = ups.length ? `기록했어요. ${ups.join(', ')}!` : '기록했어요.';
+};
+$('field').onclick = e => {
+  const add = e.target.closest('.add-dot');
+  if (add){ openAdd(add.dataset.cat); return; }
+  const b = e.target.closest('.cdot'); if (!b) return;
+  selected = selected === b.dataset.id ? null : b.dataset.id; renderCloset();
+};
+$('detail').onclick = e => {
+  const act = e.target.dataset.act, it = state.items.find(i => i.id === selected);
+  if (!act || !it) return;
+  if (act === 'edit'){ openAdd(it.category, it); return; }
+  if (act === 'toggle-office') it.office = !it.office;
+  if (act === 'delete'){ dropImage(it.id); state.items = state.items.filter(i => i !== it); selected = null; }
+  store.save(state); recommend();
+};
+
+let draft = null, editing = null;  // draft: 새로 불러온 사진 {blob} 또는 {url}
+function showPreview(src){
+  $('ph-prev').innerHTML = src ? `<img src="${esc(src)}" alt="미리보기">` : '사진 없음';
+  const img = $('ph-prev').querySelector('img');
+  if (img) img.onerror = () => { $('ph-prev').textContent = '사진을 열 수 없음'; draft = null;
+    $('ph-msg').textContent = '이 주소로는 사진이 열리지 않아요. 이미지 자체의 주소인지 확인하세요.'; };
+}
+function renderTypes(cat, sel, preset){
+  const f = $('add'), list = TYPES[cat];
+  $('type-row').hidden = !list;
+  $('type-chips').innerHTML = list ? list.map((t, i) =>
+    `<label><input type="radio" name="type" value="${t}" ${(sel ? sel === t : i === 0) ? 'checked' : ''}><span>${t}</span></label>`).join('') : '';
+  if (preset && list) presetSeasons(sel || list[0]);
+  f.name.placeholder = cat === 'shoes' ? '예: 블랙 첼시 부츠' : cat === 'acc' ? '예: 투명 장우산' : '예: 린넨 셔츠';
+}
+function presetSeasons(type){
+  const want = TYPE_SEASON[type] || ALL_SEASONS;
+  $('add').querySelectorAll('input[name=season]').forEach(c => c.checked = want.includes(c.value));
+}
+$('add').addEventListener('change', e => {
+  if (e.target.name === 'category') renderTypes(e.target.value, null, true);
+  if (e.target.name === 'type') presetSeasons(e.target.value);
+});
+function openAdd(cat, it){
+  const f = $('add'); f.reset(); draft = null; editing = it ? it.id : null;
+  $('dlg').returnValue = '';
+  $('dlg-title').textContent = `${CAT[cat]} ${it ? '수정' : '추가'}`;
+  $('ph-msg').textContent = ''; $('ph-url').value = '';
+  f.querySelector(`input[name=category][value=${cat}]`).checked = true;
+  if (it){
+    f.name.value = it.name; f.color.value = it.color;
+    if (/^#[0-9a-f]{6}$/i.test(it.hex)) f.hex.value = it.hex;
+    f.querySelectorAll('input[name=season]').forEach(c => c.checked = it.season.includes(c.value));
+    f.office.checked = it.office;
+  }
+  renderTypes(cat, it ? it.type : null, !it);
+  showPreview(it ? imgOf(it) : null);
+  $('dlg').showModal();
+}
+async function handlePhoto(src){
+  const msg = $('ph-msg'), save = $('dlg-save'), f = $('add'), cut = $('ph-cut').checked;
+  if (typeof src === 'string'){
+    src = src.trim(); if (!src) { msg.textContent = '사진 링크를 넣어 주세요.'; return; }
+    if (/pinterest\.[a-z.]+\/pin\//i.test(src) || /pin\.it\//i.test(src)){
+      msg.textContent = '핀 페이지 주소예요. 사진을 길게 누르거나 우클릭해서 “이미지 주소 복사”로 얻은 링크(i.pinimg.com/…)를 넣어 주세요.'; return;
+    }
+  }
+  save.disabled = true;
+  msg.textContent = cut ? '사진을 가져와서 배경을 지우는 중… 처음 한 번은 모델을 받느라 30초쯤 걸려요.' : '사진을 가져오는 중…';
+  try{
+    const r = await processPhoto(src, cut);
+    draft = {blob: r.blob}; showPreview(URL.createObjectURL(r.blob));
+    if (r.hex){ f.hex.value = r.hex; if (!f.color.value.trim()) f.color.value = nearestColorName(r.hex) || ''; }
+    msg.textContent = (r.note ? r.note + ' ' : '') + '색은 사진에서 자동으로 골랐어요.';
+  }catch(e){
+    if (typeof src === 'string'){
+      draft = {url: src}; showPreview(src);
+      msg.textContent = '이 사이트는 사진 가공을 막아 둬서 원본 링크로만 저장해요. 색은 직접 골라 주세요.';
+    } else { msg.textContent = '이 파일은 열 수 없어요. JPG나 PNG 사진을 골라 주세요.'; }
+  }finally{ save.disabled = false; }
+}
+$('ph-load').onclick = () => handlePhoto($('ph-url').value);
+$('ph-url').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); handlePhoto($('ph-url').value); } });
+$('ph-file').onchange = e => { const file = e.target.files[0]; if (file) handlePhoto(file); e.target.value = ''; };
+$('dlg').addEventListener('close', async () => {
+  if ($('dlg').returnValue !== 'ok'){ draft = null; editing = null; return; }
+  const f = $('add');
+  const season = [...f.querySelectorAll('input[name=season]:checked')].map(i => i.value);
+  const data = {name:f.name.value.trim(), category:f.category.value, color:f.color.value.trim(),
+    hex:f.hex.value, season: season.length ? season : ['Spring'], office:f.office.checked,
+    type: TYPES[f.category.value] ? (f.querySelector('input[name=type]:checked') || {}).value || null : null};
+  let it = editing && state.items.find(i => i.id === editing);
+  if (it) Object.assign(it, data); else { it = normalize(data); state.items.push(it); }
+  if (draft){
+    if (IMG[it.id] && IMG[it.id].startsWith('blob:')) URL.revokeObjectURL(IMG[it.id]);
+    if (draft.blob){
+      try{ await idb.set(it.id, draft.blob); it.img = true; it.imgUrl = null; IMG[it.id] = URL.createObjectURL(draft.blob); }
+      catch(e){ alert('사진을 저장하지 못했어요. 브라우저 저장 공간을 확인하세요.'); }
+    } else if (draft.url){ idb.del(it.id).catch(() => {}); it.img = false; it.imgUrl = draft.url; IMG[it.id] = draft.url; }
+  }
+  draft = null; editing = null; selected = it.id;
+  store.save(state); recommend();
+});
+$('import-btn').onclick = () => $('import').click();
+$('import').onchange = async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try{
+    const data = JSON.parse(await file.text());
+    const list = Array.isArray(data) ? data : data.items || [];
+    const have = new Set(state.items.map(i => i.id));
+    for (const raw of list.filter(r => r.name && r.category && !have.has(r.id))){
+      const it = normalize(raw);
+      if (typeof raw.image === 'string' && raw.image.startsWith('data:image')){
+        try{ const b = await (await fetch(raw.image)).blob(); await idb.set(it.id, b); it.img = true; IMG[it.id] = URL.createObjectURL(b); }catch(e){}
+      } else if (it.imgUrl) IMG[it.id] = it.imgUrl;
+      state.items.push(it);
+    }
+    store.save(state); recommend();
+  }catch(err){ alert('JSON 형식을 읽을 수 없어요. closet.json이 맞는지 확인하세요.'); }
+  e.target.value = '';
+};
+// 전체 내보내기·가져오기: 메인의 모든 탭 + 옷장(사진 포함)을 파일 하나로 (shared/backup.js)
+$('export').onclick = async () => {
+  try { $('backup-msg').textContent = await LifeGameBackup.exportAll() + '.'; }
+  catch (e) { $('backup-msg').textContent = '내보내지 못했어요. 브라우저 저장 공간을 확인하세요.'; }
+};
+$('backup-import').onclick = () => $('backup-file').click();
+$('backup-file').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  try { await LifeGameBackup.importFile(f); } catch (err) { $('backup-msg').textContent = err.message; }
+};
+{ const n = LifeGameBackup.takeNotice(); if (n) $('backup-msg').textContent = n + '.'; }
+
+/* ── AI 추천 (선택) ── */
+const AI_KEY = 'lifegame.wardrobe.openai';
+try{ $('ai-key').value = localStorage.getItem(AI_KEY) || ''; }catch(e){}
+$('ai-go').onclick = async () => {
+  const key = $('ai-key').value.trim(), out = $('ai-out');
+  if (!key){ out.innerHTML = '<p class="meta">OpenAI 키를 입력하세요.</p>'; return; }
+  if (!weather){ out.innerHTML = '<p class="meta">날씨를 불러온 뒤 다시 눌러 주세요.</p>'; return; }
+  try{ localStorage.setItem(AI_KEY, key); }catch(e){}
+  out.innerHTML = '<p class="meta">코디를 고르는 중…</p>';
+  const closet = state.items.map(i => `- ${i.name} (${fullKind(i)}, ${i.color}, ${i.season.map(s=>SEASON[s]).join('/')}, ${i.office?'출근 가능':'캐주얼'}, 마지막 착용 ${i.lastWorn||'없음'})`).join('\n');
+  const prompt = `오늘 도쿄 날씨: ${weather.temp}℃(체감 ${weather.feels}℃), ${weather.desc}, 최저 ${weather.min}℃ 최고 ${weather.max}℃, 강수 ${weather.rain}%.
+오늘은 ${mode==='office'?'출근':'재택·개인 일정'}인 날이야. 아래 옷장에서만 골라서 신발과 필요한 악세서리·도구(비 오면 우산 등)까지 포함한 꾸안꾸 × 엘레강트 느낌의 코디 하나를 추천하고, 이유를 짧게 설명해줘. 최근에 입은 옷은 피해줘.\n${closet}`;
+  try{
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST', headers:{'Content-Type':'application/json', Authorization:`Bearer ${key}`},
+      body: JSON.stringify({model:'gpt-4o-mini', messages:[{role:'user', content:prompt}]})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error?.message || r.status);
+    out.innerHTML = `<div class="ai-out">${esc(d.choices[0].message.content)}</div>`;
+  }catch(err){ out.innerHTML = `<p class="meta">요청이 실패했어요: ${esc(err.message)}. 키와 사용 한도를 확인하세요.</p>`; }
+};
+
+renderCloset();
+loadWeather();
+loadImages().then(() => { if (weather) renderOutfit(); renderCloset(); });
+</script>
+</body>
+</html>

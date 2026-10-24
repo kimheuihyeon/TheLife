@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LifeGame — 소지품</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%23D97757'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="stylesheet" href="../shared/lifegame.css">
+</head>
+<body data-page="inv">
+<div class="wrap">
+  <div id="chrome-top"></div>
+
+  <!-- 소지품: 이 탭의 화면은 이 파일에서만 관리해요 -->
+  <section class="panel" id="tab-inv">
+    <div class="stats" id="invStats"></div>
+
+    <h2>장착 중</h2>
+    <p class="sub">능력치마다 지금 함께하는 물건을 장착해 두면, 오늘 탭의 능력치 카드에도 보여요.</p>
+    <div class="loadout" id="loadout"></div>
+
+    <h2>인벤토리</h2>
+    <p class="sub">퀘스트에 사용한 물건을 연결하면, 그 물건으로 쌓은 경험치가 '애착'으로 남아요.</p>
+    <div class="inv-bar">
+      <div class="seg" role="group" aria-label="상태" id="invSeg">
+        <button data-if="all" aria-pressed="true">전체</button>
+        <button data-if="use" aria-pressed="false">사용 중</button>
+        <button data-if="keep" aria-pressed="false">보관</button>
+        <button data-if="gone" aria-pressed="false">처분</button>
+        <button data-if="wish" aria-pressed="false">위시</button>
+      </div>
+      <div class="grp">
+        <select id="invKind" aria-label="종류"></select>
+        <button class="btn" type="button" id="addItem">물건 추가</button>
+      </div>
+    </div>
+    <div class="inv" id="inv"></div>
+  </section>
+
+  <div id="chrome-bottom"></div>
+</div>
+<script src="../shared/chrome.js"></script>
+<script src="../shared/backup.js"></script>
+<script src="../shared/lifegame.js"></script>
+</body>
+</html>
