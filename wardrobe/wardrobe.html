@@ -109,7 +109,7 @@ input:focus, select:focus { border-color: var(--clay); }
 
 /* 콜라주 보드 */
 .checker { background: repeating-conic-gradient(var(--surface) 0 25%, var(--bg) 0 50%) 0 0/16px 16px; }
-.board { position: relative; height: 360px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin: 14px 0 4px; }
+.board { position: relative; height: 360px; background: #FFFFFF; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin: 14px 0 4px; }
 .board img { position: absolute; object-fit: contain; filter: drop-shadow(0 10px 14px rgba(0,0,0,.18)); }
 .board .p-outer { left: 2%; top: 4%; width: 36%; height: 64%; transform: rotate(-6deg); }
 .board .p-top { left: 31%; top: 3%; width: 37%; height: 46%; transform: rotate(3deg); z-index: 2; }
@@ -131,6 +131,20 @@ input:focus, select:focus { border-color: var(--clay); }
 .dots { display: flex; flex-wrap: wrap; gap: 12px; }
 .cdot { position: relative; width: 38px; height: 38px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); transition: transform .15s; }
 .cdot.dormant { opacity: .3; }
+.gone { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.gone:last-child { border-bottom: 1px solid var(--line); }
+.gone .sw { width: 44px; height: 44px; border-radius: 50%; opacity: .55; filter: grayscale(.6); }
+.gone img.sw { border-radius: 10px; object-fit: contain; background: #fff; }
+.gone strong { font-weight: 600; }
+.cpw { font-weight: 600; color: var(--ink); }
+.cpw-list { margin-top: 22px; }
+.cpw-list h3 { font-size: 13px; font-weight: 400; color: var(--muted); margin: 0 0 6px; }
+.cpw-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; cursor: pointer; }
+.cpw-row .sw { width: 28px; height: 28px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.cpw-row img.sw { border-radius: 6px; object-fit: contain; background: #fff; }
+.cpw-row b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.price-in { display: grid; grid-template-columns: 64px 1fr; gap: 6px; }
+@media (max-width: 560px) { .gone { grid-template-columns: 44px 1fr; } .gone .row { grid-column: 2; } }
 .type-row[hidden] { display: none; }
 .cdot.today { outline: 1.5px solid var(--clay); outline-offset: 3px; }
 .cdot.sel { transform: scale(1.12); }
@@ -248,9 +262,16 @@ dialog label.btn { display: inline-block; font-size: 14px; }
   </section>
 
   <section>
+    <div class="sec-head"><h2>떠나보낸 옷</h2><span class="meta" id="flow"></span></div>
+    <p class="desc">버리거나 주거나 판 옷의 기록이에요. 얼마나 함께했고 몇 번 입었는지 남아서, 다음에 살 때 참고가 돼요.</p>
+    <div id="retired"></div>
+  </section>
+
+  <section>
     <div class="sec-head"><h2>옷장 구성</h2></div>
     <p class="desc">계절별로 쓸 수 있는 것과 비 오는 날 준비가 얼마나 되어 있는지 보여줘요. 짧은 막대가 다음에 채울 칸이에요.</p>
     <div class="bars" id="stats"></div>
+    <div class="cpw-list" id="cpw-list"></div>
   </section>
 
   <section>
@@ -276,6 +297,20 @@ dialog label.btn { display: inline-block; font-size: 14px; }
   </footer>
   </div>
 </div>
+
+<dialog id="retire-dlg">
+  <form method="dialog" id="retire-form">
+    <h3>떠나보내기</h3>
+    <p class="meta" id="retire-who" style="margin:0"></p>
+    <label>날짜<input name="date" type="date" required></label>
+    <div><div class="meta" style="margin-bottom:6px">이유</div><div class="chips" id="retire-reasons"></div></div>
+    <label>메모 (선택)<input name="note" placeholder="예: 동생에게 줌, 중고로 판매"></label>
+    <div class="dlg-actions">
+      <button class="btn" value="cancel" formnovalidate>취소</button>
+      <button class="btn primary" value="ok">떠나보내기</button>
+    </div>
+  </form>
+</dialog>
 
 <dialog id="dlg">
   <form method="dialog" id="add">
@@ -307,6 +342,12 @@ dialog label.btn { display: inline-block; font-size: 14px; }
     <div class="two">
       <label>색 이름<input name="color" placeholder="예: 네이비" required></label>
       <label>색<input name="hex" type="color" value="#9AA5B1" style="height:42px;padding:4px"></label>
+    </div>
+    <div class="two">
+      <label>구입일 (선택)<input name="bought" type="date"></label>
+      <label>가격 (선택)<span class="price-in">
+        <select name="cur" aria-label="통화"><option>¥</option><option>₩</option><option>$</option><option>€</option></select>
+        <input name="price" type="number" min="0" step="any" inputmode="decimal" placeholder="12000"></span></label>
     </div>
     <div><div class="meta" style="margin-bottom:6px">계절</div>
       <div class="chips">
@@ -363,6 +404,48 @@ const level = it => Math.floor(Math.sqrt(it.wear || 0)) + 1;
 const tierOf = it => level(it) >= 5 ? ['전설','var(--gold)'] : level(it) >= 3 ? ['희귀','var(--plat)'] : ['일반','var(--line)'];
 const badgeOf = it => level(it) >= 3 ? tierOf(it)[1] : 'var(--muted)';
 const isDormant = it => daysSince(it.lastWorn) > 60;
+const active = () => state.items.filter(i => !i.retired);  // 지금 옷장에 있는 것만
+function spanText(from, to){
+  // "3년 2개월" 같은 함께한 기간
+  if (!from) return '';
+  const a = new Date(from), b = to ? new Date(to) : new Date();
+  let m = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+  if (b.getDate() < a.getDate()) m--;
+  if (m < 1) return '1개월 미만';
+  return [Math.floor(m / 12) && `${Math.floor(m / 12)}년`, m % 12 && `${m % 12}개월`].filter(Boolean).join(' ');
+}
+const ym = d => d ? d.slice(0, 7).replace('-', '.') : '';
+
+/* ── 1회당 비용 ── */
+const money = (n, cur) => cur + n.toLocaleString('ko-KR', {maximumFractionDigits: (cur === '$' || cur === '€') && n < 100 ? 2 : 0});
+const cpw = it => it.price ? it.price / Math.max(it.wear || 0, 1) : null;  // 한 번도 안 입었으면 가격 그대로
+const cpwText = it => it.price ? (it.wear ? `1회당 ${money(cpw(it), it.cur)}` : `1회당 ${money(it.price, it.cur)} (아직 0번)`) : '';
+function cpwGoal(it){
+  // 다음 기준선(가격의 자릿수에 맞춘 깔끔한 금액)까지 몇 번 더 입으면 되는지
+  if (!it.price) return '';
+  const now = cpw(it), steps = [1, 2, 5];
+  let base = Math.pow(10, Math.floor(Math.log10(now)));
+  let goal = null;
+  for (let k = 0; k < 6 && !goal; k++, base /= 10) for (const st of [...steps].reverse()) { const g = st * base; if (g < now * 0.999) { goal = g; break; } }
+  if (!goal) return '';
+  const need = Math.ceil(it.price / goal) - (it.wear || 0);
+  return need > 0 ? `${need}번 더 입으면 1회당 ${money(goal, it.cur)} 이하` : '';
+}
+
+/* ── 같은 조합 반복 ── */
+const REPEAT_DAYS = 14;  // 이 기간 안에 입은 조합은 추천에서 피하고, 나오면 알려줌
+function coreIds(o){
+  // 조합 = 상의+하의, 원피스면 원피스+아우터 (신발·소품은 겹쳐도 괜찮음)
+  const ids = o.dress ? [o.dress, o.outer] : [o.top, o.bottom];
+  return ids.every(Boolean) ? ids.map(i => i.id) : null;
+}
+function comboHistory(o){
+  const ids = coreIds(o);
+  if (!ids) return [];
+  return state.log.filter(e => ids.every(id => e.ids.includes(id))).sort((a,b) => b.date.localeCompare(a.date));
+}
+const recentRepeat = o => { const h = comboHistory(o)[0]; return h && daysSince(h.date) < REPEAT_DAYS ? h : null; };
+const RETIRE_REASONS = ['안 입게 됨','낡음·손상','사이즈 안 맞음','취향이 바뀜','기부·판매','기타'];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function hexFor(color){
   const raw = String(color||'').trim(), k = raw.toLowerCase();
@@ -380,6 +463,10 @@ function normalize(raw){
     season: (raw.season || []).map(s => map[s] || s),
     office: raw.office !== false, wear: raw.wear || 0, lastWorn: raw.lastWorn || null,
     img: !!raw.img,
+    bought: raw.bought || null,   // 구입일 YYYY-MM-DD
+    price: Number(raw.price) > 0 ? Number(raw.price) : null,  // 가격
+    cur: raw.cur || '¥',          // 통화
+    retired: raw.retired || null, // 떠나보낸 기록 {date, reason, note}
     imgUrl: raw.imgUrl || (/^https?:\/\//.test(raw.image_path || '') ? raw.image_path : null) // Include imgUrl
   };
 }
@@ -518,16 +605,18 @@ function recommend(){
   if (!weather) return;
   const season = seasonFor(weather.feels);
   const ok = it => mode === 'home' || it.office;
-  const pool = state.items.filter(it => it.season.includes(season) && ok(it));
+  const pool = active().filter(it => it.season.includes(season) && ok(it));
   const by = c => pool.filter(it => it.category === c);
   const tops = by('top'), bottoms = by('bottom'), dresses = by('dress');
-  const useDress = dresses.length && (!(tops.length && bottoms.length) || Math.random() < 0.3);
-  current = useDress ? {dress: pick(dresses)} : {top: pick(tops), bottom: pick(bottoms)};
   needOuter = weather.min <= 15 || (weather.max - weather.min) >= 8;
-  if (needOuter){
-    const outers = state.items.filter(it => it.category === 'outer' && ok(it)
-      && it.season.some(s => s === season || s === seasonFor(weather.min)));
-    current.outer = pick(outers);
+  const outers = active().filter(it => it.category === 'outer' && ok(it)
+    && it.season.some(s => s === season || s === seasonFor(weather.min)));
+  // 최근 2주 안에 입은 조합이 나오면 몇 번 다시 뽑아 봄 (옷이 적으면 그대로 두고 알려줌)
+  for (let tries = 0; tries < 12; tries++){
+    const useDress = dresses.length && (!(tops.length && bottoms.length) || Math.random() < 0.3);
+    current = useDress ? {dress: pick(dresses)} : {top: pick(tops), bottom: pick(bottoms)};
+    if (needOuter) current.outer = pick(outers);
+    if (!recentRepeat(current)) break;
   }
   // 신발: 계절에 맞는 것 중에서, 비 오는 날엔 레인부츠·부츠·스니커즈를 먼저
   const rainy = weather.rain >= 50 || (weather.code >= 51 && weather.code <= 82);
@@ -535,7 +624,7 @@ function recommend(){
   const dryShoes = shoes.filter(it => RAIN_SHOES.includes(it.type));
   current.shoes = pick(rainy && dryShoes.length ? dryShoes : shoes);
   // 악세서리·도구: 날씨에 필요한 것 → 가방 → 시계 순으로 최대 3개
-  const accs = state.items.filter(it => it.category === 'acc' && ok(it));
+  const accs = active().filter(it => it.category === 'acc' && ok(it));
   const ofType = (...t) => accs.filter(it => t.includes(it.type));
   const inSeason = list => list.filter(it => it.season.includes(season));
   const picks = [];
@@ -550,6 +639,11 @@ function recommend(){
 }
 function renderOutfit(){
   const hints = [];
+  const rep = recentRepeat(current);
+  if (rep){
+    const d = daysSince(rep.date), md = rep.date.slice(5).replace('-', '/');
+    hints.push(d === 0 ? '이 조합은 오늘 이미 입었어요.' : `이 조합은 ${d}일 전(${md})에 입었어요. 다른 조합 보기로 바꿀 수 있어요.`);
+  }
   const umbrella = Object.values(current).find(it => it && it.type === '우산');
   if (weather.rain >= 50) hints.push(umbrella
     ? `강수 확률 ${weather.rain}%예요. 우산(${umbrella.name})을 같이 골랐어요.`
@@ -560,7 +654,7 @@ function renderOutfit(){
   const parts = Object.entries(current).filter(([,v]) => v);
   const withImg = parts.filter(([,it]) => imgOf(it) || it.imgUrl); // Check for imgUrl
   $('board').innerHTML = withImg.length
-    ? `<div class="board checker ${current.outer && imgOf(current.outer) ? '' : 'solo'}">${
+    ? `<div class="board ${current.outer && imgOf(current.outer) ? '' : 'solo'}">${
         withImg.map(([k,it]) => `<img class="p-${k}" src="${esc(imgOf(it) || it.imgUrl)}" alt="${esc(it.name)}">`).join('')
       }${withImg.length < parts.length ? '<span class="chip">사진이 없는 옷은 아래 카드로만 보여요</span>' : ''}</div>`
     : '';
@@ -568,7 +662,7 @@ function renderOutfit(){
     ? parts.map(([k,it]) => { const [t,c] = tierOf(it); return `<div class="piece" style="--tier:${c}">
         ${imgOf(it) ? `<img class="sw" src="${esc(imgOf(it))}" alt="">` : `<div class="sw" style="background:${it.hex}"></div>`}
         <div><span class="c">${esc(kindLabel(it))} · ${esc(it.color)}</span><strong>${esc(it.name)}</strong>
-        <span class="tier">${t} · Lv.${level(it)}</span></div></div>`; }).join('')
+        <span class="tier">${t} · Lv.${level(it)}</span>${it.price ? `<span class="c" style="display:block">${cpwText(it)}</span>` : ''}</div></div>`; }).join('')
     : `<div class="empty">${seasonLabel(weather.feels)}에 ${mode==='office'?'Work로 ':''}입을 옷이 아직 없어요. My wardrobe에서 +를 눌러 옷을 추가하거나, 아래에서 closet.json을 가져오세요.</div>`;
   $('wear').disabled = !parts.some(([k]) => CLOTHES.includes(k));
   
@@ -576,7 +670,7 @@ function renderOutfit(){
 
 /* ── 옷장 시각화 ── */
 function renderCloset(){
-  const items = state.items, todayIds = Object.values(current).filter(Boolean).map(i => i.id);
+  const items = active(), todayIds = Object.values(current).filter(Boolean).map(i => i.id);
   const dormant = items.filter(isDormant).length;
   const nOf = c => items.filter(i => i.category === c).length;
   $('s-count').textContent = `${items.filter(i => CLOTHES.includes(i.category)).length}벌`;
@@ -592,10 +686,10 @@ function renderCloset(){
         it.wear ? `<span class="lv">${level(it)}</span>` : ''}</button>`; }).join('')
     }<button class="add-dot" data-cat="${c}" aria-label="${label} 추가">+</button></div></div>`;
   }).join('');
-  renderDetail(); renderStats();
+  renderDetail(); renderStats(); renderRetired(); renderCpw();
 }
 function renderDetail(){
-  const it = state.items.find(i => i.id === selected);
+  const it = active().find(i => i.id === selected);
   if (!it){ $('detail').innerHTML = ''; return; }
   const lv = level(it), [t,col] = tierOf(it), from = (lv-1)**2, to = lv**2;
   $('detail').innerHTML = `<div class="detail" style="--tier:${col};--badge:${badgeOf(it)}">
@@ -603,17 +697,45 @@ function renderDetail(){
     <div><strong>${esc(it.name)}</strong> <span class="tier">${t} · Lv.${lv}</span>
       <div class="xp"><span style="width:${(it.wear-from)/(to-from)*100}%"></span></div>
       <div class="meta">다음 레벨까지 ${to - it.wear}번 · 지금까지 ${it.wear}번 사용 · ${it.lastWorn ? `마지막 ${daysSince(it.lastWorn)}일 전` : '아직 안 입음'}<br>
-      ${esc(fullKind(it))} · ${esc(it.color)} · ${it.season.map(s => SEASON[s]).join(', ')} · ${it.office ? 'Work 가능' : 'Private 전용'}</div>
+      ${esc(fullKind(it))} · ${esc(it.color)} · ${it.season.map(s => SEASON[s]).join(', ')} · ${it.office ? 'Work 가능' : 'Private 전용'}
+      ${it.bought ? `<br>${ym(it.bought)} 구입 · 함께한 지 ${spanText(it.bought)}` : '<br>구입일 미입력'}
+      ${it.price ? `<br>${money(it.price, it.cur)} · <b class="cpw">${cpwText(it)}</b>${cpwGoal(it) ? ` · ${cpwGoal(it)}` : ''}` : ' · 가격 미입력'}</div>
+      ${isDormant(it) && it.lastWorn ? `<p class="hint" style="margin:10px 0 0">${daysSince(it.lastWorn)}일째 안 입었어요. 계속 둘지, 떠나보낼지 생각해 볼 때예요.</p>` : ''}
       <div class="row" style="margin-top:12px">
         <button class="btn" data-act="edit">${imgOf(it) ? '수정' : '사진 넣기·수정'}</button>
         <button class="btn" data-act="toggle-office">${it.office ? 'Private 전용으로' : 'Work에도 쓰기'}</button>
-        <button class="btn" data-act="delete">옷장에서 빼기</button></div></div></div>`;
+        <button class="btn" data-act="retire">떠나보내기</button></div></div></div>`;
+}
+function renderRetired(){
+  const gone = state.items.filter(i => i.retired).sort((a,b) => b.retired.date.localeCompare(a.retired.date));
+  const year = String(new Date().getFullYear());
+  const inY = state.items.filter(i => (i.bought || '').startsWith(year)).length;
+  const outY = gone.filter(i => i.retired.date.startsWith(year)).length;
+  $('flow').textContent = `올해 들인 것 ${inY}개 · 떠나보낸 것 ${outY}개`;
+  $('retired').innerHTML = gone.length ? gone.map(it => `<div class="gone">
+      ${imgOf(it) ? `<img class="sw" src="${esc(imgOf(it))}" alt="">` : `<div class="sw" style="background:${it.hex}"></div>`}
+      <div><strong>${esc(it.name)}</strong> <span class="meta">${esc(fullKind(it))} · ${esc(it.color)}</span>
+        <div class="meta">${it.bought ? `${ym(it.bought)} – ` : ''}${ym(it.retired.date)}${it.bought ? ` · 함께한 ${spanText(it.bought, it.retired.date)}` : ''} · ${it.wear}번 입음${it.price ? ` · 1회당 ${money(cpw(it), it.cur)}로 마무리` : ''} · ${esc(it.retired.reason)}${it.retired.note ? ` — ${esc(it.retired.note)}` : ''}</div></div>
+      <div class="row"><button class="btn" data-restore="${it.id}">되돌리기</button><button class="btn" data-purge="${it.id}">완전히 삭제</button></div>
+    </div>`).join('') : '<p class="empty">아직 떠나보낸 것이 없어요.</p>';
+}
+function renderCpw(){
+  const priced = active().filter(i => i.price);
+  if (!priced.length){ $('cpw-list').innerHTML = '<p class="meta">가격을 넣으면 1회당 비용이 계산돼요. 자주 입을수록 내려가요.</p>'; return; }
+  const row = it => `<div class="cpw-row" data-id="${it.id}">
+      ${imgOf(it) ? `<img class="sw" src="${esc(imgOf(it))}" alt="">` : `<div class="sw" style="background:${it.hex}"></div>`}
+      <span>${esc(it.name)} <span class="meta">${it.wear || 0}번</span></span><b>${money(cpw(it), it.cur)}</b></div>`;
+  const byCost = [...priced].sort((a,b) => cpw(b) - cpw(a));
+  const high = byCost.slice(0, 3);
+  const best = priced.filter(i => i.wear && !high.includes(i)).sort((a,b) => cpw(a) - cpw(b)).slice(0, 3);
+  $('cpw-list').innerHTML = `<h3>1회당 비용이 높은 것 — 더 자주 입어 줄 차례</h3>${high.map(row).join('')}
+    ${best.length ? `<h3 style="margin-top:18px">본전 뽑은 것</h3>${best.map(row).join('')}` : ''}`;
 }
 function renderStats(){
-  const n = state.items.length || 1;
-  const rows = Object.entries(SEASON).map(([s,l]) => [l, state.items.filter(i => i.season.includes(s)).length]);
-  rows.push(['비 오는 날 신발', state.items.filter(i => i.category === 'shoes' && RAIN_SHOES.includes(i.type)).length]);
-  rows.push(['우산', state.items.filter(i => i.type === '우산').length]);
+  const items = active(), n = items.length || 1;
+  const rows = Object.entries(SEASON).map(([s,l]) => [l, items.filter(i => i.season.includes(s)).length]);
+  rows.push(['비 오는 날 신발', items.filter(i => i.category === 'shoes' && RAIN_SHOES.includes(i.type)).length]);
+  rows.push(['우산', items.filter(i => i.type === '우산').length]);
   $('stats').innerHTML = rows.map(([l,v]) =>
     `<span>${l}</span><div class="bar"><span style="width:${v/n*100}%"></span></div><span>${v}</span>`).join('');
 }
@@ -630,6 +752,7 @@ $('m-home').onclick = () => setMode('home');
 $('reroll').onclick = recommend;
 $('wear').onclick = () => {
   const ids = Object.values(current).filter(Boolean).map(i => i.id), ups = [];
+  const times = comboHistory(current).length + 1;
   state.items.forEach(it => { if (ids.includes(it.id)) {
     const before = tierOf(it)[0], bl = level(it); it.wear++; it.lastWorn = today();
     if (tierOf(it)[0] !== before) ups.push(`${it.name} ${tierOf(it)[0]} 등급`);
@@ -637,7 +760,8 @@ $('wear').onclick = () => {
   }});
   state.log.push({date: today(), mode, ids});
   store.save(state); renderOutfit(); renderCloset();
-  $('wear-msg').textContent = ups.length ? `기록했어요. ${ups.join(', ')}!` : '기록했어요.';
+  const nth = coreIds(current) && times > 1 ? ` 이 조합은 ${times}번째예요.` : '';
+  $('wear-msg').textContent = (ups.length ? `기록했어요. ${ups.join(', ')}!` : '기록했어요.') + nth;
 };
 $('field').onclick = e => {
   const add = e.target.closest('.add-dot');
@@ -650,7 +774,7 @@ $('detail').onclick = e => {
   if (!act || !it) return;
   if (act === 'edit'){ openAdd(it.category, it); return; }
   if (act === 'toggle-office') it.office = !it.office;
-  if (act === 'delete'){ dropImage(it.id); state.items = state.items.filter(i => i !== it); selected = null; }
+  if (act === 'retire'){ openRetire(it); return; }
   store.save(state); recommend();
 };
 
@@ -681,6 +805,7 @@ function openAdd(cat, it){
   const f = $('add'); f.reset(); draft = null; editing = it ? it.id : null;
   $('dlg').returnValue = '';
   $('dlg-title').textContent = `${CAT[cat]} ${it ? '수정' : '추가'}`;
+  f.cur.value = state.lastCur || '¥';  // 마지막에 쓴 통화
   $('ph-msg').textContent = ''; $('ph-url').value = it?.imgUrl || ''; // Prefill imgUrl if it exists
   f.querySelector(`input[name=category][value=${cat}]`).checked = true;
   if (it){
@@ -688,6 +813,8 @@ function openAdd(cat, it){
     if (/^#[0-9a-f]{6}$/i.test(it.hex)) f.hex.value = it.hex;
     f.querySelectorAll('input[name=season]').forEach(c => c.checked = it.season.includes(c.value));
     f.office.checked = it.office;
+    f.bought.value = it.bought || '';
+    f.price.value = it.price || ''; f.cur.value = it.cur || '¥';
   }
   renderTypes(cat, it ? it.type : null, !it);
   showPreview(it ? imgOf(it) : null);
@@ -723,10 +850,12 @@ $('dlg').addEventListener('close', async () => {
   const f = $('add');
   const season = [...f.querySelectorAll('input[name=season]:checked')].map(i => i.value);
   const data = {name:f.name.value.trim(), category:f.category.value, color:f.color.value.trim(),
-    hex:f.hex.value, season: season.length ? season : ['Spring'], office:f.office.checked,
+    hex:f.hex.value, season: season.length ? season : ['Spring'], office:f.office.checked, bought: f.bought.value || null,
+    price: Number(f.price.value) > 0 ? Number(f.price.value) : null, cur: f.cur.value,
     type: TYPES[f.category.value] ? (f.querySelector('input[name=type]:checked') || {}).value || null : null};
   let it = editing && state.items.find(i => i.id === editing);
   if (it) Object.assign(it, data); else { it = normalize(data); state.items.push(it); }
+  state.lastCur = data.cur;
   if (draft){
     if (IMG[it.id] && IMG[it.id].startsWith('blob:')) URL.revokeObjectURL(IMG[it.id]);
     if (draft.blob){
@@ -737,6 +866,40 @@ $('dlg').addEventListener('close', async () => {
   draft = null; editing = null; selected = it.id;
   store.save(state); recommend();
 });
+let retiring = null;
+function openRetire(it){
+  retiring = it.id;
+  const f = $('retire-form'); f.reset();
+  f.date.value = today();
+  $('retire-who').textContent = `${it.name} · ${it.wear}번 입음${it.bought ? ` · 함께한 지 ${spanText(it.bought)}` : ''}`;
+  $('retire-reasons').innerHTML = RETIRE_REASONS.map((r, i) =>
+    `<label><input type="radio" name="reason" value="${r}" ${i === 0 ? 'checked' : ''}><span>${r}</span></label>`).join('');
+  $('retire-dlg').returnValue = '';
+  $('retire-dlg').showModal();
+}
+$('retire-dlg').addEventListener('close', () => {
+  const it = state.items.find(i => i.id === retiring); retiring = null;
+  if ($('retire-dlg').returnValue !== 'ok' || !it) return;
+  const f = $('retire-form');
+  it.retired = { date: f.date.value || today(), reason: f.reason.value, note: f.note.value.trim() || null };
+  selected = null; store.save(state); recommend();
+});
+$('cpw-list').onclick = e => {
+  const r = e.target.closest('.cpw-row'); if (!r) return;
+  selected = r.dataset.id; renderCloset();
+  $('detail').scrollIntoView({behavior: 'smooth', block: 'center'});
+};
+$('retired').onclick = e => {
+  const r = e.target.dataset.restore, d = e.target.dataset.purge;
+  if (r){ const it = state.items.find(i => i.id === r); if (it){ it.retired = null; selected = it.id; } }
+  if (d){
+    const it = state.items.find(i => i.id === d);
+    if (!it || !confirm(`${it.name}을(를) 기록에서 완전히 지울까요? 되돌릴 수 없어요.`)) return;
+    dropImage(it.id); state.items = state.items.filter(i => i !== it);
+  }
+  store.save(state); recommend();
+};
+
 $('import-btn').onclick = () => $('import').click();
 $('import').onchange = async e => {
   const file = e.target.files[0]; if (!file) return;
@@ -746,7 +909,11 @@ $('import').onchange = async e => {
     const have = new Set(state.items.map(i => i.id));
     for (const raw of list.filter(r => r.name && r.category && !have.has(r.id))){
       const it = normalize(raw);
-      if (it.imgUrl) IMG[it.id] = it.imgUrl; // Use imgUrl if available
+      if (typeof raw.image === 'string' && raw.image.startsWith('data:image')){
+        // 파일 안에 그림이 들어 있으면 그걸 우선 사용
+        try{ const b = await (await fetch(raw.image)).blob(); await idb.set(it.id, b); it.img = true; IMG[it.id] = URL.createObjectURL(b); }catch(e){}
+      }
+      if (!IMG[it.id] && it.imgUrl) IMG[it.id] = it.imgUrl; // 그림이 없으면 원본 링크로
       state.items.push(it);
     }
     store.save(state); recommend();
@@ -757,25 +924,9 @@ $('import').onchange = async e => {
 };
 // 전체 내보내기·가져오기: 메인의 모든 탭 + 옷장(사진 포함)을 파일 하나로 (shared/backup.js)
 $('export').onclick = async () => {
-  try {
-    const data = {
-      items: state.items.map(it => ({
-        ...it,
-        imgUrl: it.imgUrl // Include imgUrl in the export
-      })),
-      log: state.log
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'closet.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    $('backup-msg').textContent = '내보내기 완료.';
-  } catch (e) {
-    $('backup-msg').textContent = '내보내지 못했어요. 브라우저 저장 공간을 확인하세요.';
-  }
+  // 옷마다 imgUrl(원본 링크)과 누끼 사진(파일 안에 그림으로)이 함께 들어가요
+  try { $('backup-msg').textContent = await LifeGameBackup.exportAll() + '.'; }
+  catch (e) { $('backup-msg').textContent = '내보내지 못했어요. 브라우저 저장 공간을 확인하세요.'; }
 };
 $('backup-import').onclick = () => $('backup-file').click();
 $('backup-file').onchange = async e => {
@@ -794,7 +945,7 @@ $('ai-go').onclick = async () => {
   if (!weather){ out.innerHTML = '<p class="meta">날씨를 불러온 뒤 다시 눌러 주세요.</p>'; return; }
   try{ localStorage.setItem(AI_KEY, key); }catch(e){}
   out.innerHTML = '<p class="meta">코디를 고르는 중…</p>';
-  const closet = state.items.map(i => `- ${i.name} (${fullKind(i)}, ${i.color}, ${i.season.map(s=>SEASON[s]).join('/')}, ${i.office?'출근 가능':'캐주얼'}, 마지막 착용 ${i.lastWorn||'없음'})`).join('\n');
+  const closet = active().map(i => `- ${i.name} (${fullKind(i)}, ${i.color}, ${i.season.map(s=>SEASON[s]).join('/')}, ${i.office?'출근 가능':'캐주얼'}, 마지막 착용 ${i.lastWorn||'없음'})`).join('\n');
   const prompt = `오늘 도쿄 날씨: ${weather.temp}℃(체감 ${weather.feels}℃), ${weather.desc}, 최저 ${weather.min}℃ 최고 ${weather.max}℃, 강수 ${weather.rain}%.
 오늘은 ${mode==='office'?'출근':'재택·개인 일정'}인 날이야. 아래 옷장에서만 골라서 신발과 필요한 악세서리·도구(비 오면 우산 등)까지 포함한 꾸안꾸 × 엘레강트 느낌의 코디 하나를 추천하고, 이유를 짧게 설명해줘. 최근에 입은 옷은 피해줘.\n${closet}`;
   try{
