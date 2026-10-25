@@ -380,7 +380,7 @@ function normalize(raw){
     season: (raw.season || []).map(s => map[s] || s),
     office: raw.office !== false, wear: raw.wear || 0, lastWorn: raw.lastWorn || null,
     img: !!raw.img,
-    imgUrl: raw.imgUrl || (/^https?:\/\//.test(raw.image_path || '') ? raw.image_path : null)
+    imgUrl: raw.imgUrl || (/^https?:\/\//.test(raw.image_path || '') ? raw.image_path : null) // Include imgUrl
   };
 }
 
@@ -558,10 +558,10 @@ function renderOutfit(){
   if (needOuter) hints.push(`일교차가 있어서 아우터를 같이 골랐어요 (${weather.min}℃ ~ ${weather.max}℃).`);
   $('hints').innerHTML = hints.map(h => `<p class="hint">${esc(h)}</p>`).join('');
   const parts = Object.entries(current).filter(([,v]) => v);
-  const withImg = parts.filter(([,it]) => imgOf(it));
+  const withImg = parts.filter(([,it]) => imgOf(it) || it.imgUrl); // Check for imgUrl
   $('board').innerHTML = withImg.length
     ? `<div class="board checker ${current.outer && imgOf(current.outer) ? '' : 'solo'}">${
-        withImg.map(([k,it]) => `<img class="p-${k}" src="${esc(imgOf(it))}" alt="${esc(it.name)}">`).join('')
+        withImg.map(([k,it]) => `<img class="p-${k}" src="${esc(imgOf(it) || it.imgUrl)}" alt="${esc(it.name)}">`).join('')
       }${withImg.length < parts.length ? '<span class="chip">사진이 없는 옷은 아래 카드로만 보여요</span>' : ''}</div>`
     : '';
   $('outfit').innerHTML = parts.some(([k]) => CLOTHES.includes(k))
@@ -571,6 +571,7 @@ function renderOutfit(){
         <span class="tier">${t} · Lv.${level(it)}</span></div></div>`; }).join('')
     : `<div class="empty">${seasonLabel(weather.feels)}에 ${mode==='office'?'Work로 ':''}입을 옷이 아직 없어요. My wardrobe에서 +를 눌러 옷을 추가하거나, 아래에서 closet.json을 가져오세요.</div>`;
   $('wear').disabled = !parts.some(([k]) => CLOTHES.includes(k));
+  
 }
 
 /* ── 옷장 시각화 ── */
@@ -680,7 +681,7 @@ function openAdd(cat, it){
   const f = $('add'); f.reset(); draft = null; editing = it ? it.id : null;
   $('dlg').returnValue = '';
   $('dlg-title').textContent = `${CAT[cat]} ${it ? '수정' : '추가'}`;
-  $('ph-msg').textContent = ''; $('ph-url').value = '';
+  $('ph-msg').textContent = ''; $('ph-url').value = it?.imgUrl || ''; // Prefill imgUrl if it exists
   f.querySelector(`input[name=category][value=${cat}]`).checked = true;
   if (it){
     f.name.value = it.name; f.color.value = it.color;
@@ -739,25 +740,42 @@ $('dlg').addEventListener('close', async () => {
 $('import-btn').onclick = () => $('import').click();
 $('import').onchange = async e => {
   const file = e.target.files[0]; if (!file) return;
-  try{
+  try {
     const data = JSON.parse(await file.text());
     const list = Array.isArray(data) ? data : data.items || [];
     const have = new Set(state.items.map(i => i.id));
     for (const raw of list.filter(r => r.name && r.category && !have.has(r.id))){
       const it = normalize(raw);
-      if (typeof raw.image === 'string' && raw.image.startsWith('data:image')){
-        try{ const b = await (await fetch(raw.image)).blob(); await idb.set(it.id, b); it.img = true; IMG[it.id] = URL.createObjectURL(b); }catch(e){}
-      } else if (it.imgUrl) IMG[it.id] = it.imgUrl;
+      if (it.imgUrl) IMG[it.id] = it.imgUrl; // Use imgUrl if available
       state.items.push(it);
     }
     store.save(state); recommend();
-  }catch(err){ alert('JSON 형식을 읽을 수 없어요. closet.json이 맞는지 확인하세요.'); }
+  } catch (err) {
+    alert('JSON 형식을 읽을 수 없어요. closet.json이 맞는지 확인하세요.');
+  }
   e.target.value = '';
 };
 // 전체 내보내기·가져오기: 메인의 모든 탭 + 옷장(사진 포함)을 파일 하나로 (shared/backup.js)
 $('export').onclick = async () => {
-  try { $('backup-msg').textContent = await LifeGameBackup.exportAll() + '.'; }
-  catch (e) { $('backup-msg').textContent = '내보내지 못했어요. 브라우저 저장 공간을 확인하세요.'; }
+  try {
+    const data = {
+      items: state.items.map(it => ({
+        ...it,
+        imgUrl: it.imgUrl // Include imgUrl in the export
+      })),
+      log: state.log
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'closet.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    $('backup-msg').textContent = '내보내기 완료.';
+  } catch (e) {
+    $('backup-msg').textContent = '내보내지 못했어요. 브라우저 저장 공간을 확인하세요.';
+  }
 };
 $('backup-import').onclick = () => $('backup-file').click();
 $('backup-file').onchange = async e => {
