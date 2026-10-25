@@ -131,6 +131,43 @@ input:focus, select:focus { border-color: var(--clay); }
 .dots { display: flex; flex-wrap: wrap; gap: 12px; }
 .cdot { position: relative; width: 38px; height: 38px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); transition: transform .15s; }
 .cdot.dormant { opacity: .3; }
+/* 코디 캘린더 */
+.cal-nav { display: flex; align-items: center; gap: 6px; }
+.cal-nav .label { font-family: var(--serif); font-size: 18px; min-width: 7.5em; text-align: center; }
+.icon-btn { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; width: 34px; height: 34px; cursor: pointer; font-size: 15px; }
+.icon-btn:hover { color: var(--ink); }
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.cal .wd { font-size: 11px; color: var(--muted); text-align: center; padding: 6px 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.cal .wd.sun, .cal-cell.sun .dn { color: var(--clay); }
+.cal-cell { position: relative; min-height: 76px; padding: 5px; border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+.cal-cell:hover { background: var(--surface); }
+.cal-cell.blank { cursor: default; background: transparent; }
+.cal-cell.sel { background: var(--surface); box-shadow: inset 0 0 0 2px var(--ink); }
+.cal-cell .dn { font-size: 12px; color: var(--muted); line-height: 1; }
+.cal-cell.is-today .dn { color: #fff; background: var(--clay); border-radius: 999px; padding: 3px 6px; align-self: flex-start; }
+.cal-cell.future { opacity: .45; }
+.mini { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px; width: 100%; max-width: 64px; }
+.mini i, .mini img { width: 100%; aspect-ratio: 1; border-radius: 50%; display: block; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.mini img { border-radius: 5px; object-fit: contain; background: #fff; box-shadow: none; }
+.cal-cell .more { position: absolute; right: 5px; top: 4px; font-size: 10px; color: var(--muted); }
+.cal-cell .manual { position: absolute; right: 6px; bottom: 5px; width: 5px; height: 5px; border-radius: 50%; background: var(--plat); }
+@media (max-width: 560px) { .cal-cell { min-height: 58px; padding: 3px; } .mini { gap: 2px; } }
+.day { margin-top: 16px; background: var(--surface); border-radius: 12px; padding: 16px; }
+.day h3 { font-family: var(--serif); font-weight: 400; font-size: 20px; margin: 0 0 8px; }
+.entry { padding: 12px 0; border-top: 1px solid var(--line); }
+.entry .pcs { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 8px; }
+.entry .pc { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; background: var(--bg); border-radius: 999px; padding: 3px 10px 3px 3px; }
+.entry .pc i, .entry .pc img { width: 24px; height: 24px; border-radius: 50%; display: block; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.entry .pc img { border-radius: 6px; object-fit: contain; background: #fff; box-shadow: none; }
+.src { font-size: 11px; border-radius: 999px; padding: 2px 8px; border: 1px solid var(--line); color: var(--muted); }
+.src.manual { border-color: var(--plat); color: var(--plat); }
+.cal-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: center; margin-top: 12px; }
+.linkish { background: none; border: 0; padding: 0; font: inherit; font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.linkish:hover { color: var(--ink); }
+.pick-group { display: grid; gap: 6px; }
+.pick-group .meta { margin: 0; }
+.pick { max-height: 46vh; overflow: auto; display: grid; gap: 12px; padding-right: 4px; }
+.chips .dotc { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
 .gone { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
 .gone:last-child { border-bottom: 1px solid var(--line); }
 .gone .sw { width: 44px; height: 44px; border-radius: 50%; opacity: .55; filter: grayscale(.6); }
@@ -248,6 +285,25 @@ dialog label.btn { display: inline-block; font-size: 14px; }
   </section>
 
   <section>
+    <div class="sec-head">
+      <h2>코디 캘린더</h2>
+      <div class="cal-nav">
+        <button class="icon-btn" id="cal-prev" aria-label="이전 달">‹</button>
+        <span class="label" id="cal-label" aria-live="polite"></span>
+        <button class="icon-btn" id="cal-next" aria-label="다음 달">›</button>
+        <button class="btn" id="cal-today" style="padding:6px 14px">오늘</button>
+      </div>
+    </div>
+    <p class="desc">날짜를 누르면 그날 입은 코디를 보거나 직접 기록할 수 있어요. 파란 점은 직접 기록한 날이에요.</p>
+    <div class="cal" id="cal"></div>
+    <div class="cal-foot">
+      <span class="meta" id="cal-sum"></span>
+      <button class="linkish" id="reset-button-logs">‘오늘 이렇게 입기’ 기록만 초기화</button>
+    </div>
+    <div id="day"></div>
+  </section>
+
+  <section>
     <div class="sec-head"><h2>My wardrobe</h2></div>
     <p class="desc">점 하나가 옷·신발·소품 하나예요. 우산 같은 도구는 악세서리에 넣어 두면 날씨에 맞춰 같이 골라 줘요. 자주 쓸수록 레벨이 오르고, 등급이 일반 → 희귀 → 전설로 바뀝니다.</p>
     <div class="legend">
@@ -297,6 +353,26 @@ dialog label.btn { display: inline-block; font-size: 14px; }
   </footer>
   </div>
 </div>
+
+<dialog id="outfit-dlg">
+  <form method="dialog" id="outfit-form">
+    <h3 id="outfit-title">코디 기록</h3>
+    <div class="two">
+      <label>날짜<input name="date" type="date" required></label>
+      <div><div class="meta" style="margin-bottom:6px">일정</div>
+        <div class="chips">
+          <label><input type="radio" name="omode" value="office" checked><span>Work</span></label>
+          <label><input type="radio" name="omode" value="home"><span>Private</span></label>
+        </div></div>
+    </div>
+    <div class="pick" id="pick"></div>
+    <p class="meta" id="outfit-msg" style="margin:0"></p>
+    <div class="dlg-actions">
+      <button class="btn" value="cancel" formnovalidate>취소</button>
+      <button class="btn primary" value="ok">저장</button>
+    </div>
+  </form>
+</dialog>
 
 <dialog id="retire-dlg">
   <form method="dialog" id="retire-form">
@@ -395,6 +471,9 @@ const store = {
   save(s){ try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){} }
 };
 let state = store.load();
+// 착용 기록: {id, date, mode, ids, src}  src = 'button'(오늘 이렇게 입기) | 'manual'(캘린더에서 직접)
+const uid = () => crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
+state.log = (state.log || []).map(e => ({...e, id: e.id || uid(), src: e.src || 'button'}));
 let weather = null, mode = 'office', current = {}, selected = null;
 const $ = id => document.getElementById(id);
 
@@ -405,6 +484,28 @@ const tierOf = it => level(it) >= 5 ? ['전설','var(--gold)'] : level(it) >= 3 
 const badgeOf = it => level(it) >= 3 ? tierOf(it)[1] : 'var(--muted)';
 const isDormant = it => daysSince(it.lastWorn) > 60;
 const active = () => state.items.filter(i => !i.retired);  // 지금 옷장에 있는 것만
+
+/* ── 착용 기록 추가·삭제 (착용 횟수와 마지막 착용일을 같이 맞춤) ── */
+function addEntry(ids, date, mode, src){
+  const e = {id: uid(), date, mode, ids: [...new Set(ids)], src};
+  state.log.push(e);
+  state.items.forEach(it => { if (e.ids.includes(it.id)){
+    it.wear = (it.wear || 0) + 1;
+    if (!it.lastWorn || date > it.lastWorn) it.lastWorn = date;
+  }});
+  return e;
+}
+function removeEntry(id){
+  const e = state.log.find(x => x.id === id); if (!e) return;
+  state.log = state.log.filter(x => x !== e);
+  state.items.forEach(it => { if (e.ids.includes(it.id)){
+    it.wear = Math.max(0, (it.wear || 0) - 1);
+    if (it.lastWorn === e.date){
+      const left = state.log.filter(x => x.ids.includes(it.id)).map(x => x.date).sort();
+      it.lastWorn = left.length ? left[left.length - 1] : null;
+    }
+  }});
+}
 function spanText(from, to){
   // "3년 2개월" 같은 함께한 기간
   if (!from) return '';
@@ -638,6 +739,7 @@ function recommend(){
   renderOutfit(); renderCloset();
 }
 function renderOutfit(){
+  if (!weather) return;
   const hints = [];
   const rep = recentRepeat(current);
   if (rep){
@@ -686,7 +788,7 @@ function renderCloset(){
         it.wear ? `<span class="lv">${level(it)}</span>` : ''}</button>`; }).join('')
     }<button class="add-dot" data-cat="${c}" aria-label="${label} 추가">+</button></div></div>`;
   }).join('');
-  renderDetail(); renderStats(); renderRetired(); renderCpw();
+  renderDetail(); renderStats(); renderRetired(); renderCpw(); renderCalendar();
 }
 function renderDetail(){
   const it = active().find(i => i.id === selected);
@@ -731,6 +833,126 @@ function renderCpw(){
   $('cpw-list').innerHTML = `<h3>1회당 비용이 높은 것 — 더 자주 입어 줄 차례</h3>${high.map(row).join('')}
     ${best.length ? `<h3 style="margin-top:18px">본전 뽑은 것</h3>${best.map(row).join('')}` : ''}`;
 }
+/* ── 코디 캘린더 ── */
+let calMonth = today().slice(0, 7), calDay = null;
+const PIECE_ORDER = ['outer','top','bottom','dress','shoes','acc'];
+const itemById = id => state.items.find(i => i.id === id);
+const piecesOf = e => e.ids.map(itemById).filter(Boolean).sort((a,b) => PIECE_ORDER.indexOf(a.category) - PIECE_ORDER.indexOf(b.category));
+const thumb = (it, cls = '') => imgOf(it) ? `<img class="${cls}" src="${esc(imgOf(it))}" alt="">` : `<i class="${cls}" style="background:${it.hex}"></i>`;
+function renderCalendar(){
+  const [y, m] = calMonth.split('-').map(Number);
+  const start = new Date(y, m - 1, 1).getDay(), days = new Date(y, m, 0).getDate(), t = today();
+  $('cal-label').textContent = `${y}년 ${m}월`;
+  const byDate = {};
+  state.log.filter(e => e.date.startsWith(calMonth)).forEach(e => (byDate[e.date] = byDate[e.date] || []).push(e));
+  const cells = ['일','월','화','수','목','금','토'].map((d, i) => `<div class="wd ${i === 0 ? 'sun' : ''}">${d}</div>`);
+  for (let i = 0; i < start; i++) cells.push('<div class="cal-cell blank"></div>');
+  for (let d = 1; d <= days; d++){
+    const date = `${calMonth}-${String(d).padStart(2, '0')}`, list = byDate[date] || [];
+    const last = list[list.length - 1], dow = (start + d - 1) % 7;
+    cells.push(`<button class="cal-cell ${date === t ? 'is-today' : ''} ${date === calDay ? 'sel' : ''} ${date > t ? 'future' : ''} ${dow === 0 ? 'sun' : ''}"
+      data-date="${date}" aria-label="${m}월 ${d}일${list.length ? `, 기록 ${list.length}개` : ''}">
+      <span class="dn">${d}</span>
+      ${last ? `<span class="mini">${piecesOf(last).slice(0, 4).map(it => thumb(it)).join('')}</span>` : ''}
+      ${list.length > 1 ? `<span class="more">+${list.length - 1}</span>` : ''}
+      ${list.some(e => e.src === 'manual') ? '<span class="manual" aria-hidden="true"></span>' : ''}
+    </button>`);
+  }
+  $('cal').innerHTML = cells.join('');
+  // 이번 달 요약
+  const logs = Object.values(byDate).flat(), cnt = {};
+  logs.forEach(e => e.ids.forEach(id => cnt[id] = (cnt[id] || 0) + 1));
+  const top = Object.entries(cnt).map(([id, n]) => [itemById(id), n]).filter(([it]) => it && CLOTHES.includes(it.category)).sort((a,b) => b[1] - a[1])[0];
+  $('cal-sum').textContent = logs.length
+    ? `이번 달 ${Object.keys(byDate).length}일 기록${top ? ` · 가장 많이 입은 옷: ${top[0].name} (${top[1]}번)` : ''}`
+    : '이번 달 기록이 아직 없어요.';
+  const nBtn = state.log.filter(e => e.src === 'button').length;
+  $('reset-button-logs').hidden = !nBtn;
+  renderDay();
+}
+function renderDay(){
+  if (!calDay){ $('day').innerHTML = ''; return; }
+  const [y, m, d] = calDay.split('-').map(Number), dow = '일월화수목금토'[new Date(y, m - 1, d).getDay()];
+  const list = state.log.filter(e => e.date === calDay);
+  $('day').innerHTML = `<div class="day">
+    <h3>${m}월 ${d}일 (${dow})</h3>
+    ${list.length ? list.map(e => `<div class="entry">
+      <span class="src ${e.src}">${e.src === 'manual' ? '직접 기록' : '오늘 이렇게 입기'}</span>
+      <span class="meta">${e.mode === 'office' ? 'Work' : 'Private'}</span>
+      <div class="pcs">${piecesOf(e).map(it => `<span class="pc">${thumb(it)}${esc(it.name)}</span>`).join('') || '<span class="meta">지워진 아이템이에요</span>'}</div>
+      <div class="row">${e.src === 'manual'
+        ? `<button class="btn" data-edit-entry="${e.id}">수정</button><button class="btn" data-del-entry="${e.id}">삭제</button>`
+        : `<button class="btn" data-del-entry="${e.id}">기록 취소</button>`}</div>
+    </div>`).join('') : '<p class="meta" style="margin:0 0 10px">이 날의 코디 기록이 없어요.</p>'}
+    ${calDay <= today() ? `<div class="row" style="margin-top:10px"><button class="btn primary" data-new-entry="1">이 날 코디 기록하기</button></div>` : ''}
+  </div>`;
+}
+$('cal').onclick = e => {
+  const c = e.target.closest('.cal-cell[data-date]'); if (!c) return;
+  calDay = calDay === c.dataset.date ? null : c.dataset.date; renderCalendar();
+};
+const shiftMonth = n => { const [y, m] = calMonth.split('-').map(Number), d = new Date(y, m - 1 + n, 1);
+  calMonth = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; renderCalendar(); };
+$('cal-prev').onclick = () => shiftMonth(-1);
+$('cal-next').onclick = () => shiftMonth(1);
+$('cal-today').onclick = () => { calMonth = today().slice(0, 7); calDay = today(); renderCalendar(); };
+$('day').onclick = e => {
+  const ds = e.target.dataset;
+  if (ds.newEntry) openOutfit(calDay, null);
+  if (ds.editEntry) openOutfit(calDay, state.log.find(x => x.id === ds.editEntry));
+  if (ds.delEntry){
+    const en = state.log.find(x => x.id === ds.delEntry);
+    if (!en || !confirm(en.src === 'manual' ? '이 코디 기록을 삭제할까요?' : '이 기록을 취소할까요? 착용 횟수도 같이 줄어요.')) return;
+    removeEntry(en.id); store.save(state); renderOutfit(); renderCloset();
+  }
+};
+$('reset-button-logs').onclick = () => {
+  const list = state.log.filter(e => e.src === 'button');
+  if (!list.length) return;
+  if (!confirm(`‘오늘 이렇게 입기’로 남긴 기록 ${list.length}개를 지울까요?\n착용 횟수도 그만큼 되돌아가요. 캘린더에서 직접 기록한 코디는 그대로 남아요.`)) return;
+  list.forEach(e => removeEntry(e.id));
+  store.save(state); renderOutfit(); renderCloset();
+  $('wear-msg').textContent = `기록 ${list.length}개를 초기화했어요.`;
+};
+
+/* 직접 기록 다이얼로그 */
+let editingEntry = null;
+function openOutfit(date, entry){
+  editingEntry = entry ? entry.id : null;
+  const f = $('outfit-form'); f.reset();
+  f.date.value = date; f.date.max = today();
+  f.querySelector(`input[name=omode][value=${entry ? entry.mode : mode}]`).checked = true;
+  $('outfit-title').textContent = entry ? '코디 기록 수정' : '코디 기록';
+  $('outfit-msg').textContent = '';
+  const chosen = new Set(entry ? entry.ids : []);
+  // 그 날짜에 갖고 있던 것 위주로: 지금 옷장 → 떠나보낸 것(그 날 이후에 떠나보낸 것만)
+  const list = state.items.filter(it => !it.retired || it.retired.date >= date || chosen.has(it.id));
+  $('pick').innerHTML = Object.entries(CAT).map(([c, label]) => {
+    const group = list.filter(it => it.category === c);
+    if (!group.length) return '';
+    return `<div class="pick-group"><p class="meta">${label}</p><div class="chips">${group.map(it =>
+      `<label><input type="checkbox" name="pc" value="${it.id}" ${chosen.has(it.id) ? 'checked' : ''}><span><i class="dotc" style="background:${it.hex}"></i>${esc(it.name)}${it.retired ? ' (떠나보냄)' : ''}</span></label>`).join('')}</div></div>`;
+  }).join('') || '<p class="meta">옷장에 아이템이 없어요.</p>';
+  $('outfit-dlg').returnValue = '';
+  $('outfit-dlg').showModal();
+}
+$('outfit-form').addEventListener('submit', e => {
+  if (e.submitter && e.submitter.value === 'ok' && !$('outfit-form').querySelector('input[name=pc]:checked')){
+    e.preventDefault(); $('outfit-msg').textContent = '입은 것을 하나 이상 골라 주세요.';
+  }
+});
+$('outfit-dlg').addEventListener('close', () => {
+  if ($('outfit-dlg').returnValue !== 'ok'){ editingEntry = null; return; }
+  const f = $('outfit-form');
+  const ids = [...f.querySelectorAll('input[name=pc]:checked')].map(i => i.value);
+  if (!ids.length) return;
+  if (editingEntry) removeEntry(editingEntry);
+  addEntry(ids, f.date.value, f.omode.value, 'manual');
+  editingEntry = null;
+  calDay = f.date.value; calMonth = calDay.slice(0, 7);
+  store.save(state); renderOutfit(); renderCloset();
+});
+
 function renderStats(){
   const items = active(), n = items.length || 1;
   const rows = Object.entries(SEASON).map(([s,l]) => [l, items.filter(i => i.season.includes(s)).length]);
@@ -751,17 +973,24 @@ $('m-office').onclick = () => setMode('office');
 $('m-home').onclick = () => setMode('home');
 $('reroll').onclick = recommend;
 $('wear').onclick = () => {
-  const ids = Object.values(current).filter(Boolean).map(i => i.id), ups = [];
+  const pieces = Object.values(current).filter(Boolean), ups = [];
   const times = comboHistory(current).length + 1;
-  state.items.forEach(it => { if (ids.includes(it.id)) {
-    const before = tierOf(it)[0], bl = level(it); it.wear++; it.lastWorn = today();
-    if (tierOf(it)[0] !== before) ups.push(`${it.name} ${tierOf(it)[0]} 등급`);
-    else if (level(it) > bl) ups.push(`${it.name} Lv.${level(it)}`);
-  }});
-  state.log.push({date: today(), mode, ids});
+  const before = new Map(pieces.map(it => [it.id, [tierOf(it)[0], level(it)]]));
+  const e = addEntry(pieces.map(i => i.id), today(), mode, 'button');
+  pieces.forEach(it => {
+    const [t, l] = before.get(it.id);
+    if (tierOf(it)[0] !== t) ups.push(`${it.name} ${tierOf(it)[0]} 등급`);
+    else if (level(it) > l) ups.push(`${it.name} Lv.${level(it)}`);
+  });
   store.save(state); renderOutfit(); renderCloset();
   const nth = coreIds(current) && times > 1 ? ` 이 조합은 ${times}번째예요.` : '';
-  $('wear-msg').textContent = (ups.length ? `기록했어요. ${ups.join(', ')}!` : '기록했어요.') + nth;
+  $('wear-msg').innerHTML = esc((ups.length ? `기록했어요. ${ups.join(', ')}!` : '기록했어요.') + nth) +
+    ` <button class="linkish" data-undo="${e.id}">되돌리기</button>`;
+};
+$('wear-msg').onclick = e => {
+  const id = e.target.dataset.undo; if (!id) return;
+  removeEntry(id); store.save(state); renderOutfit(); renderCloset();
+  $('wear-msg').textContent = '방금 기록을 되돌렸어요.';
 };
 $('field').onclick = e => {
   const add = e.target.closest('.add-dot');
