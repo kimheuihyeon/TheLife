@@ -9,7 +9,8 @@ const $ = (s) => document.querySelector(s) || document.createElement('div');
 // 지금 페이지 (각 페이지의 <body data-page="...">)
 const PAGE = document.body.dataset.page || 'life';
 const PAGE_URL = { life: '../life/life.html', today: '../today/today.html', mandala: '../mandala/mandala.html',
-  travel: '../travel/travel.html', inv: '../inventory/inventory.html', trophy: '../trophy/trophy.html' };
+  travel: '../travel/travel.html', inv: '../inventory/inventory.html', trophy: '../trophy/trophy.html',
+  wardrobe: '../wardrobe/wardrobe.html', home: '../home/home.html' };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 // ---------- 날짜 유틸 ----------
@@ -312,7 +313,7 @@ function normalize() {
   if (!['day', 'week', 'month', 'year'].includes(state.unit)) state.unit = 'week';
   if (!state.travel || typeof state.travel !== 'object') state.travel = {};
   for (const k of ['countries', 'regions', 'totals']) if (!state.travel[k] || typeof state.travel[k] !== 'object') state.travel[k] = {};
-  if (!['life', 'today', 'mandala', 'travel', 'inv', 'trophy'].includes(state.tab)) state.tab = 'life';
+  if (!['life', 'today', 'mandala', 'travel', 'inv', 'trophy', 'home'].includes(state.tab)) state.tab = 'life';
 }
 normalize();
 const save = () => { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} };

@@ -12,7 +12,7 @@
 // GitHub Pages의 첫 화면: 마지막으로 보던 탭 페이지로 바로 이동
 (function () {
   var PAGES = { life: 'life/life.html', today: 'today/today.html', mandala: 'mandala/mandala.html',
-    travel: 'travel/travel.html', inv: 'inventory/inventory.html', trophy: 'trophy/trophy.html', wardrobe: 'wardrobe/wardrobe.html' };
+    travel: 'travel/travel.html', inv: 'inventory/inventory.html', trophy: 'trophy/trophy.html', wardrobe: 'wardrobe/wardrobe.html', home: 'home/home.html' };
   var tab = 'life';
   try { var st = JSON.parse(localStorage.getItem('lifegame.web.v1') || '{}'); if (PAGES[st.tab]) tab = st.tab; } catch (e) {}
   var q = new URLSearchParams(location.search);

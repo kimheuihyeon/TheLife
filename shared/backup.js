@@ -7,6 +7,7 @@ window.LifeGameBackup = (() => {
   const LOCAL_KEYS = [
     'lifegame.web.v1',       // 인생·오늘·만다라트·여행·소지품·트로피
     'lifegame.wardrobe.v1',  // 옷장 (옷·신발·소품, 착용 기록)
+    'lifegame.home.v1',      // 집 (냉장고·찬장, 소모품, 살 것)
   ];
   // IndexedDB에 저장되는 사진
   const IMAGE_DBS = [
@@ -78,7 +79,7 @@ window.LifeGameBackup = (() => {
     if (obj && obj.app === 'LifeGame' && obj.local) return { kind: '전체 백업', data: obj };
     if (obj && !Array.isArray(obj) && (obj.birth || Array.isArray(obj.goals) || Array.isArray(obj.quests)))
       return { kind: '예전 메인 기록', data: { local: { 'lifegame.web.v1': obj }, images: {} } };
-    const list = Array.isArray(obj) ? obj : null;
+    const list = Array.isArray(obj) ? obj : (obj && Array.isArray(obj.items) ? obj.items : null);
     if (list && list.every((x) => x && x.name && x.category && x.id)) {
       const imgs = {};
       const items = list.map((x) => {
@@ -87,9 +88,14 @@ window.LifeGameBackup = (() => {
         delete it.image;
         return it;
       });
-      let log = [];
-      try { log = (JSON.parse(localStorage.getItem('lifegame.wardrobe.v1')) || {}).log || []; } catch (e) {}
-      return { kind: '예전 옷장 기록', data: { local: { 'lifegame.wardrobe.v1': { items, log } }, images: { 'lifegame-wardrobe': imgs } } };
+      let log = (obj && Array.isArray(obj.log)) ? obj.log : null;
+      if (!log) try { log = (JSON.parse(localStorage.getItem('lifegame.wardrobe.v1')) || {}).log || []; } catch (e) { log = []; }
+      let hair = (obj && Array.isArray(obj.hair)) ? obj.hair : null;
+      if (!hair) try { hair = (JSON.parse(localStorage.getItem('lifegame.wardrobe.v1')) || {}).hair || []; } catch (e) { hair = []; }
+      let bag = (obj && obj.bag && typeof obj.bag === 'object') ? obj.bag : null;
+      if (!bag) try { bag = (JSON.parse(localStorage.getItem('lifegame.wardrobe.v1')) || {}).bag || {}; } catch (e) { bag = {}; }
+      Object.entries((obj && obj.bagImages) || {}).forEach(([id, url]) => { if (String(url).startsWith('data:image')) imgs['bag-' + id] = url; });
+      return { kind: '옷장 기록(closet.json)', data: { local: { 'lifegame.wardrobe.v1': { items, log, hair, bag } }, images: { 'lifegame-wardrobe': imgs } } };
     }
     return null;
   }

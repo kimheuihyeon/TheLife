@@ -8,6 +8,7 @@ const TABS = [
   ['travel', '여행', '../travel/travel.html'],
   ['inv', '소지품', '../inventory/inventory.html'],
   ['wardrobe', '옷장', '../wardrobe/wardrobe.html'],
+  ['home', '집', '../home/home.html'],
   ['trophy', '트로피', '../trophy/trophy.html'],
 ];
 
@@ -73,7 +74,7 @@ const DIALOGS = `<dialog id="cellDlg">
     <p class="sub" style="margin:0 0 8px;font-size:13px">능력치마다 분야를 둬요. 세부 분야가 많으면 묶음(예: 법 &gt; 민법)으로 만들 수 있어요. 이름을 바꿔도 쌓인 경험치는 그대로예요.</p>
     <div id="skEdit"></div>
     <span class="lbl">데이터 옮기기</span>
-    <p class="sub" style="margin:0;font-size:13px">기록은 이 브라우저에만 있어요. 내보내기를 하면 모든 탭과 옷장(사진 포함)이 파일 하나에 담겨요. 기기나 브라우저를 바꿀 땐 그 파일을 가져오세요.</p>
+    <p class="sub" style="margin:0;font-size:13px">기록은 이 브라우저에만 있어요. 내보내기를 하면 모든 탭과 옷장(사진 포함)·집 목록이 파일 하나에 담겨요. 기기나 브라우저를 바꿀 땐 그 파일을 가져오세요.</p>
     <div class="row left">
       <button class="btn ghost" type="button" id="exportBtn">전체 내보내기</button>
       <button class="btn ghost" type="button" id="importBtn">전체 가져오기</button>
